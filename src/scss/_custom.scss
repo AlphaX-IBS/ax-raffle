@@ -1,0 +1,114 @@
+// Here you can add other styles
+header {
+  padding-top: 20px;
+}
+.row {
+  margin: 0;
+}
+.navbar-nav {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.nav-item {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+#home {
+  background-image: url(../img/home-bg.png);
+  min-height: 350px;
+  color: #fff;
+}
+#home h1 {
+  padding-top: 50px;
+  padding-left: 80px;
+}
+#home p {
+  padding-left: 80px;
+}
+#home .btn-primary-home {
+  background-color: red;
+  border-radius: 5px;
+  border: solid 2px #fff;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 5px 10px;
+}
+.home-img-countdown {
+  max-height: 150px;
+  margin-top: -75px;
+}
+.btn-blue {
+  background-color: blue;
+  border-radius: 5px;
+  border: solid 2px #fff;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 5px 10px;
+}
+.btn-red {
+  background-color: red;
+  border-radius: 5px;
+  border: solid 2px #fff;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 5px 10px;
+}
+#raffles {
+  background-image: url(../img/raffles-bg.png);
+  min-height: 350px;
+}
+#raffles .raffle-img-right {
+  max-height: 90px;
+  padding: 10px 20px;
+}
+#playnow {
+  background-image: url(../img/how-it-work-bg.png);
+  min-height: 350px;
+  color: #fff;
+}
+.raffle-card {
+  background: none;
+  border: none;
+  width: 100%;
+  color: #fff;
+  padding-left: 30px;
+  padding-right: 30px;
+  margin: 0;
+}
+.raffle-card-img-top {
+  max-height: 100px;
+}
+.raffle-card-text {
+  word-wrap: break-word;
+  padding: 5px;
+  margin: 0;
+}
+#crypto-raffles {
+  background-image: url(../img/raffles-bg.png);
+  min-height: 350px;
+  color: #000;
+}
+#crypto-raffles h3{
+    font-weight: 600;
+}
+#crypto-raffles p{
+    line-height: 30px;
+}
+footer{
+    color: #fff;
+    background-color: #023494;
+    padding-top: 20px;
+}
+footer h3{
+    text-transform: capitalize;
+    padding-bottom: 20px;
+}
+footer a, footer a:hover, footer a:active{
+    color: #fff;
+    padding: 5px;
+}
+footer li.list-group-item{
+background: none;
+border: none;
+padding: 5px 10px;
+}

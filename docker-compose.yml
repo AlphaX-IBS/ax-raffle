@@ -1,0 +1,36 @@
+version: '3.3'
+
+services:
+  gex-node:
+    image: node:carbon-alpine
+    container_name: gex-node-dev
+    restart: always
+    working_dir: /usr/src/raffles
+    volumes:
+      - ./:/usr/src/raffles
+    command: ash -c "cd /usr/src/raffles/ && npm run serve"
+    networks:
+      - frontend
+  gex-nginx:
+    image: nginx:alpine
+    container_name: gex-nginx-dev
+    restart: always
+    ports:
+      - "8080:80"
+    working_dir: /var/www/html/gex-eco-client
+    volumes:
+      - ./:/var/www/html/gex-eco-client
+      - ./nginx/site.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - gex-node
+    networks:
+      - frontend
+networks:
+  frontend:
+    driver: bridge
+
+
+# to use the node container, use command below:
+# docker exec -it gex-node /bin/ash
+# apk add --no-cache bash
+# alpine use apk add to install app. debian use apt-get install...
