@@ -1,0 +1,43 @@
+version: '3.3'
+
+services:
+  raffles-node:
+    image: gab/truffle
+    container_name: raffles-node-dev
+    restart: always
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command: 
+      ash -c "cd /usr/src/app/client 
+      && npm install 
+      && npm run link-contracts:linux:darwin
+      && npm run start-dev"
+    networks:
+      - frontend
+      - backend
+  raffles-nginx:
+    image: nginx:alpine
+    container_name: raffles-nginx-dev
+    restart: always
+    ports:
+      - "8080:80"
+    working_dir: /var/www/html/raffles
+    volumes:
+      - .:/var/www/html/raffles
+      - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - raffles-node
+    networks:
+      - frontend
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+
+# to use the node container, use command below:
+# docker exec -it raffles-node /bin/ash
+# apk add --no-cache bash
+# alpine use apk add to install app. debian use apt-get install...
