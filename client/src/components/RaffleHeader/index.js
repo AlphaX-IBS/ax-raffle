@@ -1,7 +1,30 @@
 import React, { PureComponent } from "react";
-import { NavLink } from "react-router-dom";
+import {   Collapse,
+  Navbar,
+  NavbarToggler,
+  NavbarBrand,
+  Nav,
+  NavItem,
+  NavLink,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem } from 'reactstrap';
 
-class RaffleHeader extends PureComponent {
+class RaffleHeader extends PureComponent {  
+  constructor(props) {
+  super(props);
+
+  this.toggle = this.toggle.bind(this);
+  this.state = {
+    isOpen: false
+  };
+}
+toggle() {
+  this.setState({
+    isOpen: !this.state.isOpen
+  });
+}
   render() {
     return (
       <header>
@@ -17,59 +40,36 @@ class RaffleHeader extends PureComponent {
             <img src="img/header-cart.png" alt="" />
           </div>
         </div>
-        <nav class="navbar sticky-top navbar-expand-lg">
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon" />
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <NavLink
-                  className="nav-link"
-                  activeClassName="active"
-                  to="/home"
-                >
-                  Home
-                </NavLink>
-              </li>
-              <li class="nav-item">
-                <NavLink
-                  className="nav-link"
-                  activeClassName="active"
-                  to="/play"
-                >
-                  Play Online
-                </NavLink>
-              </li>
-              <li class="nav-item">
-                <NavLink
-                  className="nav-link"
-                  activeClassName="active"
-                  to="/winners"
-                >
-                  Winners and Stories
-                </NavLink>
-              </li>
-              <li class="nav-item">
-                <NavLink
-                  className="nav-link"
-                  activeClassName="active"
-                  to="/contact"
-                >
-                  Contact
-                </NavLink>
-              </li>
-            </ul>
-          </div>
-        </nav>
+        <Navbar className="pl-0" light expand="md">
+          <NavbarToggler onClick={this.toggle} />
+          <Collapse isOpen={this.state.isOpen} navbar>
+            <Nav className="mr-auto" navbar>
+              <NavItem>
+                <NavLink href="/components/">Components</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="https://github.com/reactstrap/reactstrap">GitHub</NavLink>
+              </NavItem>
+              <UncontrolledDropdown nav inNavbar>
+                <DropdownToggle nav caret>
+                  Options
+                </DropdownToggle>
+                <DropdownMenu right>
+                  <DropdownItem>
+                    Option 1
+                  </DropdownItem>
+                  <DropdownItem>
+                    Option 2
+                  </DropdownItem>
+                  <DropdownItem divider />
+                  <DropdownItem>
+                    Reset
+                  </DropdownItem>
+                </DropdownMenu>
+              </UncontrolledDropdown>
+            </Nav>
+          </Collapse>
+        </Navbar>
       </header>
     );
   }
