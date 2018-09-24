@@ -1,4 +1,5 @@
 import React, { PureComponent } from "react";
+import { NavLink } from "react-router-dom";
 
 class RaffleHeader extends PureComponent {
   render() {
@@ -31,44 +32,40 @@ class RaffleHeader extends PureComponent {
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link active" href="#home">
+                <NavLink
+                  className="nav-link"
+                  activeClassName="active"
+                  to="/home"
+                >
                   Home
-                </a>
+                </NavLink>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Raffles
-                </a>
+                <NavLink
+                  className="nav-link"
+                  activeClassName="active"
+                  to="/play"
+                >
+                  Play Online
+                </NavLink>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  How it works
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Result & info
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Play online
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
+                <NavLink
+                  className="nav-link"
+                  activeClassName="active"
+                  to="/winners"
+                >
                   Winners and Stories
-                </a>
+                </NavLink>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Statistic
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
+                <NavLink
+                  className="nav-link"
+                  activeClassName="active"
+                  to="/contact"
+                >
                   Contact
-                </a>
+                </NavLink>
               </li>
             </ul>
           </div>
