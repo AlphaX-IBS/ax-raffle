@@ -8,11 +8,7 @@ services:
     working_dir: /usr/src/app
     volumes:
       - .:/usr/src/app
-    command: 
-      ash -c "cd /usr/src/app/client 
-      && npm install 
-      && npm run link-contracts:linux:darwin
-      && npm run start-dev"
+    command: ash -c "cd /usr/src/app/client && npm run start-dev"
     networks:
       - frontend
       - backend
