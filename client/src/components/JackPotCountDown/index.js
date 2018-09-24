@@ -121,7 +121,6 @@ class JackPotCountDown extends PureComponent {
         );
       } else {
         lastTime -= this.interval;
-        console.log(`lastTime=${lastTime}`);
         this.setState(
           {
             lastTime

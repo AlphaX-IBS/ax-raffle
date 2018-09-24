@@ -9,7 +9,7 @@ class AwardTag extends PureComponent {
         <div className="headline">Current Pot</div>
         <div>
           <span className="symbol">{symbol}</span>
-          <span className="prize">{value}</span>
+          <span className="prize">{Intl.NumberFormat().format(value)}</span>
         </div>
       </div>
     );
