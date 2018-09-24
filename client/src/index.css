@@ -14251,6 +14251,13 @@ header {
   padding: 10px 20px;
 }
 
+#raffles .centered {
+  position: absolute;
+  top: 0px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 #playnow {
   background-image: url(/img/how-it-work-bg.png);
   min-height: 350px;
@@ -14313,3 +14320,68 @@ footer li.list-group-item {
   padding: 5px 10px;
 }
 /*# sourceMappingURL=style.css.map */
+
+.pot-count-down .headline {
+  color: #fff;
+  font-size: 16px;
+}
+
+.pot-count-down .clockdiv {
+	font-family: sans-serif;
+	color: #fff;
+	display: inline-block;
+	font-weight: 100;
+	text-align: center;
+	font-size: 32px;
+}
+
+.pot-count-down .clockdiv > div {
+	padding: 0 10px;
+	display: inline-block;
+}
+
+.pot-count-down .clockdiv div > span {
+	padding: 2px 10px;
+	display: inline-block;
+}
+
+.pot-count-down .clockdiv .smalltext {
+	font-size: 14px;
+}
+
+.pot-count-down .clockdiv div.digit-separator {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.pot-count-down .clockdiv div.digit-separator > span {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.award .centered {
+  position: absolute;
+  top: 48%;
+  left: 48%;
+  transform: translate(-48%, -48%);
+}
+
+.award .container {
+  color: #fff;
+}
+
+.award .container .headline {
+  font-size: 14px;
+}
+
+.award .container .symbol {
+  font-size: 14px;
+  vertical-align: top;
+  font-weight: 500;
+}
+
+.award .container .prize {
+  font-size: 32px;
+  font-weight: 650;
+  line-height: 1em;
+}

@@ -1,5 +1,8 @@
 import React, { PureComponent } from "react";
 import { injectIntl } from "react-intl";
+import JackPotCountDown from "../../components/JackPotCountDown";
+import moment from "moment/min/moment-with-locales";
+import AwardTag from "../../components/AwardTag";
 
 class Home extends PureComponent {
   render() {
@@ -17,12 +20,15 @@ class Home extends PureComponent {
                 </button>
               </div>
             </div>
-            <div className="col-md-2">
+            <div className="col-md-2 award">
               <img
                 style={{ maxHeight: "300px" }}
-                src="/img/home-current-pot.png"
+                src="/img/bare-home-current-pot.png"
                 alt=""
               />
+              <div className="centered">
+                <AwardTag value={50000} symbol="$" />
+              </div>
             </div>
             <div className="col-md-5">
               <img
@@ -38,9 +44,17 @@ class Home extends PureComponent {
             <div className="col-md-12">
               <img
                 className="home-img-countdown"
-                src="img/home-count-down.png"
                 alt=""
+                src="/img/bare-home-count-down.png"
               />
+              <div className="centered">
+                <JackPotCountDown
+                  target={moment(
+                    "2018-09-30 11:30:50",
+                    "YYYY-MM-DD hh:mm:ss"
+                  ).toDate()}
+                />
+              </div>
             </div>
           </div>
           <div className="row">

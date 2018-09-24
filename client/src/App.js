@@ -9,7 +9,7 @@ import Home from "./scenes/Home";
 class App extends Component {
   state = { storageValue: 0, web3: null, accounts: null, contract: null };
 
-  componentDidMount = async () => {
+  componentDidMountX = async () => {
     try {
       // Get network provider and web3 instance.
       const web3 = await getWeb3();
@@ -48,9 +48,9 @@ class App extends Component {
   };
 
   render() {
-    if (!this.state.web3) {
-      return <div>Loading Web3, accounts, and contract...</div>;
-    }
+    // if (!this.state.web3) {
+    //   return <div>Loading Web3, accounts, and contract...</div>;
+    // }
     return (
       <div className="App">
         <h1>Good to Go!</h1>
