@@ -3,15 +3,12 @@ import { injectIntl } from "react-intl";
 import JackPotCountDown from "../../components/JackPotCountDown";
 import moment from "moment/min/moment-with-locales";
 import AwardTag from "../../components/AwardTag";
-import RaffleFooter from "../../components/RaffleFooter";
-import RaffleHeader from "../../components/RaffleHeader";
 
 class Home extends PureComponent {
   render() {
     const { intl } = this.props;
     return (
       <div>
-        <RaffleHeader />
         <section id="home">
           <div className="row">
             <div className="col-md-5">
@@ -183,7 +180,6 @@ class Home extends PureComponent {
             </div>
           </div>
         </section>
-        <RaffleFooter />
       </div>
     );
   }

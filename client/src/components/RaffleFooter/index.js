@@ -1,4 +1,17 @@
 import React, { PureComponent } from "react";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faFacebookSquare,
+  faTwitterSquare,
+  faGooglePlusSquare
+} from "@fortawesome/free-brands-svg-icons";
+
+library.add(faFacebookSquare, faTwitterSquare, faGooglePlusSquare);
+
+const facebookIcon = <FontAwesomeIcon icon={faFacebookSquare} size="2x" />;
+const twitterIcon = <FontAwesomeIcon icon={faTwitterSquare} size="2x" />;
+const googlePlusIcon = <FontAwesomeIcon icon={faGooglePlusSquare} size="2x" />;
 
 class RaffleFooter extends PureComponent {
   render() {
@@ -14,15 +27,9 @@ class RaffleFooter extends PureComponent {
             <p className="text-left">
               Global Blockchain Raffle Games Win big daily – Play Now!
             </p>
-            <a href="#footer">
-              <i className="fa fa-facebook-square fa-2x" />
-            </a>
-            <a href="#footer">
-              <i className="fa fa-twitter fa-2x" />
-            </a>
-            <a href="#footer">
-              <i className="fa fa-google-plus fa-2x" />
-            </a>
+            <a href="#footer">{facebookIcon}</a>
+            <a href="#footer">{twitterIcon}</a>
+            <a href="#footer">{googlePlusIcon}</a>
           </div>
           <div className="col-md-2">
             <h3 className="text-center">Info</h3>
