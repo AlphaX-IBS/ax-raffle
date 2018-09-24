@@ -64,8 +64,8 @@ contract AxRaffle is Owner {
     
     // Variables
     address public operatorAddress; // Operator wallet address
-    uint public potOpenedTimeStamp; // Pot opened timestamp, unix timestamp UTC
-    uint public potClosedTimeStamp; // Pot opened timestamp, unix timestamp UTC
+    uint public potOpenedTimestamp; // Pot opened timestamp, unix timestamp UTC
+    uint public potClosedTimestamp; // Pot opened timestamp, unix timestamp UTC
     uint public potEndedTimestamp; // Pot ended timestamp, unix timestamp UTC
     uint public potSellingPeriod; // Pot selling period (hs) for calculating pot closed timestamp
     uint public potOpeningPeriod; // Pot opening period (hs) for calculating next open timestamp
@@ -76,16 +76,26 @@ contract AxRaffle is Owner {
     uint public minNumberOfPlayers; // minimum number of players required
 
     AxPotWinner[] public gameWinnerList; // List of winners in game
-    mapping(address => uint) public potPlayerTicketList; // List of players and tickets in pot
-    uint[] public potTicketList; // List of ticket 
+    mapping(uint => address) public potTicketPlayerList; // List of ticket and player in pot
+    uint public totalPotTickets; // Total number of tickets sold in pot
     uint public drawnPotTicketNumber; // Drawn ticket number
-
-    uint public totalCollectedEther; // Total Ether collected from sold tickets 
+    uint public totalPotEther; // Total Ether in pot
 
     // Constructor function
     constructor(address _operatorAddress, uint _pot1stOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod, uint _potAutoFlg, uint _ticketEtherSingleSalePrice, uint _feeEtherRate, uint _minPlayers) public {
         require (_operatorAddress != address(0));
         operatorAddress = _operatorAddress;
+        potOpenedTimestamp = _pot1stOpenedTimestamp;
+        potSellingPeriod =_potSellingPeriod;
+        potOpeningPeriod = _potOpeningPeriod;
+        potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
+        potAutoFlg = _potAutoFlg;
+        ticketEtherSingleSalePrice = _ticketEtherSingleSalePrice;
+        feeEtherRate = _feeEtherRate;
+        minPlayers = _minPlayers;
+        totalPotTickets = 0;
+        drawnPotTicketNumber = 0;
+        totalPotEther = 0;
     }
 
     // Set operator wallet address
@@ -95,13 +105,49 @@ contract AxRaffle is Owner {
         operatorAddress = _operatorAddress;
     }
 
-    // Purchase tickets to players by ETH
-    function purchaseTicketsByEther() external payable returns (bool) {
+    // Set pot auto flg, pot opened time stamp, pot selling period, pot opening period
+    function setPotOpenParams(bool _potAutoFlg, uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner returns (bool) {
+        potAutoFlg = _potAutoFlg;
+        potOpenedTimestamp = _potOpenedTimestamp;
+        potSellingPeriod = _potSellingPeriod;
+        potOpeningPeriod = _potOpeningPeriod;
 
+        return true;
+    }
+
+    // Set ticket Ether sale price, fee Ether rate, min players
+    function setPotSaleParams(uint _ticketEtherSingleSalePrice, uint _feeEtherRate, uint _minPlayers) external onlyOwner returns (bool) {
+        ticketEtherSingleSalePrice = _ticketEtherSingleSalePrice;
+        feeEtherRate = _feeEtherRate;
+        minPlayers = _minPlayers;
+
+        return true;
+    }
+
+    // Purchase tickets to players by ETH
+    // - Validate tx by pot open timestamp range
+    // - Receive ether amount
+    // - Calculate relevant number of tickets
+    // - Set ticket numbers to player's address
+    function purchaseTicketsByEther() external payable {
+        require(now >= potOpenedTimeStamp && now <= potClosedTimestamp);
+        totalPotEther = totalPotEther.add(msg.value);
+        uint numberTickets = msg.value.div(ticketEtherSingleSalePrice);
+        for 
     }
 
     // Draw ticket
     function drawTicket() external returns (bool) {
+        return true;
+    }
 
-    } 
+    // Claim refund
+    function claimRefund() external returns (bool) {
+        return true;
+    }
+
+    // Allocate prize to winner and fee to operator
+    function allocatePrizeAndFee() public returns (bool) {
+        return true;
+    }
 }
