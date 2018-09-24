@@ -93,6 +93,7 @@ class Home extends PureComponent {
               </button>
             </div>
           </div>
+          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
         </section>
         <section id="playnow">
           <div className="row">
@@ -150,6 +151,7 @@ class Home extends PureComponent {
               </div>
             </div>
           </div>
+          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
         </section>
         <section id="crypto-raffles">
           <div className="row">
@@ -179,6 +181,7 @@ class Home extends PureComponent {
               />
             </div>
           </div>
+          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
         </section>
       </div>
     );
