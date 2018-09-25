@@ -179,7 +179,7 @@ contract AxRaffle is Owner {
     // - Receive ether amount
     // - Calculate relevant number of tickets
     // - Set ticket numbers to player's address
-    function purchaseTicketsByEther() external payable activatedGame potIsActive returns (uint) {
+    function purchaseTicketsByEther() external payable activatedGame potIsActive {
         // Receive Ether amount
         uint numberOfTickets = 0;
         totalEtherPot = totalEtherPot.add(msg.value);
