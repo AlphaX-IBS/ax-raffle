@@ -282,3 +282,24 @@ footer li.list-group-item {
 .play-online {
   background-image: url(/img/raffles-bg.png);
 }
+
+
+.row-playonline{
+  margin-top: 40px !important;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: rgba(138, 138, 138, 0.5);
+}
+.row-playonline .btn-primary {
+  margin-top: 10px;
+  background-color: red;
+  border: 2px solid #fff;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+.row-winchance {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: rgba(138, 138, 138, 0.5);
+  margin-top: 20px !important;
+}
