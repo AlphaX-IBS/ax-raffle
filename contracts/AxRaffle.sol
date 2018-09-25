@@ -61,11 +61,11 @@ contract AxRaffle is Owner {
         uint potEndedTimestamp;
     }
 
-    //Example: player A (first player of current pot) buys 1000 tickets, he will be assigned tickets 1-1000
-    //player B (second player) buys 300 tickets, he will be assign tickets 1001-1300
+    // Pot Player Info
+    // Only store start and end ticket number to save space
     struct AxPotPlayer {
         address playerAddress;
-        uint ticketStartNumber; //only store start and end ticket number to save space
+        uint ticketStartNumber; 
         uint ticketEndNumber;
     }
 
@@ -74,10 +74,10 @@ contract AxRaffle is Owner {
     // Variables
     address public operatorAddress; // Operator wallet address
 
-    uint public minNumberOfPlayers; // minimum number of players required
-    uint public ticketPrice; // Single sale price for ticket in gwei
-    uint public feeRate; // fee rate (extracted from total prize) for game operator
-    bool public potAutoFlg; // Auto open pot flag
+    // uint public minPotPlayers; // minimum number of players required
+    uint public ticketEtherPrice; // Single sale price for ticket in gwei
+    uint public feeRate; // fee rate (extracted from total prize) for game operator, input 10 <=> 10%
+    bool public gameIsActive; // Active flag for Raffle game
 
     AxPotWinner[] public gameWinnerList; // List of winners in game
 
@@ -87,16 +87,33 @@ contract AxRaffle is Owner {
     uint public potOpenedTimestamp; // Pot opened timestamp, unix timestamp UTC
     uint public potClosedTimestamp; // Pot opened timestamp, unix timestamp UTC
     uint public potEndedTimestamp; // Pot ended timestamp, unix timestamp UTC
-
-    bool public potActiveFlg; // Pot status flag
     
     uint public ticketNumberCeiling; // current latest of ticket number, set to private later
     AxPotPlayer[] public potPlayerList; //list of players
 
     uint public totalEtherPot; // Total Ether in pot
 
-    event PurchaseTicketByEther(address playerAddress, uint etherAmount, uint startTicketNumber, uint endTicketNumber);
+    // Events
+    event ActivateGame();
+    event DeactivateGame();
+    event PurchaseTicketsByEther(address playerAddress, uint etherAmount, uint startTicketNumber, uint endTicketNumber);
     event DrawTicket(address winnerAddress, uint winnerTicketNumber, uint winnerPrize, uint potEndedTimestamp);
+
+    // Modifiers
+    modifier activatedGame() {
+        require(gameIsActive == true);
+        _;
+    }
+
+    modifier potIsActive() {
+        require(now >= potOpenedTimestamp && now <= potClosedTimestamp);
+        _;
+    }
+
+    modifier potIsClosed() {
+        require(now > potClosedTimestamp);
+        _;
+    }
 
     // Constructor function
     constructor(
@@ -104,10 +121,8 @@ contract AxRaffle is Owner {
         uint _pot1stOpenedTimestamp,
         uint _potSellingPeriod, 
         uint _potOpeningPeriod, 
-        bool _potAutoFlg, 
-        uint _ticketPrice, 
-        uint _feeRate, 
-        uint _minPlayers
+        uint _ticketEtherPrice, 
+        uint _feeRate
     ) public {
         require (_operatorAddress != address(0));
         operatorAddress = _operatorAddress;
@@ -115,10 +130,8 @@ contract AxRaffle is Owner {
         potSellingPeriod =_potSellingPeriod;
         potOpeningPeriod = _potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
-        potAutoFlg = _potAutoFlg;
-        ticketPrice = _ticketPrice;
+        ticketEtherPrice = _ticketEtherPrice;
         feeRate = _feeRate;
-        minNumberOfPlayers = _minPlayers;
         totalEtherPot = 0;
         ticketNumberCeiling = 0;
     }
@@ -133,8 +146,7 @@ contract AxRaffle is Owner {
     }
 
     // Set pot auto flg, pot opened time stamp, pot selling period, pot opening period
-    function setPotOpenParams(bool _potAutoFlg, uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner returns (bool) {
-        potAutoFlg = _potAutoFlg;
+    function setPotOpenParams(uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner returns (bool) {
         potOpenedTimestamp = _potOpenedTimestamp;
         potSellingPeriod = _potSellingPeriod;
         potOpeningPeriod = _potOpeningPeriod;
@@ -143,12 +155,23 @@ contract AxRaffle is Owner {
     }
 
     // Set ticket Ether sale price, fee Ether rate, min players
-    function setPotSaleParams(uint _ticketPrice, uint _feeRate, uint _minPlayers) external onlyOwner returns (bool) {
-        ticketPrice = _ticketPrice;
+    function setPotSaleParams(uint _ticketEtherPrice, uint _feeRate, uint _minPlayers) external onlyOwner returns (bool) {
+        ticketEtherPrice = _ticketEtherPrice;
         feeRate = _feeRate;
-        minNumberOfPlayers = _minPlayers;
 
         return true;
+    }
+
+    // Activate game
+    function activateGame() external onlyOwner {
+        gameIsActive = true;
+        ActivateGame();
+    }
+
+    // Deactive game
+    function deactivateGame() external onlyOwner {
+        gameIsActive = false;
+        DeactivateGame();
     }
 
     // Purchase tickets to players by ETH
@@ -156,47 +179,46 @@ contract AxRaffle is Owner {
     // - Receive ether amount
     // - Calculate relevant number of tickets
     // - Set ticket numbers to player's address
-    function purchaseTicketsByEther() external payable returns (uint) {
-        //require(now >= potOpenedTimestamp && now <= potClosedTimestamp); // temporary disable for testing other funcs
-        //should implement some function to restrict msg.value to numbers that % 5 == 0
-        //msg.value is in wei
-        uint public numberOfTickets = 0; //for testing purpose only
+    function purchaseTicketsByEther() external payable activatedGame potIsActive returns (uint) {
+        // Receive Ether amount
+        uint numberOfTickets = 0;
         totalEtherPot = totalEtherPot.add(msg.value);
-        numberOfTickets = msg.value.div(ticketPrice); //test only, move this variable to inside function in real app
+        // Calculate relevant number of tickets
+        numberOfTickets = msg.value.mul(ticketEtherPrice); //test only, move this variable to inside function in real app
         potPlayerList.push(AxPotPlayer(msg.sender,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
-
-        PurchaseTicketByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
-        
+        PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
     }
 
     // Draw ticket
+    // - Require pot closed
     // - Randow ticket number for prize
     // - Set end pot timestamp
     // - Register winner to list
     // - Allocate prize and fee
-    // - Prepare for opening next pot
-    function drawTicket() external onlyOwner {
+    // - Prepare opening next pot
+    function drawTicket() external onlyOwner activatedGame potIsClosed {
+        // Draw ticket
         uint winnerTicket = ticketNumberRandom();
-        address winnerAddress = lookUpTicketOwner(winnerTicket, potPlayerList);
-        uint winnerPrize = totalEtherPot.mul(1 - feeRate);
+        address winnerAddress = lookUpPlayerAddressByTicketNumber(winnerTicket);
+        uint winnerPrize = totalEtherPot.mul(1 - feeRate/100);
+        // End pot
         potEndedTimestamp = now;
+        // Register winner
         gameWinnerList.push(AxPotWinner(winnerAddress,winnerPrize,potEndedTimestamp));
-        allocatePrizeAndFee();
+        // Allocate prize and fee
+        gameWinnerList[gameWinnerList.length].winnerAddress.transfer(gameWinnerList[gameWinnerList.length].totalEther);
+        operatorAddress.transfer(totalEtherPot.sub(gameWinnerList[gameWinnerList.length].totalEther));
+        // Prepare opening next pot
         prepareOpeningNextPot();
+
         DrawTicket(winnerAddress,winnerTicket,winnerPrize,potEndedTimestamp);
     }
 
     // Claim refund
-    function claimRefund() external returns (bool) {
-        return true;
-    }
-
-    // Allocate prize to winner and fee to operator
-    function allocatePrizeAndFee() {
-        gameWinnerList[gameWinnerList.length].winnerAddress.transfer(gameWinnerList[gameWinnerList.length].totalEther);
-        operatorAddress.transfer(totalEtherPot.sub(gameWinnerList[gameWinnerList.length].totalEther));
-    }
+    // function claimRefund() external returns (bool) {
+    //     return true;
+    // }
 
     // Prepare for opening next pot
     function prepareOpeningNextPot() {
@@ -208,22 +230,44 @@ contract AxRaffle is Owner {
     }
 
     // Look up owner by ticket number
-    function lookUpTicketOwner(uint _ticketNumber, AxPotPlayer[] _potPlayerList) return (address) {
-        for (uint i = 0; i < _potPlayerList.length; i++) {
-            if (_ticketNumber >= _potPlayerList[i].ticketStartNumber && _ticketNumber <= _potPlayerList[i].ticketEndNumber) {
-                return _potPlayerList[i].playerAddress;
+    function lookUpPlayerAddressByTicketNumber(uint _ticketNumber) public view returns (address) {
+        for (uint i = 0; i < potPlayerList.length; i++) {
+            uint ticketStartNumber = potPlayerList[i].ticketStartNumber;
+            uint ticketEndNumber = potPlayerList[i].ticketEndNumber;
+            if (_ticketNumber >= ticketStartNumber && _ticketNumber <= ticketEndNumber) {
+                return potPlayerList[i].playerAddress;
             }
         }
         return address(0);
     }
 
+    // Look up ticket numbers by player address
+    function lookUpTicketNumbersByPlayerAddress(address _playerAddress) public view returns (uint[]) {
+        uint[] potTicketList;
+        for (uint i = 0; i < potPlayerList.length; i++) {
+            address playerAddress = potPlayerList[i].playerAddress;
+            uint ticketStartNumber = potPlayerList[i].ticketStartNumber;
+            uint ticketEndNumber = potPlayerList[i].ticketEndNumber;
+            if (playerAddress == _playerAddress) {
+                potTicketList.push(ticketStartNumber);
+                potTicketList.push(ticketEndNumber);
+            }
+        }
+        return potTicketList;
+    }
+
+    // Check current timestamp in smart contract
+    function checkCurrentTimestamp() external view returns (uint) {
+        return now;
+    }
+
     // Random ticket number
-    function ticketNumberRandom() return (uint) {
+    function ticketNumberRandom() returns (uint) {
         return LCGRandom() % ticketNumberCeiling;
     }
 
     // Linear Congruential Generator algorithm
-    function LCGRandom() public return (uint) {
+    function LCGRandom() returns (uint) {
         uint seed = block.number;
         uint a = 1103515245;
         uint c = 12345;
