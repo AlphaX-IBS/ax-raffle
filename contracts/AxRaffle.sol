@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+
 contract Owner {
     address public owner;
 
@@ -62,7 +63,7 @@ contract AxRaffle is Owner {
 
     //Example: player A (first player of current pot) buys 1000 tickets, he will be assigned tickets 1-1000
     //player B (second player) buys 300 tickets, he will be assign tickets 1001-1300
-    struct player {
+    struct AxPotPlayer {
         address playerAddress;
         uint ticketStartNumber; //only store start and end ticket number to save space
         uint ticketEndNumber;
@@ -89,24 +90,25 @@ contract AxRaffle is Owner {
 
     bool public potActiveFlg; // Pot status flag
     
-    uint public numberOfPlayers; // current number of player
-    uint public ticketNumberCeiling = 0; // current latest of ticket number, set to private later
-    //mapping(uint => address) public potTicketPlayerList; // List of ticket and player in current pot
-    player[] public playerList; //list of players
-    uint public totalPotTickets; // Total number of tickets sold in current pot
+    uint public ticketNumberCeiling; // current latest of ticket number, set to private later
+    AxPotPlayer[] public potPlayerList; //list of players
 
-    uint public drawnPotTicketNumber; // Drawn ticket number
-    uint public totalPrize; // Total Ether in pot
+    uint public totalEtherPot; // Total Ether in pot
+
+    event PurchaseTicketByEther(address playerAddress, uint etherAmount, uint startTicketNumber, uint endTicketNumber);
+    event DrawTicket(address winnerAddress, uint winnerTicketNumber, uint winnerPrize, uint potEndedTimestamp);
 
     // Constructor function
-    constructor(address _operatorAddress, 
-    uint _pot1stOpenedTimestamp,
-    uint _potSellingPeriod, 
-    uint _potOpeningPeriod, 
-    bool _potAutoFlg, 
-    uint _ticketPrice, 
-    uint _feeRate, 
-    uint _minPlayers) public {
+    constructor(
+        address _operatorAddress, 
+        uint _pot1stOpenedTimestamp,
+        uint _potSellingPeriod, 
+        uint _potOpeningPeriod, 
+        bool _potAutoFlg, 
+        uint _ticketPrice, 
+        uint _feeRate, 
+        uint _minPlayers
+    ) public {
         require (_operatorAddress != address(0));
         operatorAddress = _operatorAddress;
         potOpenedTimestamp = _pot1stOpenedTimestamp;
@@ -117,16 +119,17 @@ contract AxRaffle is Owner {
         ticketPrice = _ticketPrice;
         feeRate = _feeRate;
         minNumberOfPlayers = _minPlayers;
-        totalPotTickets = 0;
-        drawnPotTicketNumber = 0;
-        totalPrize = 0;
+        totalEtherPot = 0;
+        ticketNumberCeiling = 0;
     }
 
     // Set operator wallet address
-    function setOperatorWalletAddress (address _operatorAddress) external onlyOwner {
+    function setOperatorWalletAddress (address _operatorAddress) external onlyOwner returns (bool) {
         require(_operatorAddress != address(0));
         require(_operatorAddress != operatorAddress);
         operatorAddress = _operatorAddress;
+
+        return true;
     }
 
     // Set pot auto flg, pot opened time stamp, pot selling period, pot opening period
@@ -148,8 +151,6 @@ contract AxRaffle is Owner {
         return true;
     }
 
-    uint public numberOfTickets = 0; //for testing purpose only
-
     // Purchase tickets to players by ETH
     // - Validate tx by pot open timestamp range
     // - Receive ether amount
@@ -158,18 +159,32 @@ contract AxRaffle is Owner {
     function purchaseTicketsByEther() external payable returns (uint) {
         //require(now >= potOpenedTimestamp && now <= potClosedTimestamp); // temporary disable for testing other funcs
         //should implement some function to restrict msg.value to numbers that % 5 == 0
-
         //msg.value is in wei
-        totalPrize = totalPrize.add(msg.value);
+        uint public numberOfTickets = 0; //for testing purpose only
+        totalEtherPot = totalEtherPot.add(msg.value);
         numberOfTickets = msg.value.div(ticketPrice); //test only, move this variable to inside function in real app
-        playerList.push(player(msg.sender, ticketNumberCeiling + 1, ticketNumberCeiling + numberOfTickets));
-        numberOfPlayers++;
+        potPlayerList.push(AxPotPlayer(msg.sender,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
+
+        PurchaseTicketByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
+        
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
     }
 
     // Draw ticket
-    function drawTicket() external returns (bool) {
-        return true;
+    // - Randow ticket number for prize
+    // - Set end pot timestamp
+    // - Register winner to list
+    // - Allocate prize and fee
+    // - Prepare for opening next pot
+    function drawTicket() external onlyOwner {
+        uint winnerTicket = ticketNumberRandom();
+        address winnerAddress = lookUpTicketOwner(winnerTicket, potPlayerList);
+        uint winnerPrize = totalEtherPot.mul(1 - feeRate);
+        potEndedTimestamp = now;
+        gameWinnerList.push(AxPotWinner(winnerAddress,winnerPrize,potEndedTimestamp));
+        allocatePrizeAndFee();
+        prepareOpeningNextPot();
+        DrawTicket(winnerAddress,winnerTicket,winnerPrize,potEndedTimestamp);
     }
 
     // Claim refund
@@ -178,7 +193,42 @@ contract AxRaffle is Owner {
     }
 
     // Allocate prize to winner and fee to operator
-    function allocatePrizeAndFee() public returns (bool) {
-        return true;
+    function allocatePrizeAndFee() {
+        gameWinnerList[gameWinnerList.length].winnerAddress.transfer(gameWinnerList[gameWinnerList.length].totalEther);
+        operatorAddress.transfer(totalEtherPot.sub(gameWinnerList[gameWinnerList.length].totalEther));
+    }
+
+    // Prepare for opening next pot
+    function prepareOpeningNextPot() {
+        potOpenedTimestamp = potOpenedTimestamp + potOpeningPeriod;
+        potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
+        totalEtherPot = 0;
+        ticketNumberCeiling = 0;
+        delete potPlayerList;
+    }
+
+    // Look up owner by ticket number
+    function lookUpTicketOwner(uint _ticketNumber, AxPotPlayer[] _potPlayerList) return (address) {
+        for (uint i = 0; i < _potPlayerList.length; i++) {
+            if (_ticketNumber >= _potPlayerList[i].ticketStartNumber && _ticketNumber <= _potPlayerList[i].ticketEndNumber) {
+                return _potPlayerList[i].playerAddress;
+            }
+        }
+        return address(0);
+    }
+
+    // Random ticket number
+    function ticketNumberRandom() return (uint) {
+        return LCGRandom() % ticketNumberCeiling;
+    }
+
+    // Linear Congruential Generator algorithm
+    function LCGRandom() public return (uint) {
+        uint seed = block.number;
+        uint a = 1103515245;
+        uint c = 12345;
+        uint m = 2 ** 32;
+
+        return (a * seed + c) % m;
     }
 }
