@@ -207,8 +207,8 @@ contract AxRaffle is Owner {
         // Register winner
         gameWinnerList.push(AxPotWinner(winnerAddress,winnerPrize,potEndedTimestamp));
         // Allocate prize and fee
-        gameWinnerList[gameWinnerList.length].winnerAddress.transfer(gameWinnerList[gameWinnerList.length].totalEther);
-        operatorAddress.transfer(totalEtherPot.sub(gameWinnerList[gameWinnerList.length].totalEther));
+        winnerAddress.transfer(winnerPrize);
+        operatorAddress.transfer(totalEtherPot.sub(winnerPrize));
         // Prepare opening next pot
         prepareOpeningNextPot();
 
