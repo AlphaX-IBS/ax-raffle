@@ -75,7 +75,7 @@ contract AxRaffle is Owner {
     address public operatorAddress; // Operator wallet address
 
     // uint public minPotPlayers; // minimum number of players required
-    uint public ticketEtherPrice; // Single sale price for ticket in gwei
+    uint public pricePerTicket; // Single sale price for ticket in wei
     uint public feeRate; // fee rate (extracted from total prize) for game operator, input 10 <=> 10%
     bool public gameIsActive; // Active flag for Raffle game
 
@@ -121,7 +121,7 @@ contract AxRaffle is Owner {
         uint _pot1stOpenedTimestamp,
         uint _potSellingPeriod, 
         uint _potOpeningPeriod, 
-        uint _ticketEtherPrice, 
+        uint _pricePerTicket, 
         uint _feeRate
     ) public {
         require (_operatorAddress != address(0));
@@ -130,7 +130,7 @@ contract AxRaffle is Owner {
         potSellingPeriod =_potSellingPeriod;
         potOpeningPeriod = _potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
-        ticketEtherPrice = _ticketEtherPrice;
+        pricePerTicket = _pricePerTicket;
         feeRate = _feeRate;
         totalEtherPot = 0;
         ticketNumberCeiling = 0;
@@ -155,8 +155,8 @@ contract AxRaffle is Owner {
     }
 
     // Set ticket Ether sale price, fee Ether rate, min players
-    function setPotSaleParams(uint _ticketEtherPrice, uint _feeRate, uint _minPlayers) external onlyOwner returns (bool) {
-        ticketEtherPrice = _ticketEtherPrice;
+    function setPotSaleParams(uint _pricePerTicket, uint _feeRate, uint _minPlayers) external onlyOwner returns (bool) {
+        pricePerTicket = _pricePerTicket;
         feeRate = _feeRate;
 
         return true;
@@ -184,7 +184,7 @@ contract AxRaffle is Owner {
         uint numberOfTickets = 0;
         totalEtherPot = totalEtherPot.add(msg.value);
         // Calculate relevant number of tickets
-        numberOfTickets = msg.value.mul(ticketEtherPrice); //test only, move this variable to inside function in real app
+        numberOfTickets = msg.value.div(pricePerTicket);
         potPlayerList.push(AxPotPlayer(msg.sender,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
         PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
