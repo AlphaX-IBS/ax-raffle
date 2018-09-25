@@ -68,6 +68,20 @@ class PlayOnline extends PureComponent {
                   <strong>0,000%</strong>
                 </div>
               </div>
+              <Row className="row-howitwork">
+                <Col>
+                  <h3>How it work?</h3>
+                  <p>
+                    What is this game? This game is called lottery. You can buy
+                    lottery tickets and hope that one of your ticket numbers
+                    will be picked. The draw takes place once per week, on
+                    Thursday. How to play Click on tab "Buy ticket" and enter
+                    number of tickets you want to buy. Each ticket costs 0.0015
+                    ETH. You can buy tickets only with Ether. Lots will be drawn
+                    each week on thursday using random numbers generated through
+                  </p>
+                </Col>
+              </Row>
             </div>
             <div className="col-md-6">
               <Nav tabs>
