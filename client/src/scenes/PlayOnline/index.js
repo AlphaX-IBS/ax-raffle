@@ -19,6 +19,8 @@ import {
   Row,
   Col
 } from "reactstrap";
+import RoundTicketList from "./components/RoundTicketList";
+import OwnerTicketList from './components/OwnerTicketList/index';
 
 class PlayOnline extends PureComponent {
   constructor(props) {
@@ -40,7 +42,6 @@ class PlayOnline extends PureComponent {
   render() {
     return (
       <div className="play-online">
-        <Metamask />
         <div className="container">
           <div className="row">
             <div className="col-md-6">
@@ -112,60 +113,10 @@ class PlayOnline extends PureComponent {
               </Nav>
               <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
-                  <Table className="table-striped table-light table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Total tickets</th>
-                        <th>Win chance</th>
-                        <th>Nick Name</th>
-                        <th>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">10</th>
-                        <td>1.001%</td>
-                        <td>Otto</td>
-                        <td>100</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">2</th>
-                        <td>0.005</td>
-                        <td>Thornton</td>
-                        <td>20</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">3</th>
-                        <td>0.003</td>
-                        <td>the Bird</td>
-                        <td>30</td>
-                      </tr>
-                    </tbody>
-                  </Table>
+                  <RoundTicketList />
                 </TabPane>
                 <TabPane tabId="2">
-                  <Table className="table-striped table-light table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Round</th>
-                        <th>Ticket ID</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>12341231234</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>54674564334</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">2</th>
-                        <td>34563456366</td>
-                      </tr>
-                    </tbody>
-                  </Table>
+                  <OwnerTicketList />
                 </TabPane>
               </TabContent>
             </div>
