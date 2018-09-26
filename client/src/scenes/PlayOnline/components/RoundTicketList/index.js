@@ -6,8 +6,7 @@ import GgLikedPagination from "./../../../../components/GgLikedPagination/index"
 class RoundTicketList extends PureComponent {
   state = {
     pageSize: 2,
-    page: 1,
-    items: []
+    page: 1
   };
 
   componentDidMount() {
@@ -23,39 +22,26 @@ class RoundTicketList extends PureComponent {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { items } = this.state;
-    const { tickets } = nextProps;
-    const { total } = tickets;
-    if (total !== items.length) {
-      const items = [...Array(total).keys()].map(i => ({
-        id: i + 1,
-        name: "Item " + (i + 1)
-      }));
-      this.setState({ items });
-    }
-  }
-
-  handlePageClick = item => {
+  handlePageClick = page => {
     const { pageSize } = this.state;
     const { dispatch } = this.props;
     dispatch({
       type: "TICKET_FETCH_REQUESTED",
       payload: {
         pageSize,
-        page: item.id
+        page
       }
     });
-    this.setState({ page: item.id });
+    this.setState({ page });
   };
 
   render() {
-    const { pageSize, page, items } = this.state;
+    const { pageSize, page } = this.state;
     const { tickets } = this.props;
     const { list, totalTicketCount, total } = tickets;
 
     const startIndex = pageSize * Math.max(0, page - 1);
-    const data = list.slice(startIndex, pageSize);
+    const data = list.slice(startIndex, startIndex + pageSize);
 
     return (
       <div>
@@ -72,7 +58,7 @@ class RoundTicketList extends PureComponent {
             {data.map(item => (
               <tr>
                 <th scope="row">{item.sum}</th>
-                <td>{item.sum / totalTicketCount}</td>
+                <td>{((item.sum / totalTicketCount) * 100).toFixed(2)}%</td>
                 <td>
                   {item.address.substr(0, 6)}
                   ...
@@ -88,8 +74,8 @@ class RoundTicketList extends PureComponent {
         </Table>
 
         <GgLikedPagination
-          pageSize={3}
-          items={items}
+          pageSize={pageSize}
+          totalItems={total}
           onChangePage={this.handlePageClick}
         />
       </div>
