@@ -1,5 +1,8 @@
 import React, { PureComponent } from "react";
 import { injectIntl } from "react-intl";
+import JackPotCountDown from "../../components/JackPotCountDown";
+import moment from "moment/min/moment-with-locales";
+import AwardTag from "../../components/AwardTag";
 
 class Home extends PureComponent {
   render() {
@@ -17,12 +20,15 @@ class Home extends PureComponent {
                 </button>
               </div>
             </div>
-            <div className="col-md-2">
+            <div className="col-md-2 award">
               <img
                 style={{ maxHeight: "300px" }}
-                src="/img/home-current-pot.png"
+                src="/img/bare-home-current-pot.png"
                 alt=""
               />
+              <div className="centered">
+                <AwardTag value={50000} symbol="$" />
+              </div>
             </div>
             <div className="col-md-5">
               <img
@@ -38,9 +44,17 @@ class Home extends PureComponent {
             <div className="col-md-12">
               <img
                 className="home-img-countdown"
-                src="img/home-count-down.png"
                 alt=""
+                src="/img/bare-home-count-down.png"
               />
+              <div className="centered">
+                <JackPotCountDown
+                  target={moment(
+                    "2018-09-30 11:30:50",
+                    "YYYY-MM-DD hh:mm:ss"
+                  ).toDate()}
+                />
+              </div>
             </div>
           </div>
           <div className="row">
@@ -79,6 +93,7 @@ class Home extends PureComponent {
               </button>
             </div>
           </div>
+          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
         </section>
         <section id="playnow">
           <div className="row">
@@ -100,7 +115,7 @@ class Home extends PureComponent {
                 <div className="raffle-card-body">
                   <h3>Send Ethereum to this smart contract address:</h3>
                   <p className="raffle-card-text">
-                    0xdac15794f0fadfdcf3a93aeaabdc7cac19066724
+                    {process.env.REACT_APP_CONTRACT_ADDRESS}
                   </p>
                 </div>
               </div>
@@ -115,7 +130,7 @@ class Home extends PureComponent {
                 <div className="raffle-card-body">
                   <h3>Send Ethereum to this smart contract address:</h3>
                   <p className="raffle-card-text">
-                    0xdac15794f0fadfdcf3a93aeaabdc7cac19066724
+                    {process.env.REACT_APP_CONTRACT_ADDRESS}
                   </p>
                 </div>
               </div>
@@ -130,12 +145,13 @@ class Home extends PureComponent {
                 <div className="raffle-card-body">
                   <h3>Send Ethereum to this smart contract address:</h3>
                   <p className="raffle-card-text">
-                    0xdac15794f0fadfdcf3a93aeaabdc7cac19066724
+                    {process.env.REACT_APP_CONTRACT_ADDRESS}
                   </p>
                 </div>
               </div>
             </div>
           </div>
+          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
         </section>
         <section id="crypto-raffles">
           <div className="row">
@@ -165,98 +181,8 @@ class Home extends PureComponent {
               />
             </div>
           </div>
+          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
         </section>
-        <footer id="footer">
-          <div className="row">
-            <div className="col-md-3 text-center">
-              <img
-                style={{ paddingBottom: "20px" }}
-                src="img/logo-white.png"
-                alt="logo white"
-              />
-              <p className="text-left">
-                Global Blockchain Raffle Games Win big daily – Play Now!
-              </p>
-              <a href="#footer">
-                <i className="fa fa-facebook-square fa-2x" />
-              </a>
-              <a href="#footer">
-                <i className="fa fa-twitter fa-2x" />
-              </a>
-              <a href="#footer">
-                <i className="fa fa-google-plus fa-2x" />
-              </a>
-            </div>
-            <div className="col-md-2">
-              <h3 className="text-center">Info</h3>
-              <ul className="list-group">
-                <li className="list-group-item">Term and conditions</li>
-                <li className="list-group-item">Privacy</li>
-                <li
-                  className="list-group-item"
-                  style={{ whiteSpace: "nowrap" }}
-                >
-                  info@crypto-raffles.com
-                </li>
-              </ul>
-            </div>
-            <div className="col-md-4">
-              <h3 className="text-center">Useful links</h3>
-              <div className="row">
-                <div className="col-md-6">
-                  <ul className="list-group">
-                    <li className="list-group-item">Home</li>
-                    <li className="list-group-item">Raffles</li>
-                    <li className="list-group-item">How it works?</li>
-                    <li className="list-group-item">Resultes & info</li>
-                  </ul>
-                </div>
-                <div className="col-md-6">
-                  <ul className="list-group">
-                    <li className="list-group-item">Play online</li>
-                    <li className="list-group-item">Winners & stories</li>
-                    <li className="list-group-item">Statistic</li>
-                    <li className="list-group-item">Contact</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <h3 className="text-left">newsletter</h3>
-              <form>
-                <div className="form-group">
-                  <label for="exampleInputEmail1">Email address</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="exampleInputEmail1"
-                    aria-describedby="emailHelp"
-                    placeholder="Enter email"
-                  />
-                  <small id="emailHelp" className="form-text text-muted">
-                    We'll never share your email with anyone else.
-                  </small>
-                </div>
-                <button type="submit" className="btn-red">
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-          <div className="row">
-            <p
-              style={{
-                width: "100%",
-                borderTop: "1px solid #aaa",
-                marginTop: "10px",
-                paddingTop: "10px"
-              }}
-              className="text-center"
-            >
-              Crypto Raffles © 2017 All rights reserved
-            </p>
-          </div>
-        </footer>
       </div>
     );
   }
