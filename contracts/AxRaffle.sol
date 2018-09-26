@@ -57,7 +57,7 @@ contract AxRaffle is Owner {
     // Pot Winner Info
     struct AxPotWinner {
         address winnerAddress;
-        uint totalEther;
+        uint totalWei;
         uint potEndedTimestamp;
     }
 
@@ -75,7 +75,7 @@ contract AxRaffle is Owner {
     address public operatorAddress; // Operator wallet address
 
     // uint public minPotPlayers; // minimum number of players required
-    uint public pricePerTicket; // Single sale price for ticket in wei
+    uint public weiPerTicket; // Single sale price for ticket in wei
     uint public feeRate; // fee rate (extracted from total prize) for game operator, input 10 <=> 10%
     bool public gameIsActive; // Active flag for Raffle game
 
@@ -91,12 +91,12 @@ contract AxRaffle is Owner {
     uint public ticketNumberCeiling; // current latest of ticket number, set to private later
     AxPotPlayer[] public potPlayerList; //list of players
 
-    uint public totalEtherPot; // Total Ether in pot
+    uint public totalWeiPot; // Total Ether in pot
 
     // Events
-    event ActivateGame();
-    event DeactivateGame();
-    event PurchaseTicketsByEther(address playerAddress, uint etherAmount, uint startTicketNumber, uint endTicketNumber);
+    event ActivateGame(bool _active);
+    event DeactivateGame(bool _deactive);
+    event PurchaseTicketsByEther(address playerAddress, uint weiAmount, uint startTicketNumber, uint endTicketNumber);
     event DrawTicket(address winnerAddress, uint winnerTicketNumber, uint winnerPrize, uint potEndedTimestamp);
 
     // Modifiers
@@ -121,7 +121,7 @@ contract AxRaffle is Owner {
         uint _pot1stOpenedTimestamp,
         uint _potSellingPeriod, 
         uint _potOpeningPeriod, 
-        uint _pricePerTicket, 
+        uint _weiPerTicket, 
         uint _feeRate
     ) public {
         require (_operatorAddress != address(0));
@@ -130,9 +130,9 @@ contract AxRaffle is Owner {
         potSellingPeriod =_potSellingPeriod;
         potOpeningPeriod = _potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
-        pricePerTicket = _pricePerTicket;
+        weiPerTicket = _weiPerTicket;
         feeRate = _feeRate;
-        totalEtherPot = 0;
+        totalWeiPot = 0;
         ticketNumberCeiling = 0;
     }
 
@@ -155,8 +155,8 @@ contract AxRaffle is Owner {
     }
 
     // Set ticket Ether sale price, fee Ether rate, min players
-    function setPotSaleParams(uint _pricePerTicket, uint _feeRate, uint _minPlayers) external onlyOwner returns (bool) {
-        pricePerTicket = _pricePerTicket;
+    function setPotSaleParams(uint _weiPerTicket, uint _feeRate) external onlyOwner returns (bool) {
+        weiPerTicket = _weiPerTicket;
         feeRate = _feeRate;
 
         return true;
@@ -165,13 +165,13 @@ contract AxRaffle is Owner {
     // Activate game
     function activateGame() external onlyOwner {
         gameIsActive = true;
-        ActivateGame();
+        ActivateGame(true);
     }
 
     // Deactive game
     function deactivateGame() external onlyOwner {
         gameIsActive = false;
-        DeactivateGame();
+        DeactivateGame(false);
     }
 
     // Purchase tickets to players by ETH
@@ -182,9 +182,9 @@ contract AxRaffle is Owner {
     function purchaseTicketsByEther() external payable activatedGame potIsActive {
         // Receive Ether amount
         uint numberOfTickets = 0;
-        totalEtherPot = totalEtherPot.add(msg.value);
+        totalWeiPot = totalWeiPot.add(msg.value);
         // Calculate relevant number of tickets
-        numberOfTickets = msg.value.div(pricePerTicket);
+        numberOfTickets = msg.value.div(weiPerTicket);
         potPlayerList.push(AxPotPlayer(msg.sender,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
         PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
@@ -201,14 +201,14 @@ contract AxRaffle is Owner {
         // Draw ticket
         uint winnerTicket = ticketNumberRandom();
         address winnerAddress = lookUpPlayerAddressByTicketNumber(winnerTicket);
-        uint winnerPrize = totalEtherPot.mul(1 - feeRate/100);
+        uint winnerPrize = totalWeiPot.mul(1 - feeRate/100);
         // End pot
         potEndedTimestamp = now;
         // Register winner
         gameWinnerList.push(AxPotWinner(winnerAddress,winnerPrize,potEndedTimestamp));
         // Allocate prize and fee
         winnerAddress.transfer(winnerPrize);
-        operatorAddress.transfer(totalEtherPot.sub(winnerPrize));
+        operatorAddress.transfer(totalWeiPot.sub(winnerPrize));
         // Prepare opening next pot
         prepareOpeningNextPot();
 
@@ -224,7 +224,7 @@ contract AxRaffle is Owner {
     function prepareOpeningNextPot() {
         potOpenedTimestamp = potOpenedTimestamp + potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
-        totalEtherPot = 0;
+        totalWeiPot = 0;
         ticketNumberCeiling = 0;
         delete potPlayerList;
     }
