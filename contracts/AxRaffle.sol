@@ -9,12 +9,12 @@ contract Owner {
     }
     
     modifier onlyOwner() {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "msg.sender is not owner");
         _;
     }
 
     function changeOwner(address _newOwnerAddr) public onlyOwner {
-        require(_newOwnerAddr != address(0));
+        require(_newOwnerAddr != address(0), "_newOwnerAddr is 0");
         owner = _newOwnerAddr;
     }
 }
@@ -88,10 +88,10 @@ contract AxRaffle is Owner {
     uint public potClosedTimestamp; // Pot opened timestamp, unix timestamp UTC
     uint public potEndedTimestamp; // Pot ended timestamp, unix timestamp UTC
     
-    uint public ticketNumberCeiling; // current latest of ticket number, set to private later
-    AxPotPlayer[] public potPlayerList; //list of players
+    uint private ticketNumberCeiling; // current latest of ticket number
+    AxPotPlayer[] private potPlayerList; //list of players
 
-    uint public totalWeiPot; // Total Ether in pot
+    uint private totalWeiPot; // Total Ether in pot
 
     // Events
     event ActivateGame(bool _active);
@@ -101,17 +101,17 @@ contract AxRaffle is Owner {
 
     // Modifiers
     modifier activatedGame() {
-        require(gameIsActive == true);
+        require(gameIsActive == true, "game is not activated");
         _;
     }
 
     modifier potIsActive() {
-        require(now >= potOpenedTimestamp && now <= potClosedTimestamp);
+        require(now >= potOpenedTimestamp && now <= potClosedTimestamp, "game is not active");
         _;
     }
 
     modifier potIsClosed() {
-        require(now > potClosedTimestamp);
+        require(now > potClosedTimestamp, "pot is not closed");
         _;
     }
 
@@ -124,10 +124,10 @@ contract AxRaffle is Owner {
         uint _weiPerTicket, 
         uint _feeRate
     ) public {
-        require (_operatorAddress != address(0));
+        require (_operatorAddress != address(0), "operator address is 0");
         operatorAddress = _operatorAddress;
         potOpenedTimestamp = _pot1stOpenedTimestamp;
-        potSellingPeriod =_potSellingPeriod;
+        potSellingPeriod = _potSellingPeriod;
         potOpeningPeriod = _potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         weiPerTicket = _weiPerTicket;
@@ -138,8 +138,8 @@ contract AxRaffle is Owner {
 
     // Set operator wallet address
     function setOperatorWalletAddress (address _operatorAddress) external onlyOwner returns (bool) {
-        require(_operatorAddress != address(0));
-        require(_operatorAddress != operatorAddress);
+        require(_operatorAddress != address(0), "new operator address is 0");
+        require(_operatorAddress != operatorAddress, "new and old address are the same");
         operatorAddress = _operatorAddress;
 
         return true;
@@ -165,13 +165,13 @@ contract AxRaffle is Owner {
     // Activate game
     function activateGame() external onlyOwner {
         gameIsActive = true;
-        ActivateGame(true);
+        emit ActivateGame(true);
     }
 
     // Deactive game
     function deactivateGame() external onlyOwner {
         gameIsActive = false;
-        DeactivateGame(false);
+        emit DeactivateGame(false);
     }
 
     // Purchase tickets to players by ETH
@@ -179,14 +179,14 @@ contract AxRaffle is Owner {
     // - Receive ether amount
     // - Calculate relevant number of tickets
     // - Set ticket numbers to player's address
-    function purchaseTicketsByEther() external payable activatedGame potIsActive {
+    function () external payable activatedGame potIsActive {
         // Receive Ether amount
         uint numberOfTickets = 0;
         totalWeiPot = totalWeiPot.add(msg.value);
         // Calculate relevant number of tickets
         numberOfTickets = msg.value.div(weiPerTicket);
         potPlayerList.push(AxPotPlayer(msg.sender,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
-        PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
+        emit PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
     }
 
@@ -212,7 +212,7 @@ contract AxRaffle is Owner {
         // Prepare opening next pot
         prepareOpeningNextPot();
 
-        DrawTicket(winnerAddress,winnerTicket,winnerPrize,potEndedTimestamp);
+        emit DrawTicket(winnerAddress,winnerTicket,winnerPrize,potEndedTimestamp);
     }
 
     // Claim refund
@@ -221,7 +221,7 @@ contract AxRaffle is Owner {
     // }
 
     // Prepare for opening next pot
-    function prepareOpeningNextPot() {
+    function prepareOpeningNextPot() private {
         potOpenedTimestamp = potOpenedTimestamp + potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         totalWeiPot = 0;
@@ -262,12 +262,12 @@ contract AxRaffle is Owner {
     }
 
     // Random ticket number
-    function ticketNumberRandom() returns (uint) {
+    function ticketNumberRandom() private view returns (uint) {
         return LCGRandom() % ticketNumberCeiling;
     }
 
     // Linear Congruential Generator algorithm
-    function LCGRandom() returns (uint) {
+    function LCGRandom() private view returns (uint) {
         uint seed = block.number;
         uint a = 1103515245;
         uint c = 12345;
