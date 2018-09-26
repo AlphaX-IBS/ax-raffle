@@ -19,6 +19,25 @@ export function queryTickets(start, limit) {
   };
 }
 
+export function queryAllPlayerTickets() {
+  return {
+    list: [
+      {
+        startNum: 1,
+        endNum: 1,
+        timestamp: 1537964215974
+      },
+      {
+        startNum: 2,
+        endNum: 3,
+        timestamp: 1537964515974
+      }
+    ],
+    totalPlTickets: 3
+  };
+}
+
 export default {
-  queryTickets
+  queryTickets,
+  queryAllPlayerTickets
 };

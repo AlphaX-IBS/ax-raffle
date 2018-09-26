@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
-import { Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import { Table } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
 
 class RoundTicketList extends PureComponent {
@@ -56,7 +56,7 @@ class RoundTicketList extends PureComponent {
           </thead>
           <tbody>
             {data.map(item => (
-              <tr>
+              <tr key={item.address}>
                 <th scope="row">{item.sum}</th>
                 <td>{((item.sum / totalTicketCount) * 100).toFixed(2)}%</td>
                 <td>

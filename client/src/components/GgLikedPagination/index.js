@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 
 const propTypes = {
-  totalItems: PropTypes.array.isRequired,
+  totalItems: PropTypes.number.isRequired,
   onChangePage: PropTypes.func.isRequired,
   initialPage: PropTypes.number,
   pageSize: PropTypes.number

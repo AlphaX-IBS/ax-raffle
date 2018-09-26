@@ -1,5 +1,4 @@
 import React, { PureComponent } from "react";
-import Metamask from "../../components/Metamask";
 import classnames from "classnames";
 import {
   InputGroup,
@@ -7,39 +6,78 @@ import {
   Input,
   InputGroupText,
   Button,
-  Table,
   TabContent,
   TabPane,
   Nav,
   NavItem,
   NavLink,
-  Card,
-  CardTitle,
-  CardText,
   Row,
-  Col
+  Col,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalFooter
 } from "reactstrap";
 import RoundTicketList from "./components/RoundTicketList";
-import OwnerTicketList from './components/OwnerTicketList/index';
+import OwnerTicketList from "./components/OwnerTicketList/index";
+import { connect } from "react-redux";
+import ChanceRateReport from "./components/ChanceRateReport";
 
 class PlayOnline extends PureComponent {
-  constructor(props) {
-    super(props);
+  state = {
+    activeTab: "1",
+    nextTab: null,
+    modal: false
+  };
 
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      activeTab: "1"
-    };
-  }
-
-  toggle(tab) {
-    if (this.state.activeTab !== tab) {
+  componentDidUpdate() {
+    const { account } = this.props;
+    const { nextTab } = this.state;
+    if (account && nextTab) {
       this.setState({
-        activeTab: tab
+        nextTab: null
       });
+      this.toggle(nextTab);
     }
   }
+
+  toggle = tab => {
+    if (this.state.activeTab !== tab) {
+      if (tab === "2") {
+        if (this.props.account) {
+          this.setState({
+            activeTab: tab
+          });
+        } else {
+          this.setState({
+            nextTab: tab
+          });
+          this.toggleModal();
+        }
+      } else {
+        this.setState({
+          activeTab: tab
+        });
+      }
+    }
+  };
+
+  toggleModal = () => {
+    this.setState({
+      modal: !this.state.modal
+    });
+  };
+
+  connectAccount = () => {
+    const { dispatch } = this.props;
+    dispatch({ type: "WEB3_FETCH_REQUESTED", payload: {} });
+    this.setState({
+      modal: !this.state.modal
+    });
+  };
+
   render() {
+    const { modal } = this.state;
     return (
       <div className="play-online">
         <div className="container">
@@ -57,18 +95,7 @@ class PlayOnline extends PureComponent {
                 </InputGroup>
                 <Button color="primary">Buy Now</Button>
               </div>
-              <div className="row row-winchance">
-                <div className="col-6 text-center">
-                  <strong>Your ticketks:</strong>
-                  <br />
-                  <strong>0</strong>
-                </div>
-                <div className="col-6 text-center">
-                  <strong>Your win chance</strong>
-                  <br />
-                  <strong>0,000%</strong>
-                </div>
-              </div>
+              <ChanceRateReport />
               <Row className="row-howitwork">
                 <Col>
                   <h3>How it work?</h3>
@@ -121,10 +148,34 @@ class PlayOnline extends PureComponent {
               </TabContent>
             </div>
           </div>
+          <Modal
+            isOpen={modal}
+            toggle={this.toggleModal}
+            className={this.props.className}
+          >
+            <ModalHeader toggle={this.toggleModal}>
+              Connect Metamask
+            </ModalHeader>
+            <ModalBody>
+              Connecting to Metamask is required to use this function.
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.connectAccount}>
+                Connect
+              </Button>{" "}
+              <Button color="secondary" onClick={this.toggleModal}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal>
         </div>
       </div>
     );
   }
 }
 
-export default PlayOnline;
+const mapStateToProps = ({ player }) => ({
+  account: player.accounts.length > 0 ? player.accounts[0] : undefined,
+});
+
+export default connect(mapStateToProps)(PlayOnline);

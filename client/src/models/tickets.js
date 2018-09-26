@@ -5,7 +5,6 @@ function* fetchTickets(action) {
   try {
     const { pageSize, page } = action.payload;
     const tickets = yield select(state => state.tickets);
-    console.log(JSON.stringify(tickets));
     let start = 0;
     let limit = 10;
     const lastIndex = pageSize * page;
@@ -22,7 +21,6 @@ function* fetchTickets(action) {
         total: tickets.total
       };
     }
-    console.log(JSON.stringify(response));
     yield put({
       type: "TICKET_FETCH_SUCCEEDED",
       payload: response

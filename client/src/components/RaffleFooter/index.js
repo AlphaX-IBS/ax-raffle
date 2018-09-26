@@ -67,7 +67,7 @@ class RaffleFooter extends PureComponent {
             <h3 className="text-md-left">newsletter</h3>
             <form>
               <div className="form-group text-md-left">
-                <label for="exampleInputEmail1">Email address</label>
+                <label htmlFor="exampleInputEmail1">Email address</label>
                 <input
                   type="email"
                   className="form-control"
