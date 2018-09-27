@@ -174,12 +174,17 @@ contract AxRaffle is Owner {
         emit DeactivateGame(false);
     }
 
+    // Fallback function for buy tickets by Ether
+    function () external payable activatedGame potIsActive {
+        purchaseTicketsByEther();
+    }
+    
     // Purchase tickets to players by ETH
     // - Validate tx by pot open timestamp range
     // - Receive ether amount
     // - Calculate relevant number of tickets
-    // - Set ticket numbers to player's address
-    function () external payable activatedGame potIsActive {
+    // - Set ticket numbers to player's address 
+    function purchaseTicketsByEther() public activatedGame potIsActive {
         // Receive Ether amount
         uint numberOfTickets = 0;
         totalWeiPot = totalWeiPot.add(msg.value);
