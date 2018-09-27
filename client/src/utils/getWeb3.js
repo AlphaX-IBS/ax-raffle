@@ -1,10 +1,12 @@
 import Web3 from "web3";
 
-const getWeb3 = () =>
+const getWeb3 = loaded =>
   new Promise((resolve, reject) => {
+    console.log("call promise");
     // Wait for loading completion to avoid race conditions with web3 injection timing.
-    window.addEventListener("load", () => {
+    const loadWeb3 = () => {
       let web3 = window.web3;
+      console.log("addEvent");
 
       // Checking if Web3 has been injected by the browser (Mist/MetaMask).
       const alreadyInjected = typeof web3 !== "undefined";
@@ -24,7 +26,11 @@ const getWeb3 = () =>
         console.log("No web3 instance injected, using Local web3.");
         resolve(web3);
       }
-    });
+    };
+    if (loaded) {
+      loadWeb3();
+    }
+    window.addEventListener("load", loadWeb3);
   });
 
 export default getWeb3;
