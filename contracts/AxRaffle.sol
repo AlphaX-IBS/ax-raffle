@@ -88,10 +88,10 @@ contract AxRaffle is Owner {
     uint public potClosedTimestamp; // Pot opened timestamp, unix timestamp UTC
     uint public potEndedTimestamp; // Pot ended timestamp, unix timestamp UTC
     
-    uint private ticketNumberCeiling; // current latest of ticket number
-    AxPotPlayer[] private potPlayerList; //list of players
+    uint public ticketNumberCeiling; // current latest of ticket number
+    AxPotPlayer[] public potPlayerList; //list of players
 
-    uint private totalWeiPot; // Total Ether in pot
+    uint public totalWeiPot; // Total Ether in pot
 
     // Events
     event ActivateGame(bool _active);
