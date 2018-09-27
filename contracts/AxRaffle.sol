@@ -80,6 +80,7 @@ contract AxRaffle is Owner {
     bool public gameIsActive; // Active flag for Raffle game
 
     AxPotWinner[] public gameWinnerList; // List of winners in game
+    uint public lengthOfGameWinnerList; // Length of game winner list
 
     uint public potSellingPeriod; // Pot selling period (hs) for calculating pot closed timestamp
     uint public potOpeningPeriod; // Pot opening period (hs) for calculating next open timestamp
@@ -90,6 +91,7 @@ contract AxRaffle is Owner {
     
     uint public ticketNumberCeiling; // current latest of ticket number
     AxPotPlayer[] public potPlayerList; //list of players
+    uint public lengthOfPotPlayerList; // Length of pot player list
 
     uint public totalWeiPot; // Total Ether in pot
 
@@ -132,8 +134,6 @@ contract AxRaffle is Owner {
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         weiPerTicket = _weiPerTicket;
         feeRate = _feeRate;
-        totalWeiPot = 0;
-        ticketNumberCeiling = 0;
     }
 
     // Set operator wallet address
@@ -186,6 +186,7 @@ contract AxRaffle is Owner {
         // Calculate relevant number of tickets
         numberOfTickets = msg.value.div(weiPerTicket);
         potPlayerList.push(AxPotPlayer(msg.sender,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
+        lengthOfPotPlayerList++;
         emit PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
     }
@@ -206,6 +207,7 @@ contract AxRaffle is Owner {
         potEndedTimestamp = now;
         // Register winner
         gameWinnerList.push(AxPotWinner(winnerAddress,winnerPrize,potEndedTimestamp));
+        lengthOfGameWinnerList++;
         // Allocate prize and fee
         winnerAddress.transfer(winnerPrize);
         operatorAddress.transfer(totalWeiPot.sub(winnerPrize));
@@ -227,6 +229,7 @@ contract AxRaffle is Owner {
         totalWeiPot = 0;
         ticketNumberCeiling = 0;
         delete potPlayerList;
+        lengthOfPotPlayerList=0;
     }
 
     // Look up owner by ticket number

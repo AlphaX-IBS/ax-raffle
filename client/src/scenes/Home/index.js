@@ -1,12 +1,13 @@
 import React, { PureComponent } from "react";
 import { injectIntl } from "react-intl";
 import JackPotCountDown from "../../components/JackPotCountDown";
-import moment from "moment/min/moment-with-locales";
 import AwardTag from "../../components/AwardTag";
+import { connect } from "react-redux";
 
 class Home extends PureComponent {
   render() {
-    const { intl } = this.props;
+    const { closedTime } = this.props;
+
     return (
       <div>
         <section id="home">
@@ -48,12 +49,7 @@ class Home extends PureComponent {
                 src="/img/bare-home-count-down.png"
               />
               <div className="centered">
-                <JackPotCountDown
-                  target={moment(
-                    "2018-09-30 11:30:50",
-                    "YYYY-MM-DD hh:mm:ss"
-                  ).toDate()}
-                />
+                <JackPotCountDown target={closedTime} />
               </div>
             </div>
           </div>
@@ -93,7 +89,10 @@ class Home extends PureComponent {
               </button>
             </div>
           </div>
-          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
+          <div
+            class="col-12 d-block d-lg-none d-md-none d-sm-none"
+            style={{ minHeight: "50px" }}
+          />
         </section>
         <section id="playnow">
           <div className="row">
@@ -151,7 +150,10 @@ class Home extends PureComponent {
               </div>
             </div>
           </div>
-          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
+          <div
+            class="col-12 d-block d-lg-none d-md-none d-sm-none"
+            style={{ minHeight: "50px" }}
+          />
         </section>
         <section id="crypto-raffles">
           <div className="row">
@@ -181,11 +183,18 @@ class Home extends PureComponent {
               />
             </div>
           </div>
-          <div class="col-12 d-block d-lg-none d-md-none d-sm-none" style={{minHeight: "50px"}}></div>
+          <div
+            class="col-12 d-block d-lg-none d-md-none d-sm-none"
+            style={{ minHeight: "50px" }}
+          />
         </section>
       </div>
     );
   }
 }
 
-export default injectIntl(Home, { withRef: true });
+const mapStateToProps = ({ global }) => ({
+  closedTime: global.pot.potClosedTimestamp
+});
+
+export default injectIntl(connect(mapStateToProps)(Home), { withRef: true });

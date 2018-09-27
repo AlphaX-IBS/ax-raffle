@@ -28,6 +28,10 @@ const store = createStore(rootReducer, enhancer);
 
 sagaMiddleware.run(rootSaga);
 
+store.dispatch({
+  type: "WEB3_FETCH_REQUESTED"
+});
+
 ReactDOM.render(
   <Provider store={store}>
     <IntlProvider locale="en">

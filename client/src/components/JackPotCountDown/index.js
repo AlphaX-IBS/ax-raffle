@@ -47,6 +47,10 @@ class JackPotCountDown extends PureComponent {
   initTime = props => {
     let lastTime = 0;
     let targetTime = 0;
+    if (props.target === undefined) {
+      return lastTime;
+    }
+    console.log(`target=${props.target}`);
     try {
       if (Object.prototype.toString.call(props.target) === "[object Date]") {
         targetTime = props.target.getTime();
@@ -67,6 +71,7 @@ class JackPotCountDown extends PureComponent {
   //  <span>{moment(time).format('hh:mm:ss')}</span>
   // );
   defaultFormat = time => {
+    console.log('time='+time);
     const timeLeft = getRemainingTimeFromDaysToSeconds(Math.floor(time / 1000));
     return (
       <div className="clockdiv">
@@ -74,7 +79,7 @@ class JackPotCountDown extends PureComponent {
           <span>{fixedZero(timeLeft.days)}</span>
           <div className="smalltext">Days</div>
         </div>
-        <div className='digit-separator'>
+        <div className="digit-separator">
           <span>|</span>
           <div class="smalltext">&nbsp;</div>
         </div>
@@ -82,7 +87,7 @@ class JackPotCountDown extends PureComponent {
           <span>{fixedZero(timeLeft.hours)}</span>
           <div className="smalltext">Hours</div>
         </div>
-        <div className='digit-separator'>
+        <div className="digit-separator">
           <span>:</span>
           <div class="smalltext">&nbsp;</div>
         </div>
@@ -90,7 +95,7 @@ class JackPotCountDown extends PureComponent {
           <span>{fixedZero(timeLeft.minutes)}</span>
           <div className="smalltext">Minutes</div>
         </div>
-        <div className='digit-separator'>
+        <div className="digit-separator">
           <span>:</span>
           <div class="smalltext">&nbsp;</div>
         </div>
