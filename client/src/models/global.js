@@ -1,9 +1,8 @@
-import { call, put, take, takeLatest, select, fork } from "redux-saga/effects";
+import { call, put, takeLatest, select, fork } from "redux-saga/effects";
 import {
   queryGameConfigs,
   queryWinners,
-  queryPot,
-  queryPotPlayers
+  queryPot
 } from "../services/GameService";
 
 function* fetchGameConfigs() {
@@ -12,7 +11,9 @@ function* fetchGameConfigs() {
       web3: state.api.web3,
       contract: state.api.contract
     }));
+
     const configs = yield call(queryGameConfigs, web3, contract);
+
     yield put({ type: "GAME_CONFIGS_FETCH_SUCCEEDED", payload: configs });
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
@@ -22,18 +23,10 @@ function* fetchGameConfigs() {
 function* fetchWinners() {
   try {
     const contract = yield select(state => state.api.contract);
-    const winners = yield call(queryWinners, contract);
-    yield put({ type: "WINNERS_FETCH_SUCCEEDED", payload: winners });
-  } catch (e) {
-    yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
-  }
-}
 
-function* fetchPotPlayers() {
-  try {
-    const contract = yield select(state => state.api.contract);
-    const potPlayers = yield call(queryPotPlayers, contract);
-    yield put({ type: "POT_PLAYERS_FETCH_SUCCEEDED", payload: potPlayers });
+    const winners = yield call(queryWinners, contract);
+
+    yield put({ type: "WINNERS_FETCH_SUCCEEDED", payload: winners });
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
   }
@@ -41,8 +34,13 @@ function* fetchPotPlayers() {
 
 function* fetchPot() {
   try {
-    const contract = yield select(state => state.api.contract);
-    const pot = yield call(queryPot, contract);
+    const { web3, contract } = yield select(state => ({
+      web3: state.api.web3,
+      contract: state.api.contract
+    }));
+
+    const pot = yield call(queryPot, web3, contract);
+
     yield put({ type: "POT_FETCH_SUCCEEDED", payload: pot });
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
@@ -54,7 +52,7 @@ function* fetchAllGlobal() {
   yield [
     fork(fetchGameConfigs),
     fork(fetchWinners),
-    fork(fetchPotPlayers),
+    put({ type: "TICKET_FETCH_REQUESTED", payload: { page: 1, pageSize: 10 } }),
     fork(fetchPot)
   ];
 }
@@ -65,8 +63,10 @@ function* saga() {
 
 const initialState = {
   gameConfigs: {},
-  pot: {},
-  potPlayers: [],
+  pot: {
+    totalTickets: 0,
+    totalPotPlayers: 0
+  },
   winners: []
 };
 
@@ -93,11 +93,6 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         pot: action.payload
-      };
-    case "POT_PLAYERS_FETCH_SUCCEEDED":
-      return {
-        ...state,
-        potPlayers: action.payload
       };
     default:
       return state;

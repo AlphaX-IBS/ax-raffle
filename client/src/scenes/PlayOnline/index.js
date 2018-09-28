@@ -27,8 +27,16 @@ class PlayOnline extends PureComponent {
   state = {
     activeTab: "1",
     nextTab: null,
-    modal: false
+    modal: false,
+    connected: false,
+    ticketNumber: 1
   };
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.account !== this.props.account) {
+      this.setState({ connected: true });
+    }
+  }
 
   componentDidUpdate() {
     const { account } = this.props;
@@ -70,14 +78,34 @@ class PlayOnline extends PureComponent {
 
   connectAccount = () => {
     const { dispatch } = this.props;
-    dispatch({ type: "WEB3_FETCH_REQUESTED", payload: {} });
+    dispatch({ type: "PL_JOIN_REQUESTED", payload: {} });
     this.setState({
       modal: !this.state.modal
     });
   };
 
+  onBuyClick = () => {
+    const { connected, ticketNumber } = this.state;
+    const { dispatch, ticketPrice } = this.props;
+    if (connected) {
+      const totalCost = ticketNumber * ticketPrice;
+      dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: totalCost });
+    } else {
+      this.connectAccount();
+    }
+  };
+
+  onTicketNumberChange = e => {
+    const { ticketNumber } = this.state;
+    if (e.target.value !== undefined && e.target.value !== ticketNumber) {
+      this.setState({ ticketNumber: e.target.value });
+    }
+  };
+
   render() {
-    const { modal } = this.state;
+    const { modal, ticketNumber } = this.state;
+    const { ticketPrice } = this.props;
+
     return (
       <div className="play-online">
         <div className="container">
@@ -88,12 +116,23 @@ class PlayOnline extends PureComponent {
                   <InputGroupAddon addonType="prepend">
                     <InputGroupText>Quantity</InputGroupText>
                   </InputGroupAddon>
-                  <Input className="text-center" placeholder="1000 Tickets" />
+                  <Input
+                    className="text-center"
+                    placeholder="1000 Tickets"
+                    type="number"
+                    min={1}
+                    value={ticketNumber}
+                    onChange={this.onTicketNumberChange}
+                  />
                   <InputGroupAddon addonType="append">
-                    <InputGroupText>Total cost: 0.1 ETH</InputGroupText>
+                    <InputGroupText>
+                      Total cost: {(ticketPrice * ticketNumber).toFixed(3)} ETH
+                    </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
-                <Button color="primary">Buy Now</Button>
+                <Button color="primary" onClick={this.onBuyClick}>
+                  Buy Now
+                </Button>
               </div>
               <ChanceRateReport />
               <Row className="row-howitwork">
@@ -174,8 +213,9 @@ class PlayOnline extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ player }) => ({
+const mapStateToProps = ({ global, player }) => ({
   account: player.accounts.length > 0 ? player.accounts[0] : undefined,
+  ticketPrice: global.gameConfigs.ticketPrice
 });
 
 export default connect(mapStateToProps)(PlayOnline);

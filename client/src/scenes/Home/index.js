@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 
 class Home extends PureComponent {
   render() {
-    const { closedTime } = this.props;
+    const { closedTime, totalPot } = this.props;
 
     return (
       <div>
@@ -28,7 +28,7 @@ class Home extends PureComponent {
                 alt=""
               />
               <div className="centered">
-                <AwardTag value={50000} symbol="$" />
+                <AwardTag value={totalPot} symbol="&#x29eb;" />
               </div>
             </div>
             <div className="col-md-5">
@@ -90,7 +90,7 @@ class Home extends PureComponent {
             </div>
           </div>
           <div
-            class="col-12 d-block d-lg-none d-md-none d-sm-none"
+            className="col-12 d-block d-lg-none d-md-none d-sm-none"
             style={{ minHeight: "50px" }}
           />
         </section>
@@ -151,7 +151,7 @@ class Home extends PureComponent {
             </div>
           </div>
           <div
-            class="col-12 d-block d-lg-none d-md-none d-sm-none"
+            className="col-12 d-block d-lg-none d-md-none d-sm-none"
             style={{ minHeight: "50px" }}
           />
         </section>
@@ -184,7 +184,7 @@ class Home extends PureComponent {
             </div>
           </div>
           <div
-            class="col-12 d-block d-lg-none d-md-none d-sm-none"
+            className="col-12 d-block d-lg-none d-md-none d-sm-none"
             style={{ minHeight: "50px" }}
           />
         </section>
@@ -194,7 +194,8 @@ class Home extends PureComponent {
 }
 
 const mapStateToProps = ({ global }) => ({
-  closedTime: global.pot.potClosedTimestamp
+  closedTime: global.pot.potClosedTimestamp,
+  totalPot: global.pot.totalPot
 });
 
 export default injectIntl(connect(mapStateToProps)(Home), { withRef: true });

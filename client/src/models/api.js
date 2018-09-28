@@ -1,13 +1,7 @@
-import { call, put, take, takeLatest, select, fork } from "redux-saga/effects";
-import getWeb3 from "./../utils/getWeb3";
+import { call, put, takeLatest } from "redux-saga/effects";
+import { getWeb3 } from "./../utils/getWeb3";
 import truffleContract from "truffle-contract";
 import AxRaffleContract from "../contracts/AxRaffle.test.json";
-import {
-  queryGameConfigs,
-  queryWinners,
-  queryPot,
-  queryPotPlayers
-} from "../services/GameService";
 
 function* fetchWeb3() {
   try {
@@ -15,6 +9,7 @@ function* fetchWeb3() {
     // Get network provider and web3 instance.
     const web3 = yield getWeb3(true);
 
+    console.log('s');
     // Use web3 to get the user's accounts.
     const accounts = yield call(web3.eth.getAccounts);
 
@@ -22,10 +17,6 @@ function* fetchWeb3() {
     const Contract = truffleContract(AxRaffleContract);
     Contract.setProvider(web3.currentProvider);
     const instance = yield call(Contract.deployed);
-
-    // const prizeWei = yield instance.totalWeiPot.call();
-    // const prize = web3.utils.fromWei(prizeWei, "ether");
-    // console.log(`prize=${prize}`);
 
     // Set web3, accounts, and contract to the state, and then proceed with an
     // example of interacting with the contract's methods.
@@ -50,9 +41,8 @@ function* fetchWeb3() {
   }
 }
 
-
 function* saga() {
-    yield takeLatest("WEB3_FETCH_REQUESTED", fetchWeb3);
+  yield takeLatest("WEB3_FETCH_REQUESTED", fetchWeb3);
 }
 
 const initialState = {

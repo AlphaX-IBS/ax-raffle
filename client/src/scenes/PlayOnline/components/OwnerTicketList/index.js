@@ -20,7 +20,7 @@ class OwnerTicketList extends Component {
   }
 
   render() {
-    const { playertickets } = this.props;
+    const { playertickets, ticketPrice } = this.props;
     const { list } = playertickets;
 
     return (
@@ -28,17 +28,23 @@ class OwnerTicketList extends Component {
         <Table className="table-striped table-light table-bordered">
           <thead className="thead-light">
             <tr>
-              <th>Time</th>
+              <th>Cost</th>
               <th>Ticket Range</th>
             </tr>
           </thead>
           <tbody>
             {list.map(item => (
-              <tr key={item.timestamp}>
+              <tr key={item.ticketStartNumber}>
                 <th scope="row">
-                  {moment(item.timestamp).format("YYYY-MM-DD HH:mm:ss")}
+                  {(item.ticketEndNumber - item.ticketStartNumber + 1) *
+                    ticketPrice}
                 </th>
-                <td>{formatTicketRange(item.startNum, item.endNum)}</td>
+                <td>
+                  {formatTicketRange(
+                    item.ticketStartNumber,
+                    item.ticketEndNumber
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -48,8 +54,9 @@ class OwnerTicketList extends Component {
   }
 }
 
-const mapStateToProps = ({ playertickets }) => ({
-  playertickets
+const mapStateToProps = ({ playertickets, global }) => ({
+  playertickets,
+  ticketPrice: global.gameConfigs.ticketPrice
 });
 
 export default connect(mapStateToProps)(OwnerTicketList);

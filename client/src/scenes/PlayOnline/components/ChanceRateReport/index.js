@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 class ChanceRateReport extends PureComponent {
   render() {
     const { totalPlayerTickets, totalTickets } = this.props;
+    console.log(JSON.stringify(this.props));
     const winRate = ((totalPlayerTickets / totalTickets) * 100).toFixed(3);
     return (
       <div className="row row-winchance">
@@ -22,9 +23,9 @@ class ChanceRateReport extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ playertickets, tickets }) => ({
+const mapStateToProps = ({ playertickets, global }) => ({
   totalPlayerTickets: playertickets.totalPlTickets,
-  totalTickets: tickets.totalTicketCount
+  totalTickets: global.pot.totalTickets
 });
 
 export default connect(mapStateToProps)(ChanceRateReport);

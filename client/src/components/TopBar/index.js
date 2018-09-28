@@ -6,7 +6,7 @@ import { NavLink } from "react-router-dom";
 class TopBar extends PureComponent {
   handleConnect = () => {
     const { dispatch } = this.props;
-    dispatch({ type: "WEB3_FETCH_REQUESTED", payload: {} });
+    dispatch({ type: "PL_JOIN_REQUESTED", payload: {} });
   };
 
   render() {

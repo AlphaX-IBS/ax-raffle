@@ -2,6 +2,13 @@ import React, { PureComponent } from "react";
 import { getRemainingTimeFromDaysToSeconds } from "../../utils/time";
 
 function fixedZero(val) {
+  if (
+    val === undefined ||
+    isNaN(val) ||
+    Object.prototype.toString.call(val) === "[object String]"
+  ) {
+    return "-";
+  }
   return val * 1 < 10 ? `0${val}` : val;
 }
 
@@ -71,7 +78,7 @@ class JackPotCountDown extends PureComponent {
   //  <span>{moment(time).format('hh:mm:ss')}</span>
   // );
   defaultFormat = time => {
-    console.log('time='+time);
+    console.log("time=" + time);
     const timeLeft = getRemainingTimeFromDaysToSeconds(Math.floor(time / 1000));
     return (
       <div className="clockdiv">
@@ -81,7 +88,7 @@ class JackPotCountDown extends PureComponent {
         </div>
         <div className="digit-separator">
           <span>|</span>
-          <div class="smalltext">&nbsp;</div>
+          <div className="smalltext">&nbsp;</div>
         </div>
         <div>
           <span>{fixedZero(timeLeft.hours)}</span>
@@ -89,7 +96,7 @@ class JackPotCountDown extends PureComponent {
         </div>
         <div className="digit-separator">
           <span>:</span>
-          <div class="smalltext">&nbsp;</div>
+          <div className="smalltext">&nbsp;</div>
         </div>
         <div>
           <span>{fixedZero(timeLeft.minutes)}</span>
@@ -97,7 +104,7 @@ class JackPotCountDown extends PureComponent {
         </div>
         <div className="digit-separator">
           <span>:</span>
-          <div class="smalltext">&nbsp;</div>
+          <div className="smalltext">&nbsp;</div>
         </div>
         <div>
           <span>{fixedZero(timeLeft.seconds)}</span>

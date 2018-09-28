@@ -89,7 +89,6 @@ class GgLikedPagination extends React.Component {
       <Pagination>
         <PaginationLink
           previous
-          href="javascript:void(0)"
           disabled={pager.currentPage === 1}
           onClick={() => this.setPage(pager.currentPage - 1)}
         />
@@ -99,10 +98,7 @@ class GgLikedPagination extends React.Component {
             key={index}
             active={pager.currentPage === page ? true : false}
           >
-            <PaginationLink
-              href="javascript:void(0)"
-              onClick={() => this.setPage(page)}
-            >
+            <PaginationLink onClick={() => this.setPage(page)}>
               {page}
             </PaginationLink>
           </PaginationItem>
@@ -111,7 +107,6 @@ class GgLikedPagination extends React.Component {
         <PaginationItem>
           <PaginationLink
             next
-            href="javascript:void(0)"
             disabled={pager.currentPage === pager.totalPages}
             onClick={() => this.setPage(pager.currentPage + 1)}
           />

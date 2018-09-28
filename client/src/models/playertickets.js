@@ -1,10 +1,17 @@
-import { call, put, takeEvery, takeLatest, select } from "redux-saga/effects";
-import { queryAllPlayerTickets } from "../services/TicketService";
+import { call, put, select, takeLatest } from "redux-saga/effects";
+import { queryAllPlayerTickets } from "../services/PlayerService";
 
-function* fetchPlayerTickets(action) {
+function* fetchPlayerTickets() {
   try {
     yield put({ type: "PL_TICKETS_FETCHING" });
-    const tickets = yield call(queryAllPlayerTickets);
+    const { web3, contract, account } = yield select(state => ({
+      web3: state.player.web3,
+      contract: state.player.contract,
+      account: state.player.accounts[0]
+    }));
+
+    const tickets = yield call(queryAllPlayerTickets, web3, contract, account);
+
     yield put({ type: "PL_TICKETS_FETCH_SUCCEEDED", payload: tickets });
   } catch (e) {
     yield put({ type: "PL_TICKETS_FETCH_FAILED", payload: e.message });

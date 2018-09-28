@@ -1,10 +1,11 @@
 import { fork } from "redux-saga/effects";
 import { combineReducers } from "redux";
-import TicketModel from "./tickets.js";
-import PlayerModel from "./player.js";
-import PlayerTicketsModel from "./playertickets.js";
+import TicketModel from "./tickets";
+import PlayerModel from "./player";
+import PlayerTicketsModel from "./playertickets";
 import GlobalModel from "./global";
 import ApiModel from "./api";
+import PlayerActionsModel from "./playeractions";
 
 const context = require.context("./", false, /\.js$/);
 const all = context
@@ -29,7 +30,8 @@ export function* rootSaga() {
     fork(TicketModel.saga),
     fork(PlayerModel.saga),
     fork(PlayerTicketsModel.saga),
-    fork(GlobalModel.saga)
+    fork(GlobalModel.saga),
+    fork(PlayerActionsModel.saga)
   ];
 }
 
@@ -38,5 +40,6 @@ export const rootReducer = combineReducers({
   tickets: TicketModel.reducer,
   player: PlayerModel.reducer,
   playertickets: PlayerTicketsModel.reducer,
-  global: GlobalModel.reducer
+  global: GlobalModel.reducer,
+  playeractions: PlayerActionsModel.reducer
 });
