@@ -193,9 +193,9 @@ class Home extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ global }) => ({
-  closedTime: global.pot.potClosedTimestamp,
-  totalPot: global.pot.totalPot
+const mapStateToProps = ({ pot }) => ({
+  closedTime: pot.potClosedTimestamp,
+  totalPot: pot.totalPot
 });
 
 export default injectIntl(connect(mapStateToProps)(Home), { withRef: true });

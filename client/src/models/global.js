@@ -1,9 +1,5 @@
 import { call, put, takeLatest, select, fork } from "redux-saga/effects";
-import {
-  queryGameConfigs,
-  queryWinners,
-  queryPot
-} from "../services/GameService";
+import { queryGameConfigs } from "../services/GameService";
 
 function* fetchGameConfigs() {
   try {
@@ -20,40 +16,13 @@ function* fetchGameConfigs() {
   }
 }
 
-function* fetchWinners() {
-  try {
-    const contract = yield select(state => state.api.contract);
-
-    const winners = yield call(queryWinners, contract);
-
-    yield put({ type: "WINNERS_FETCH_SUCCEEDED", payload: winners });
-  } catch (e) {
-    yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
-  }
-}
-
-function* fetchPot() {
-  try {
-    const { web3, contract } = yield select(state => ({
-      web3: state.api.web3,
-      contract: state.api.contract
-    }));
-
-    const pot = yield call(queryPot, web3, contract);
-
-    yield put({ type: "POT_FETCH_SUCCEEDED", payload: pot });
-  } catch (e) {
-    yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
-  }
-}
-
 function* fetchAllGlobal() {
   console.log("ttt");
   yield [
     fork(fetchGameConfigs),
-    fork(fetchWinners),
     put({ type: "TICKET_FETCH_REQUESTED", payload: { page: 1, pageSize: 10 } }),
-    fork(fetchPot)
+    put({ type: "POT_FETCH_REQUESTED" }),
+    put({ type: "WINNERS_FETCH_REQUESTED", payload: { page: 1, pageSize: 10 } })
   ];
 }
 
@@ -62,12 +31,7 @@ function* saga() {
 }
 
 const initialState = {
-  gameConfigs: {},
-  pot: {
-    totalTickets: 0,
-    totalPotPlayers: 0
-  },
-  winners: []
+  gameConfigs: {}
 };
 
 const reducer = (state = initialState, action) => {
@@ -83,16 +47,6 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         gameConfigs: action.payload
-      };
-    case "WINNERS_FETCH_SUCCEEDED":
-      return {
-        ...state,
-        winners: action.payload
-      };
-    case "POT_FETCH_SUCCEEDED":
-      return {
-        ...state,
-        pot: action.payload
       };
     default:
       return state;

@@ -1,7 +1,8 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
-import { Table } from "reactstrap";
+import { Table, UncontrolledTooltip } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
+import moment from "moment";
 
 class OldWinners extends PureComponent {
   state = {
@@ -14,7 +15,7 @@ class OldWinners extends PureComponent {
     const { pageSize, page } = this.state;
 
     dispatch({
-      type: "TICKET_FETCH_REQUESTED",
+      type: "WINNERS_FETCH_REQUESTED",
       payload: {
         pageSize,
         page
@@ -27,7 +28,7 @@ class OldWinners extends PureComponent {
     const { dispatch } = this.props;
     if (page !== selectedPage) {
       dispatch({
-        type: "TICKET_FETCH_REQUESTED",
+        type: "WINNERS_FETCH_REQUESTED",
         payload: {
           pageSize,
           page: selectedPage
@@ -39,7 +40,7 @@ class OldWinners extends PureComponent {
 
   render() {
     const { pageSize, page } = this.state;
-    const { list, totalTickets, totalPotPlayers } = this.props;
+    const { list, totalWinners } = this.props;
 
     const startIndex = pageSize * Math.max(0, page - 1);
     const data = list.slice(startIndex, startIndex + pageSize);
@@ -50,27 +51,37 @@ class OldWinners extends PureComponent {
           <thead className="thead-light">
             <tr>
               <th>Round</th>
-              <th>Winner Ticket</th>
+              <th>Prize</th>
               <th>Nick Name</th>
               <th>Timestamp</th>
             </tr>
           </thead>
           <tbody>
             {data.map(item => (
-              <tr key={item.playerAddress}>
-                <th scope="row">{item.totalTickets}</th>
+              <tr key={item.round}>
+                <th scope="row">{item.round}</th>
+                <td>{item.totalPot}</td>
                 <td>
-                  {((item.totalTickets / totalTickets) * 100).toFixed(2)}%
+                  <div id={`WinnerAddress-${item.round}`}>
+                    {item.winnerAddress.substr(0, 6)}
+                    ...
+                    {item.winnerAddress.substr(
+                      item.winnerAddress.length - 4,
+                      item.winnerAddress.length
+                    )}
+                  </div>
+                  <UncontrolledTooltip
+                    placement="right"
+                    target={`WinnerAddress-${item.round}`}
+                  >
+                    {item.winnerAddress}
+                  </UncontrolledTooltip>
                 </td>
                 <td>
-                  {item.playerAddress.substr(0, 6)}
-                  ...
-                  {item.playerAddress.substr(
-                    item.playerAddress.length - 4,
-                    item.playerAddress.length
+                  {moment(item.potEndedTimestamp).format(
+                    "YYYY-MM-DD hh:mm:ssZ"
                   )}
                 </td>
-                <td>{item.totalTickets / 1000}</td>
               </tr>
             ))}
           </tbody>
@@ -78,7 +89,7 @@ class OldWinners extends PureComponent {
 
         <GgLikedPagination
           pageSize={pageSize}
-          totalItems={totalPotPlayers}
+          totalItems={totalWinners}
           onChangePage={this.handlePageClick}
         />
       </div>
@@ -86,9 +97,8 @@ class OldWinners extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ global, tickets }) => ({
-  list: tickets.list ? tickets.list : [],
-  totalTickets: global.pot.totalTickets,
-  totalPotPlayers: global.pot.totalPotPlayers
+const mapStateToProps = ({ winners }) => ({
+  list: winners.list ? winners.list : [],
+  totalWinners: winners.totalWinners
 });
 export default connect(mapStateToProps)(OldWinners);

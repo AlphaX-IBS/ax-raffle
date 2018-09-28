@@ -12,17 +12,16 @@ function* fetchTickets(action) {
     let limit = 10;
     const lastIndex = pageSize * page;
     const startIndex = pageSize * Math.max(0, page - 1);
-    let response;
+    let result = tickets.list.slice(0);
     if (tickets.list.length < lastIndex) {
       start = startIndex;
       limit = limit > pageSize ? limit : pageSize;
-      response = yield call(queryPotRecords, contract, start, limit);
-    } else {
-      response = tickets.list;
+      const response = yield call(queryPotRecords, contract, start, limit);
+      result.push(...response);
     }
     yield put({
       type: "TICKET_FETCH_SUCCEEDED",
-      payload: response
+      payload: result
     });
   } catch (e) {
     yield put({ type: "TICKET_FETCH_FAILED", payload: e.message });

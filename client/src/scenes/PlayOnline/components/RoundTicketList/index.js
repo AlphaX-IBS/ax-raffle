@@ -86,9 +86,9 @@ class RoundTicketList extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ global, tickets }) => ({
+const mapStateToProps = ({ pot, tickets }) => ({
   list: tickets.list ? tickets.list : [],
-  totalTickets: global.pot.totalTickets,
-  totalPotPlayers: global.pot.totalPotPlayers
+  totalTickets: pot.totalTickets,
+  totalPotPlayers: pot.totalPotPlayers
 });
 export default connect(mapStateToProps)(RoundTicketList);

@@ -13,6 +13,8 @@ function* requestBuyTickets(action) {
     const totalCost = action.payload;
     const tickets = yield call(buyTickets, web3, contract, account, totalCost);
 
+    yield put({type: "POT_FETCH_REQUESTED"});
+
     yield put({ type: "PL_TICKETS_BUY_SUCCEEDED", payload: tickets });
   } catch (e) {
     yield put({ type: "PL_TICKETS_BUY_FAILED", payload: e.message });

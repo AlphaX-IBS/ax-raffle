@@ -6,6 +6,8 @@ import PlayerTicketsModel from "./playertickets";
 import GlobalModel from "./global";
 import ApiModel from "./api";
 import PlayerActionsModel from "./playeractions";
+import PotModel from "./pot";
+import WinnersModel from "./winners";
 
 const context = require.context("./", false, /\.js$/);
 const all = context
@@ -14,6 +16,16 @@ const all = context
   .map(key => context(key));
 
 console.log(JSON.stringify(all));
+
+function requireAll(requireContext) {
+  return requireContext.keys().map(requireContext);
+}
+// requires and returns all modules that match
+
+const modules = requireAll(context);
+
+console.log(`modules=${JSON.stringify(modules)}`);
+// is an array containing all the matching modules
 
 // function startSagas(...sagas) {
 //   return function* rootSaga() {
@@ -25,13 +37,17 @@ console.log(JSON.stringify(all));
 // export default rootSaga = startSagas(saga1, saga2
 
 export function* rootSaga() {
+  const l = modules.map(model => model.saga);
+  console.log(`All models = ${JSON.stringify(l)}`);
   yield [
     fork(ApiModel.saga),
     fork(TicketModel.saga),
     fork(PlayerModel.saga),
     fork(PlayerTicketsModel.saga),
     fork(GlobalModel.saga),
-    fork(PlayerActionsModel.saga)
+    fork(PlayerActionsModel.saga),
+    fork(PotModel.saga),
+    fork(WinnersModel.saga)
   ];
 }
 
@@ -41,5 +57,7 @@ export const rootReducer = combineReducers({
   player: PlayerModel.reducer,
   playertickets: PlayerTicketsModel.reducer,
   global: GlobalModel.reducer,
-  playeractions: PlayerActionsModel.reducer
+  playeractions: PlayerActionsModel.reducer,
+  pot: PotModel.reducer,
+  winners: WinnersModel.reducer
 });

@@ -8,15 +8,32 @@ export async function queryGameConfigs(web3, contract) {
   return { ticketPrice, feeRate, gameIsActive };
 }
 
-export async function queryWinners(contract) {
+export async function queryWinners(web3, contract, start = 0, limit = 10) {
   const length = await contract.lengthOfGameWinnerList.call();
 
   const winners = [];
-  for (let i = 0; i < length; i++) {
+  winners.push({
+    round: 0,
+    winnerAddress: "0x48b2f0f0b403b29667e7a54775451873d927185a",
+    totalPot: 1.001,
+    potEndedTimestamp: 1538153048516
+  });
+  const size = Math.min(limit, length - start);
+
+  for (let i = 0; i < size; i++) {
     const winner = await contract.gameWinnerList(i);
-    winners.push(winner);
+
+    winners.push({
+      round: i + 1,
+      winnerAddress: winner.winnerAddress,
+      totalPot: web3.utils.fromWei(winner.totalWei),
+      potEndedTimestamp: winner.potEndedTimestamp.toNumber()
+    });
   }
-  return winners;
+  return {
+    list: winners,
+    totalWinners: length.toNumber()
+  };
 }
 
 export async function queryPotRecords(contract, start = 0, limit = 10) {
@@ -28,7 +45,9 @@ export async function queryPotRecords(contract, start = 0, limit = 10) {
     // const exrecord = { playerAddress, totalTickets };
     const playerRecord = await contract.potPlayerTicketList(i);
     list.push({
-      ...playerRecord,
+      playerAddress: playerRecord.playerAddress,
+      ticketStartNumber: playerRecord.ticketStartNumber.toNumber(),
+      ticketEndNumber: playerRecord.ticketEndNumber.toNumber(),
       totalTickets: playerRecord.totalTickets.toNumber()
     });
   }

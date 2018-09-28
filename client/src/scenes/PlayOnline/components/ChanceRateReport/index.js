@@ -23,9 +23,9 @@ class ChanceRateReport extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ playertickets, global }) => ({
+const mapStateToProps = ({ playertickets, pot }) => ({
   totalPlayerTickets: playertickets.totalPlTickets,
-  totalTickets: global.pot.totalTickets
+  totalTickets: pot.totalTickets
 });
 
 export default connect(mapStateToProps)(ChanceRateReport);
