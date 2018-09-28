@@ -1,56 +1,11 @@
 pragma solidity ^0.4.24;
 
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract Owner {
-    address public owner;
-
-    constructor() public {
-        owner = msg.sender;
-    }
-    
-    modifier onlyOwner() {
-        require(msg.sender == owner, "msg.sender is not owner");
-        _;
-    }
-
-    function changeOwner(address _newOwnerAddr) public onlyOwner {
-        require(_newOwnerAddr != address(0), "_newOwnerAddr is 0");
-        owner = _newOwnerAddr;
-    }
-}
-
-
-library SafeMath {
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        if (a == 0) {
-            return 0;
-        }
-        uint256 c = a * b;
-        assert(c / a == b);
-        return c;
-    }
-
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        // assert(b > 0); // Solidity automatically throws when dividing by 0
-        uint256 c = a / b;
-        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-        return c;
-    }
-
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        assert(b <= a);
-        return a - b;
-    }
-
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        assert(c >= a);
-        return c;
-    }
-}
-
-
-contract AxRaffle is Owner {
+contract AxRaffle is Ownable, Pausable {
     using SafeMath for uint;
 
     // Structures
@@ -63,8 +18,9 @@ contract AxRaffle is Owner {
 
     // Pot Player Info
     // Only store start and end ticket number to save space
-    struct AxPotPlayer {
+    struct AxPotPlayerTicket {
         address playerAddress;
+        uint totalTickets;        
         uint ticketStartNumber; 
         uint ticketEndNumber;
     }
@@ -90,8 +46,11 @@ contract AxRaffle is Owner {
     uint public potEndedTimestamp; // Pot ended timestamp, unix timestamp UTC
     
     uint public ticketNumberCeiling; // current latest of ticket number
-    AxPotPlayer[] public potPlayerList; //list of players
-    uint public lengthOfPotPlayerList; // Length of pot player list
+    AxPotPlayerTicket[] public potPlayerTicketList; //list of player-ticket
+    uint public lengthOfpotPlayerTicketList; // Length of pot player-ticket list
+    AxPotPlayerTicket[] public potPlayerList; // List of pot players
+    mapping(address => uint) public potPlayerIndexes; // index of player in pot player list
+    uint public totalPotPlayers; // Total players in pot
 
     uint public totalWeiPot; // Total Ether in pot
 
@@ -134,32 +93,29 @@ contract AxRaffle is Owner {
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         weiPerTicket = _weiPerTicket;
         feeRate = _feeRate;
+        lengthOfGameWinnerList = 0;
+        lengthOfpotPlayerTicketList = 0;
+        totalPotPlayers = 0;
     }
 
     // Set operator wallet address
-    function setOperatorWalletAddress (address _operatorAddress) external onlyOwner returns (bool) {
+    function setOperatorWalletAddress (address _operatorAddress) external onlyOwner {
         require(_operatorAddress != address(0), "new operator address is 0");
         require(_operatorAddress != operatorAddress, "new and old address are the same");
         operatorAddress = _operatorAddress;
-
-        return true;
     }
 
     // Set pot auto flg, pot opened time stamp, pot selling period, pot opening period
-    function setPotOpenParams(uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner returns (bool) {
+    function setPotOpenParams(uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner {
         potOpenedTimestamp = _potOpenedTimestamp;
         potSellingPeriod = _potSellingPeriod;
         potOpeningPeriod = _potOpeningPeriod;
-
-        return true;
     }
 
     // Set ticket Ether sale price, fee Ether rate, min players
-    function setPotSaleParams(uint _weiPerTicket, uint _feeRate) external onlyOwner returns (bool) {
+    function setPotSaleParams(uint _weiPerTicket, uint _feeRate) external onlyOwner {
         weiPerTicket = _weiPerTicket;
         feeRate = _feeRate;
-
-        return true;
     }
 
     // Activate game
@@ -174,19 +130,25 @@ contract AxRaffle is Owner {
         emit DeactivateGame(false);
     }
 
+    // Fallback function for buy tickets by Ether
+    function () external payable activatedGame potIsActive {
+        purchaseTicketsByEther();
+    }
+    
     // Purchase tickets to players by ETH
     // - Validate tx by pot open timestamp range
     // - Receive ether amount
     // - Calculate relevant number of tickets
-    // - Set ticket numbers to player's address
-    function () external payable activatedGame potIsActive {
+    // - Set ticket numbers to player's address 
+    function purchaseTicketsByEther() public activatedGame potIsActive {
         // Receive Ether amount
         uint numberOfTickets = 0;
         totalWeiPot = totalWeiPot.add(msg.value);
         // Calculate relevant number of tickets
         numberOfTickets = msg.value.div(weiPerTicket);
-        potPlayerList.push(AxPotPlayer(msg.sender,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
-        lengthOfPotPlayerList++;
+        potPlayerTicketList.push(AxPotPlayerTicket(msg.sender,0,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
+        lengthOfpotPlayerTicketList++;
+        updatePotPlayerList(msg.sender,numberOfTickets);
         emit PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
     }
@@ -223,22 +185,24 @@ contract AxRaffle is Owner {
     // }
 
     // Prepare for opening next pot
-    function prepareOpeningNextPot() private {
+    function prepareOpeningNextPot() {
         potOpenedTimestamp = potOpenedTimestamp + potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         totalWeiPot = 0;
         ticketNumberCeiling = 0;
+        delete potPlayerTicketList;
+        lengthOfpotPlayerTicketList = 0;
         delete potPlayerList;
-        lengthOfPotPlayerList=0;
+        totalPotPlayers = 0;
     }
 
     // Look up owner by ticket number
     function lookUpPlayerAddressByTicketNumber(uint _ticketNumber) public view returns (address) {
-        for (uint i = 0; i < potPlayerList.length; i++) {
-            uint ticketStartNumber = potPlayerList[i].ticketStartNumber;
-            uint ticketEndNumber = potPlayerList[i].ticketEndNumber;
+        for (uint i = 0; i < potPlayerTicketList.length; i++) {
+            uint ticketStartNumber = potPlayerTicketList[i].ticketStartNumber;
+            uint ticketEndNumber = potPlayerTicketList[i].ticketEndNumber;
             if (_ticketNumber >= ticketStartNumber && _ticketNumber <= ticketEndNumber) {
-                return potPlayerList[i].playerAddress;
+                return potPlayerTicketList[i].playerAddress;
             }
         }
         return address(0);
@@ -247,16 +211,29 @@ contract AxRaffle is Owner {
     // Look up ticket numbers by player address
     function lookUpTicketNumbersByPlayerAddress(address _playerAddress) public view returns (uint[]) {
         uint[] potTicketList;
-        for (uint i = 0; i < potPlayerList.length; i++) {
-            address playerAddress = potPlayerList[i].playerAddress;
-            uint ticketStartNumber = potPlayerList[i].ticketStartNumber;
-            uint ticketEndNumber = potPlayerList[i].ticketEndNumber;
+        for (uint i = 0; i < potPlayerTicketList.length; i++) {
+            address playerAddress = potPlayerTicketList[i].playerAddress;
+            uint ticketStartNumber = potPlayerTicketList[i].ticketStartNumber;
+            uint ticketEndNumber = potPlayerTicketList[i].ticketEndNumber;
             if (playerAddress == _playerAddress) {
                 potTicketList.push(ticketStartNumber);
                 potTicketList.push(ticketEndNumber);
             }
         }
         return potTicketList;
+    }
+
+    // Update pot player list
+    function updatePotPlayerList(address _player, uint _numberOfTickets)  {
+        uint256 playerIndex = potPlayerIndexes[_player];
+        if (potPlayerList.length > 0 && potPlayerList[playerIndex].playerAddress == _player)
+        {
+            potPlayerList[playerIndex].totalTickets += _numberOfTickets;
+            return;
+        } 
+        playerIndex = potPlayerList.push(AxPotPlayerTicket(_player,_numberOfTickets,0,0)) - 1;
+        potPlayerIndexes[_player] = playerIndex;
+        totalPotPlayers++;
     }
 
     // Check current timestamp in smart contract

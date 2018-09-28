@@ -6,9 +6,8 @@
     "configurations": [
         {
             "type": "chrome",
-            "request": "attach",
+            "request": "launch",
             "name": "Launch Chrome against localhost",
-            "port": 9229,
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}"
         }
