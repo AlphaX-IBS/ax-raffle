@@ -99,29 +99,23 @@ contract AxRaffle is Ownable, Pausable {
     }
 
     // Set operator wallet address
-    function setOperatorWalletAddress (address _operatorAddress) external onlyOwner returns (bool) {
+    function setOperatorWalletAddress (address _operatorAddress) external onlyOwner {
         require(_operatorAddress != address(0), "new operator address is 0");
         require(_operatorAddress != operatorAddress, "new and old address are the same");
         operatorAddress = _operatorAddress;
-
-        return true;
     }
 
     // Set pot auto flg, pot opened time stamp, pot selling period, pot opening period
-    function setPotOpenParams(uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner returns (bool) {
+    function setPotOpenParams(uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner {
         potOpenedTimestamp = _potOpenedTimestamp;
         potSellingPeriod = _potSellingPeriod;
         potOpeningPeriod = _potOpeningPeriod;
-
-        return true;
     }
 
     // Set ticket Ether sale price, fee Ether rate, min players
-    function setPotSaleParams(uint _weiPerTicket, uint _feeRate) external onlyOwner returns (bool) {
+    function setPotSaleParams(uint _weiPerTicket, uint _feeRate) external onlyOwner {
         weiPerTicket = _weiPerTicket;
         feeRate = _feeRate;
-
-        return true;
     }
 
     // Activate game
@@ -190,21 +184,8 @@ contract AxRaffle is Ownable, Pausable {
     //     return true;
     // }
 
-    // Update pot player list
-    function updatePotPlayerList(address _player, uint _numberOfTickets) private {
-        uint playerIndex = potPlayerIndexes[_player];
-        if (potPlayerList[playerIndex].playerAddress == _player)
-        {
-            potPlayerList[playerIndex].totalTickets += _numberOfTickets;
-        } else {
-            playerIndex = potPlayerList.push(AxPotPlayerTicket(_player,_numberOfTickets,0,0)) - 1;
-            potPlayerIndexes[_player] = playerIndex;
-            totalPotPlayers++;
-        }
-    }
-
     // Prepare for opening next pot
-    function prepareOpeningNextPot() private {
+    function prepareOpeningNextPot() {
         potOpenedTimestamp = potOpenedTimestamp + potOpeningPeriod;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         totalWeiPot = 0;
@@ -240,6 +221,19 @@ contract AxRaffle is Ownable, Pausable {
             }
         }
         return potTicketList;
+    }
+
+    // Update pot player list
+    function updatePotPlayerList(address _player, uint _numberOfTickets)  {
+        uint256 playerIndex = potPlayerIndexes[_player];
+        if (potPlayerList.length > 0 && potPlayerList[playerIndex].playerAddress == _player)
+        {
+            potPlayerList[playerIndex].totalTickets += _numberOfTickets;
+            return;
+        } 
+        playerIndex = potPlayerList.push(AxPotPlayerTicket(_player,_numberOfTickets,0,0)) - 1;
+        potPlayerIndexes[_player] = playerIndex;
+        totalPotPlayers++;
     }
 
     // Check current timestamp in smart contract
