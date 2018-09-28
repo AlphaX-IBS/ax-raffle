@@ -5,8 +5,34 @@ import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/token/ERC20/ERC2
 import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+// library Strings {
+
+//     function concat(string _base, string _value) internal returns (string) {
+//         bytes memory _baseBytes = bytes(_base);
+//         bytes memory _valueBytes = bytes(_value);
+
+//         string memory _tmpValue = new string(_baseBytes.length + _valueBytes.length);
+//         bytes memory _newValue = bytes(_tmpValue);
+
+//         uint i;
+//         uint j;
+
+//         for(i=0; i<_baseBytes.length; i++) {
+//             _newValue[j++] = _baseBytes[i];
+//         }
+
+//         for(i=0; i<_valueBytes.length; i++) {
+//             _newValue[j++] = _valueBytes[i++];
+//         }
+
+//         return string(_newValue);
+//     }
+
+// }
+
 contract AxRaffle is Ownable, Pausable {
     using SafeMath for uint;
+    // using Strings for string;
 
     // Structures
     // Pot Winner Info
@@ -209,15 +235,18 @@ contract AxRaffle is Ownable, Pausable {
     }
 
     // Look up ticket numbers by player address
-    function lookUpTicketNumbersByPlayerAddress(address _playerAddress) public view returns (uint[]) {
-        uint[] potTicketList;
+    function lookUpTicketNumbersByPlayerAddress(address _playerAddress) public view returns (uint[100]) {
+        uint[100] memory potTicketList;
+        uint potTicketIdx = 0;
         for (uint i = 0; i < potPlayerTicketList.length; i++) {
             address playerAddress = potPlayerTicketList[i].playerAddress;
             uint ticketStartNumber = potPlayerTicketList[i].ticketStartNumber;
             uint ticketEndNumber = potPlayerTicketList[i].ticketEndNumber;
             if (playerAddress == _playerAddress) {
-                potTicketList.push(ticketStartNumber);
-                potTicketList.push(ticketEndNumber);
+                potTicketList[potTicketIdx] = ticketStartNumber;
+                potTicketIdx = potTicketIdx + 1;
+                potTicketList[potTicketIdx] = ticketEndNumber;
+                potTicketIdx = potTicketIdx + 1;
             }
         }
         return potTicketList;
@@ -255,4 +284,15 @@ contract AxRaffle is Ownable, Pausable {
 
         return (a * seed + c) % m;
     }
+
+    // function bytes32ToString (bytes32 data) returns (string) {
+    //     bytes memory bytesString = new bytes(32);
+    //     for (uint j=0; j<32; j++) {
+    //         byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
+    //         if (char != 0) {
+    //             bytesString[j] = char;
+    //         }
+    //     }
+    //     return string(bytesString);
+    // }
 }
