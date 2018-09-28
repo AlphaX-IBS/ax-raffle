@@ -32,8 +32,8 @@ class TopBar extends PureComponent {
           <Blockies
             className="align-middle"
             seed={account}
-            size={8}
-            scale={6}
+            size={6}
+            scale={8}
             color="#ff753b"
             bgColor="#2b6cc4"
             spotColor="#1dacd6"

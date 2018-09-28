@@ -21,7 +21,7 @@ class Home extends PureComponent {
                 </button>
               </div>
             </div>
-            <div className="col-md-2 award">
+            <div className="col-md-2 col-sm-6 award">
               <img
                 style={{ maxHeight: "300px" }}
                 src="/img/bare-home-current-pot.png"
@@ -31,7 +31,7 @@ class Home extends PureComponent {
                 <AwardTag value={totalPot} symbol="&#x29eb;" />
               </div>
             </div>
-            <div className="col-md-5">
+            <div className="col-md-5 col-sm-6">
               <img
                 style={{ maxHeight: "350px" }}
                 src="/img/home-raffles-game.png"

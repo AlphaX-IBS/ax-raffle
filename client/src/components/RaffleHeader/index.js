@@ -31,10 +31,10 @@ class RaffleHeader extends PureComponent {
   render() {
     return (
       <header>
-        <Navbar className="pl-0" light expand="md">
+        <Navbar light expand="md">
+          <NavbarToggler onClick={this.toggle} />
           <NavbarBrand href="/">
             <img src="img/logo.png" alt="" /></NavbarBrand>
-          <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
@@ -52,7 +52,7 @@ class RaffleHeader extends PureComponent {
                   Contact
                 </NavLink>
               </NavItem>
-              <UncontrolledDropdown nav inNavbar>
+              {/* <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>
                   Options
                 </DropdownToggle>
@@ -62,7 +62,7 @@ class RaffleHeader extends PureComponent {
                   <DropdownItem divider />
                   <DropdownItem>Reset</DropdownItem>
                 </DropdownMenu>
-              </UncontrolledDropdown>
+              </UncontrolledDropdown> */}
             </Nav>
           </Collapse>
         <TopBar /> {/* Topbar will be used for notification area*/}
