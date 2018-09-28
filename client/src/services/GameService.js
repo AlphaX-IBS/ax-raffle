@@ -1,3 +1,5 @@
+import { queryAllPlayerTickets } from "./PlayerService";
+
 export async function queryGameConfigs(web3, contract) {
   const weiPerTicket = await contract.weiPerTicket.call();
   const ticketPrice = web3.utils.fromWei(weiPerTicket, "ether");
@@ -38,9 +40,10 @@ export async function queryWinners(web3, contract, start = 0, limit = 10) {
 
 export async function queryPotRecords(contract, start = 0, limit = 10) {
   const length = await contract.lengthOfpotPlayerTicketList.call();
-  console.log(`length=${length}`);
+
   const list = [];
   const size = Math.min(limit, length - start);
+
   for (let i = start; i < size; i++) {
     // const exrecord = { playerAddress, totalTickets };
     const playerRecord = await contract.potPlayerTicketList(i);
@@ -53,6 +56,29 @@ export async function queryPotRecords(contract, start = 0, limit = 10) {
   }
 
   console.log(`records=${JSON.stringify(list)}`);
+  return list;
+}
+
+export async function queryPotRecordsPerPlayer(contract, start = 0, limit = 10) {
+  const length = await contract.totalPotPlayers.call();
+
+  const list = [];
+  const size = Math.min(limit, length - start);
+  
+  for (let i = start; i < size; i++) {
+    const player = await contract.potPlayerList(i);
+    const tickets = await queryAllPlayerTickets(
+      null,
+      contract,
+      player.playerAddress
+    );
+    list.push({
+      playerAddress: player.playerAddress,
+      list: tickets.list,
+      totalTickets: tickets.totalPlTickets
+    });
+  }
+  console.log(`potPlayers=${list}`);
   return list;
 }
 

@@ -1,5 +1,5 @@
 import { call, put, takeLatest, select } from "redux-saga/effects";
-import { queryPotRecords } from "../services/GameService";
+import { queryPotRecords, queryPotRecordsPerPlayer } from "../services/GameService";
 
 function* fetchTickets(action) {
   try {
@@ -16,7 +16,7 @@ function* fetchTickets(action) {
     if (tickets.list.length < lastIndex) {
       start = startIndex;
       limit = limit > pageSize ? limit : pageSize;
-      const response = yield call(queryPotRecords, contract, start, limit);
+      const response = yield call(queryPotRecordsPerPlayer, contract, start, limit);
       result.push(...response);
     }
     yield put({

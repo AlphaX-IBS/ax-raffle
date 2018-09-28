@@ -1,6 +1,6 @@
 export async function queryAllPlayerTickets(web3, contract, account) {
   const numberList = await contract.lookUpTicketNumbersByPlayerAddress(account);
-  console.log(`numberList=${JSON.stringify(numberList)}`);
+
   const tickets = {
     list: [],
     totalPlTickets: 0
@@ -10,12 +10,12 @@ export async function queryAllPlayerTickets(web3, contract, account) {
     for (let i = 0; i < numberList.length; i += 2) {
       if (numberList[i] != 0 || numberList[i + 1] != 0) {
         const record = {
-          ticketStartNumber: numberList[i],
-          ticketEndNumber: numberList[i + 1]
+          ticketStartNumber: numberList[i].toNumber(),
+          ticketEndNumber: numberList[i + 1].toNumber()
         };
         tickets.list.push(record);
         tickets.totalPlTickets +=
-          record.ticketEndNumber - record.ticketEndNumber + 1;
+          record.ticketEndNumber - record.ticketStartNumber + 1;
       }
     }
   }
