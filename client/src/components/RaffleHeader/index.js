@@ -5,6 +5,7 @@ import {
   NavbarToggler,
   Nav,
   NavItem,
+  NavbarBrand,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -30,8 +31,9 @@ class RaffleHeader extends PureComponent {
   render() {
     return (
       <header>
-        <TopBar />
         <Navbar className="pl-0" light expand="md">
+          <NavbarBrand href="/">
+            <img src="img/logo.png" alt="" /></NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="mr-auto" navbar>
@@ -63,6 +65,7 @@ class RaffleHeader extends PureComponent {
               </UncontrolledDropdown>
             </Nav>
           </Collapse>
+        <TopBar /> {/* Topbar will be used for notification area*/}
         </Navbar>
       </header>
     );

@@ -112,7 +112,7 @@ class Home extends PureComponent {
                   alt="Ethereum"
                 />
                 <div className="raffle-card-body">
-                  <h3>Send Ethereum to this smart contract address:</h3>
+                  <h4>Send Ethereum to this smart contract address:</h4>
                   <p className="raffle-card-text">
                     {process.env.REACT_APP_CONTRACT_ADDRESS}
                   </p>
@@ -127,9 +127,9 @@ class Home extends PureComponent {
                   alt="Ethereum"
                 />
                 <div className="raffle-card-body">
-                  <h3>Send Ethereum to this smart contract address:</h3>
+                  <h4>Each Ethereum gives you 1000 raffle tickets</h4>
                   <p className="raffle-card-text">
-                    {process.env.REACT_APP_CONTRACT_ADDRESS}
+                  check your ticket numbers <a href="/play">here</a>
                   </p>
                 </div>
               </div>
@@ -142,9 +142,9 @@ class Home extends PureComponent {
                   alt="Ethereum"
                 />
                 <div className="raffle-card-body">
-                  <h3>Send Ethereum to this smart contract address:</h3>
+                  <h4>Every day at 0:00 GMT.</h4>
                   <p className="raffle-card-text">
-                    {process.env.REACT_APP_CONTRACT_ADDRESS}
+                  The smart contract will randomly select one winning ticket. The address that owns this ticket will wins the whole pot!
                   </p>
                 </div>
               </div>

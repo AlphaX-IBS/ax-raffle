@@ -1,7 +1,6 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import Blockies from "react-blockies";
-import { NavLink } from "react-router-dom";
 
 class TopBar extends PureComponent {
   handleConnect = () => {
@@ -16,7 +15,7 @@ class TopBar extends PureComponent {
     let avatar = (
       <button
         type="button"
-        className="btn btn-primary-home"
+        className="btn btn-red"
         onClick={this.handleConnect}
       >
         Connect
@@ -24,26 +23,21 @@ class TopBar extends PureComponent {
     );
     if (account) {
       avatar = (
-        <Blockies
+        <div className="logged-in">
+        <span className="align-middle">Logged in as: {account.substring(0,6)}...{account.substring(account.length-4)}</span>
+        <Blockies className="align-middle"
           seed={account}
-          size={10}
-          scale={3}
-          color="#dfe"
-          bgColor="#dedede"
-          spotColor="#abc"
-        />
+          size={8}
+          scale={6}
+          color="#ff753b"
+          bgColor="#2b6cc4"
+          spotColor="#1dacd6"
+        /></div>
       );
     }
 
     return (
-      <div className="row">
-        <div className="col-md-8">
-          <NavLink className="navbar-brand" to="/">
-            <img src="img/logo.png" alt="" />
-          </NavLink>
-        </div>
-        <div className="col-md-4">{avatar}</div>
-      </div>
+        <div>{avatar}</div>
     );
   }
 }
