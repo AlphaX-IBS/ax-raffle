@@ -24,21 +24,25 @@ class TopBar extends PureComponent {
     if (account) {
       avatar = (
         <div className="logged-in">
-        <span className="align-middle">Logged in as: {account.substring(0,6)}...{account.substring(account.length-4)}</span>
-        <Blockies className="align-middle"
-          seed={account}
-          size={8}
-          scale={6}
-          color="#ff753b"
-          bgColor="#2b6cc4"
-          spotColor="#1dacd6"
-        /></div>
+          <span className="align-middle">
+            Logged in as: {account.substring(0, 6)}
+            ...
+            {account.substring(account.length - 4)}
+          </span>
+          <Blockies
+            className="align-middle"
+            seed={account}
+            size={8}
+            scale={6}
+            color="#ff753b"
+            bgColor="#2b6cc4"
+            spotColor="#1dacd6"
+          />
+        </div>
       );
     }
 
-    return (
-        <div>{avatar}</div>
-    );
+    return <div>{avatar}</div>;
   }
 }
 

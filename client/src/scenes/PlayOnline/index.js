@@ -20,6 +20,7 @@ import {
 } from "reactstrap";
 import RoundTicketList from "./components/RoundTicketList";
 import OwnerTicketList from "./components/OwnerTicketList/index";
+import OldWinners from "./components/OldWinners";
 import { connect } from "react-redux";
 import ChanceRateReport from "./components/ChanceRateReport";
 
@@ -176,6 +177,18 @@ class PlayOnline extends PureComponent {
                     Your tickets
                   </NavLink>
                 </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({
+                      active: this.state.activeTab === "3"
+                    })}
+                    onClick={() => {
+                      this.toggle("3");
+                    }}
+                  >
+                    Old Winners
+                  </NavLink>
+                </NavItem>
               </Nav>
               <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
@@ -183,6 +196,9 @@ class PlayOnline extends PureComponent {
                 </TabPane>
                 <TabPane tabId="2">
                   <OwnerTicketList />
+                </TabPane>
+                <TabPane tabId="3">
+                    <OldWinners />
                 </TabPane>
               </TabContent>
             </div>
