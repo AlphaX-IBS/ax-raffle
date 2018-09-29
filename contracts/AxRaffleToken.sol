@@ -1,4 +1,5 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
@@ -12,8 +13,11 @@ contract AxRaffle is Ownable, Pausable {
     // Pot Winner Info
     struct AxPotWinner {
         address winnerAddress;
+        uint totalTickets;
         uint totalWei;
-        AxTokenAmount[] totalTokenAmount;
+        // AxTokenAmount[] totalTokenAmount;
+        address[] tokens;
+        uint[] tokenAmounts;
         uint potEndedTimestamp;
     }
 
@@ -23,7 +27,9 @@ contract AxRaffle is Ownable, Pausable {
         address playerAddress;
         uint totalTickets;
         uint totalWei;
-        AxTokenAmount[] totalTokenAmount;      
+        // AxTokenAmount[] totalTokenAmount;
+        address[] tokens;
+        uint[] tokenAmounts;
         uint ticketStartNumber; 
         uint ticketEndNumber;
     }
@@ -31,7 +37,7 @@ contract AxRaffle is Ownable, Pausable {
     // Token info
     struct AxTokenInfo {
         address contract_;
-        byte32 symbol_;
+        bytes32 symbol_;
         uint decimals_;
         uint amountPerTicket_;
     }
@@ -83,7 +89,7 @@ contract AxRaffle is Ownable, Pausable {
     event ActivateGame(bool _active);
     event DeactivateGame(bool _deactive);
     event PurchaseTicketsByEther(address indexed playerAddress, uint weiAmount, uint startTicketNumber, uint endTicketNumber);
-    event DrawTicket(address indexed winnerAddress, uint winnerTicketNumber, uint winnerPrize, uint potEndedTimestamp);
+    event DrawTicket(address indexed winnerAddress, uint winnerTicketNumber, uint potEndedTimestamp);
     event TokenTransferFailed(address indexed from_, address indexed to_, uint tokenAmount_);
     event TokenTransferSuccessful(address indexed from_, address indexed to_, uint tokenAmount_);
 
@@ -172,22 +178,22 @@ contract AxRaffle is Ownable, Pausable {
     }
 
     // Add new token payment list
-    function addNewTokenPaymentInfo(address[] _tokenAddresses, byte32[] _tokenSymbols, uint[] _tokenDecimals, uint[] _tokensPerTicket) external activatedTokenPayment potIsClosed onlyOwner {
-        require(_tokenAddresses.length > 0 && _tokenAddresses.length == _tokenSymbols.lendth == _tokenDecimals.lendth == _tokensPerTicket.length);
+    function addNewTokenPaymentInfo(address[] _tokenAddresses, bytes32[] _tokenSymbols, uint[] _tokenDecimals, uint[] _tokensPerTicket) external activatedTokenPayment potIsClosed onlyOwner {
+        require(_tokenAddresses.length > 0 && _tokenAddresses.length == _tokenSymbols.length && _tokenAddresses.length == _tokenDecimals.length && _tokenAddresses.length == _tokensPerTicket.length);
         for (uint i = 0; i < _tokenAddresses.length; i++) {
             tokenPaymentList[_tokenAddresses[i]] = AxTokenInfo(_tokenAddresses[i],_tokenSymbols[i],_tokenDecimals[i],_tokensPerTicket[i]);
+            totalPaymentTokens = totalPaymentTokens + 1;
         }
-        totalPaymentTokens = tokenPaymentList.length;
     }
 
     // Remove token payment list
     function removeTokenPaymentInfo(address[] _tokenAddresses) external activatedTokenPayment potIsClosed onlyOwner {
         require(_tokenAddresses.length > 0);
         for (uint i = 0; i < _tokenAddresses.length; i++) {
-            require(tokenPaymentList[_tokenAddresses[i]] != 0x0);
+            require(tokenPaymentList[_tokenAddresses[i]].contract_ != address(0));
             delete(tokenPaymentList[_tokenAddresses[i]]);
+            totalPaymentTokens = totalPaymentTokens - 1;
         }
-        totalPaymentTokens = tokenPaymentList.length;
     }
 
     // Buy tickets by ERC20 tokens
@@ -201,7 +207,7 @@ contract AxRaffle is Ownable, Pausable {
     function PurchaseTicketsByERC20Tokens(address[] _tokenAddresses, uint[] _tokenAmountList) external activatedGame potIsActive activatedTokenPayment {
         require(_tokenAddresses.length > 0 && _tokenAddresses.length == _tokenAmountList.length);
         for (uint i = 0; i < _tokenAddresses.length; i++) {
-            require(tokenPaymentList[_tokenAddresses[i]] != 0x0 && _tokenAmountList[i] > 0);
+            require(tokenPaymentList[_tokenAddresses[i]].contract_ != address(0) && _tokenAmountList[i] > 0);
             address playerAddress = msg.sender;
             ERC20Interface = ERC20(_tokenAddresses[i]);
             if (_tokenAmountList[i] > ERC20Interface.allowance(playerAddress,address(this))) {
@@ -211,8 +217,12 @@ contract AxRaffle is Ownable, Pausable {
             ERC20Interface.transferFrom(playerAddress, address(this), _tokenAmountList[i]);
             uint ticketPrice = tokenPaymentList[_tokenAddresses[i]].amountPerTicket_;
             uint numberOfTickets = _tokenAmountList[i].div(ticketPrice);
-            AxTokenAmount tokenAmount = AxTokenAmount(_tokenAddresses[i],_tokenAmountList[i]);
-            potPlayerTicketList.push(AxPotPlayerTicket(playerAddress,0,0,totalTokenAmount.push(tokenAmount),ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
+            AxTokenAmount memory tokenAmount = AxTokenAmount(_tokenAddresses[i],_tokenAmountList[i]);
+            AxTokenAmount[] memory tokensAmount;
+            // tokensAmount.push();
+            // tokensAmount.length++;
+            tokensAmount[0] = tokenAmount;
+            potPlayerTicketList.push(AxPotPlayerTicket(playerAddress,0,0,tokensAmount,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
 
         }
     }
@@ -233,9 +243,11 @@ contract AxRaffle is Ownable, Pausable {
         totalWeiPot = totalWeiPot.add(msg.value);
         // Calculate relevant number of tickets
         numberOfTickets = msg.value.div(weiPerTicket);
-        potPlayerTicketList.push(AxPotPlayerTicket(msg.sender,0,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
+        AxTokenAmount[] tokensAmount;
+        potPlayerTicketList.push(AxPotPlayerTicket(msg.sender,0,msg.value,tokensAmount,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets));
         lengthOfpotPlayerTicketList++;
-        updatePotPlayerList(msg.sender,numberOfTickets);
+        AxTokenAmount memory tokenAmount = AxTokenAmount(address(0),0);
+        updatePotPlayerList(msg.sender,numberOfTickets,msg.value,tokenAmount);
         emit PurchaseTicketsByEther(msg.sender,msg.value,ticketNumberCeiling + 1,ticketNumberCeiling + numberOfTickets);
         ticketNumberCeiling = ticketNumberCeiling + numberOfTickets;
     }
@@ -265,13 +277,8 @@ contract AxRaffle is Ownable, Pausable {
         // Prepare opening next pot
         prepareOpeningNextPot();
 
-        emit DrawTicket(winnerAddress,winnerTicket,winnerPrize,potEndedTimestamp);
+        emit DrawTicket(winnerAddress,winnerTicket,potEndedTimestamp);
     }
-
-    // Claim refund
-    // function claimRefund() external returns (bool) {
-    //     return true;
-    // }
 
     // Prepare for opening next pot
     function prepareOpeningNextPot() {
@@ -335,8 +342,10 @@ contract AxRaffle is Ownable, Pausable {
                 potPlayerList[playerIndex].totalTokenAmount.push(_totalTokenAmount);
             }
             return;
-        } 
-        playerIndex = potPlayerList.push(AxPotPlayerTicket(_player,_numberOfTickets,_totalWei,totalTokenAmount.push(_totalTokenAmount),0,0)) - 1;
+        }
+        AxTokenAmount[] tokensAmount;
+        tokensAmount.push(_totalTokenAmount);
+        playerIndex = potPlayerList.push(AxPotPlayerTicket(_player,_numberOfTickets,_totalWei,tokensAmount,0,0)) - 1;
         potPlayerIndexes[_player] = playerIndex;
         totalPotPlayers++;
     }
@@ -344,12 +353,12 @@ contract AxRaffle is Ownable, Pausable {
     // Update pot token amount list
     function updatePotTokenAmountList(address _token, uint _totalAmount) {
         uint tokenIndex = tokenIndexes[_token];
-        if (potTokenAmountList.length > 0 && potTokenAmountList[tokenIndex] == _token) {
+        if (potTokenAmountList.length > 0 && potTokenAmountList[tokenIndex].contract_ == _token) {
             potTokenAmountList[tokenIndex].totalAmount_ += _totalAmount;
             return;
         }
         tokenIndex = potTokenAmountList.push(AxTokenAmount(_token, _totalAmount)) - 1;
-        potTokenAmountList[_token] = tokenIndex;
+        tokenIndexes[_token] = tokenIndex;
         totalPotTokens = potTokenAmountList.length;
     }
 
@@ -357,7 +366,7 @@ contract AxRaffle is Ownable, Pausable {
     function updateGameWinnerList(address _potWinner) {
         AxTokenAmount[] totalPotTokenPrize;
         for (uint i=0; i < potTokenAmountList.length; i++) {
-            totalPotTokenPrize.push(AxTokenAmount(potTokenAmountList[i].contract_,potTokenAmountList[i].totalAmount_.mul(1 - toeknFeeRate / 100)));
+            totalPotTokenPrize.push(AxTokenAmount(potTokenAmountList[i].contract_,potTokenAmountList[i].totalAmount_.mul(1 - tokenFeeRate / 100)));
         }
         gameWinnerList.push(AxPotWinner(_potWinner,totalWeiPot.mul(1 - feeRate / 100),totalPotTokenPrize,potEndedTimestamp));
         lengthOfGameWinnerList++;
