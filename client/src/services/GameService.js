@@ -55,6 +55,8 @@ export async function queryPotRecords(contract, start = 0, limit = 10) {
     });
   }
 
+  // console.log(`potRecords=${JSON.stringify(list)}`);
+
   return list;
 }
 
@@ -78,15 +80,17 @@ export async function queryPotRecordsPerPlayer(contract, start = 0, limit = 10) 
     });
   }
 
+  // console.log(`potRecords=${JSON.stringify(list)}`);
+
   return list;
 }
 
 export async function queryPot(web3, contract) {
   const potOpenedTimestampBigNumber = await contract.potOpenedTimestamp.call();
-  const potOpenedTimestamp = potOpenedTimestampBigNumber.toNumber();
+  const potOpenedTimestamp = potOpenedTimestampBigNumber.toNumber() * 1000; // seconds to millis
 
   const potClosedTimestampBigNumber = await contract.potClosedTimestamp.call();
-  const potClosedTimestamp = potClosedTimestampBigNumber.toNumber();
+  const potClosedTimestamp = potClosedTimestampBigNumber.toNumber() * 1000; // seconds to millis
 
   const totalWeiPot = await contract.totalWeiPot.call();
   const totalPot = web3.utils.fromWei(totalWeiPot, "ether");

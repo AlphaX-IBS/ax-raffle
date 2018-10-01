@@ -144,7 +144,8 @@ class PlayOnline extends PureComponent {
                     lottery tickets and hope that one of your ticket numbers
                     will be picked. The draw takes place once per week, on
                     Thursday. How to play Click on tab "Buy ticket" and enter
-                    number of tickets you want to buy. Each ticket costs 0.0015
+                    number of tickets you want to buy. Each ticket costs
+                    {` ${ticketPrice} `}
                     ETH. You can buy tickets only with Ether. Lots will be drawn
                     each week on thursday using random numbers generated through
                   </p>
@@ -232,6 +233,8 @@ class PlayOnline extends PureComponent {
 const mapStateToProps = ({ global, player }) => ({
   account: player.accounts.length > 0 ? player.accounts[0] : undefined,
   ticketPrice: global.gameConfigs.ticketPrice
+    ? global.gameConfigs.ticketPrice
+    : NaN
 });
 
 export default connect(mapStateToProps)(PlayOnline);

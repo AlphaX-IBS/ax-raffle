@@ -181,7 +181,7 @@ class Home extends PureComponent {
                 laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
                 dolor in reprehenderit .
               </p>
-              <button type="button" className="btn-red">
+              <button type="button" className="btn-red" onClick={this.goToPlayNow}>
                 Join now!
               </button>
               <button type="button" className="btn-blue">

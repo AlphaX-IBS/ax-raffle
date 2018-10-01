@@ -8,10 +8,12 @@ export async function queryAllPlayerTickets(web3, contract, account) {
 
   if (Array.isArray(numberList) && numberList.length % 2 === 0) {
     for (let i = 0; i < numberList.length; i += 2) {
-      if (numberList[i] !== 0 || numberList[i + 1] !== 0) {
+      const startNum = numberList[i].toNumber();
+      const endNum = numberList[i + 1].toNumber();
+      if (startNum !== 0 || endNum !== 0) {
         const record = {
-          ticketStartNumber: numberList[i].toNumber(),
-          ticketEndNumber: numberList[i + 1].toNumber()
+          ticketStartNumber: startNum,
+          ticketEndNumber: endNum
         };
         tickets.list.push(record);
         tickets.totalPlTickets +=
@@ -19,6 +21,8 @@ export async function queryAllPlayerTickets(web3, contract, account) {
       }
     }
   }
+
+  // console.log(`playerTickets=${JSON.stringify(tickets)}`);
 
   return tickets;
 
