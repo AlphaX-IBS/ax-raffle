@@ -145,7 +145,7 @@ class PlayOnline extends PureComponent {
                     will be picked. The draw takes place once per week, on
                     Thursday. How to play Click on tab "Buy ticket" and enter
                     number of tickets you want to buy. Each ticket costs
-                    {` ${ticketPrice} `}
+                    <strong>{` ${ticketPrice} `}</strong>
                     ETH. You can buy tickets only with Ether. Lots will be drawn
                     each week on thursday using random numbers generated through
                   </p>

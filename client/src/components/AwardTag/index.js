@@ -23,7 +23,7 @@ const defaultProps = {
 AwardTag.defaultProps = defaultProps;
 
 const propTypes = {
-  value: PropTypes.number.isRequired,
+  value: PropTypes.any.isRequired,
   symbol: PropTypes.string
 };
 AwardTag.propTypes = propTypes;

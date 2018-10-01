@@ -98,7 +98,7 @@ class Home extends PureComponent {
               >
                 Join now!
               </button>
-              <button type="button" className="btn-red">
+              <button type="button" className="btn-red" onClick={this.goToPlayNow}>
                 Results
               </button>
             </div>
@@ -184,7 +184,7 @@ class Home extends PureComponent {
               <button type="button" className="btn-red" onClick={this.goToPlayNow}>
                 Join now!
               </button>
-              <button type="button" className="btn-blue">
+              <button type="button" className="btn-blue" onClick={this.goToPlayNow}>
                 Results
               </button>
             </div>

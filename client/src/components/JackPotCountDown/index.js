@@ -57,7 +57,7 @@ class JackPotCountDown extends PureComponent {
     if (props.target === undefined) {
       return lastTime;
     }
-    console.log(`target=${props.target}`);
+    // console.log(`target=${props.target}`);
     try {
       if (Object.prototype.toString.call(props.target) === "[object Date]") {
         targetTime = props.target.getTime();
@@ -78,7 +78,6 @@ class JackPotCountDown extends PureComponent {
   //  <span>{moment(time).format('hh:mm:ss')}</span>
   // );
   defaultFormat = time => {
-    console.log("time=" + time);
     const timeLeft = getRemainingTimeFromDaysToSeconds(Math.floor(time / 1000));
     return (
       <div className="clockdiv">
