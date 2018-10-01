@@ -44,11 +44,11 @@ class RaffleHeader extends PureComponent {
                   Play Online
                 </NavLink>
               </NavItem>
-              <NavItem>
+              {/* <NavItem>
                 <NavLink to="/contact" className="nav-link">
                   Contact
                 </NavLink>
-              </NavItem>
+              </NavItem> */}
               {/* <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>
                   Options

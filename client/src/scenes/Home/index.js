@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import { injectIntl } from "react-intl";
+import { Link } from "react-router-dom";
 import JackPotCountDown from "../../components/JackPotCountDown";
 import AwardTag from "../../components/AwardTag";
 import { connect } from "react-redux";
@@ -44,7 +45,7 @@ class Home extends PureComponent {
               </div>
             </div>
             <div className="col pt-50 text-center d-block d-sm-none xs-currentpot">
-              <p style={{marginBottom:0}}>Current pot:</p>
+              <p style={{ marginBottom: 0 }}>Current pot:</p>
               <h2 className="text-center">
                 <FontAwesomeIcon icon={faEthereum} /> {totalPot}
               </h2>
@@ -101,14 +102,14 @@ class Home extends PureComponent {
               </p>
               <button
                 type="button"
-                className="btn-blue"
+                className="btn-red"
                 onClick={this.goToPlayNow}
               >
                 Join now!
               </button>
               <button
                 type="button"
-                className="btn-red"
+                className="btn-blue"
                 onClick={this.goToPlayNow}
               >
                 Results
@@ -153,7 +154,7 @@ class Home extends PureComponent {
                 <div className="raffle-card-body">
                   <h4>Each Ethereum gives you 1000 raffle tickets</h4>
                   <p className="raffle-card-text">
-                    check your ticket numbers <a href="/play">here</a>
+                    check your ticket numbers <Link to="/play">here</Link>
                   </p>
                 </div>
               </div>

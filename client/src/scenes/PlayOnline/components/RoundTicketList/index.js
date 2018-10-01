@@ -5,7 +5,7 @@ import GgLikedPagination from "./../../../../components/GgLikedPagination/index"
 
 class RoundTicketList extends PureComponent {
   state = {
-    pageSize: 2,
+    pageSize: 6,
     page: 1
   };
 
@@ -51,7 +51,7 @@ class RoundTicketList extends PureComponent {
             <tr>
               <th>Total tickets</th>
               <th>Win chance</th>
-              <th>Nick Name</th>
+              <th>Player</th>
               <th>Amount</th>
             </tr>
           </thead>

@@ -12,7 +12,7 @@ function formatTicketRange(startNum, endNum) {
 
 class OwnerTicketList extends Component {
   state = {
-    pageSize: 2,
+    pageSize: 6,
     page: 1
   };
 

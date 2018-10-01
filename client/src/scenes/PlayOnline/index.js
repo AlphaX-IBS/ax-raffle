@@ -79,6 +79,7 @@ class PlayOnline extends PureComponent {
 
   connectAccount = () => {
     const { dispatch } = this.props;
+    console.log("request");
     dispatch({ type: "PL_JOIN_REQUESTED", payload: {} });
     this.setState({
       modal: !this.state.modal
@@ -92,7 +93,7 @@ class PlayOnline extends PureComponent {
       const totalCost = ticketNumber * ticketPrice;
       dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: totalCost });
     } else {
-      this.connectAccount();
+      this.toggleModal();
     }
   };
 
@@ -187,7 +188,7 @@ class PlayOnline extends PureComponent {
                       this.toggle("3");
                     }}
                   >
-                    Old Winners
+                    Winner List
                   </NavLink>
                 </NavItem>
               </Nav>
@@ -218,7 +219,7 @@ class PlayOnline extends PureComponent {
             <ModalFooter>
               <Button color="primary" onClick={this.connectAccount}>
                 Connect
-              </Button>{" "}
+              </Button>
               <Button color="secondary" onClick={this.toggleModal}>
                 Cancel
               </Button>

@@ -6,7 +6,7 @@ import moment from "moment";
 
 class OldWinners extends PureComponent {
   state = {
-    pageSize: 2,
+    pageSize: 6,
     page: 1
   };
 
@@ -50,16 +50,19 @@ class OldWinners extends PureComponent {
         <Table className="table-striped table-light table-bordered">
           <thead className="thead-light">
             <tr>
-              <th>Round</th>
-              <th>Prize</th>
-              <th>Nick Name</th>
               <th>Timestamp</th>
+              <th>Prize</th>
+              <th>Winner</th>
             </tr>
           </thead>
           <tbody>
             {data.map(item => (
               <tr key={item.round}>
-                <th scope="row">{item.round}</th>
+                <td>
+                  {moment(item.potEndedTimestamp).format(
+                    "YYYY-MM-DD hh:mm:ssZ"
+                  )}
+                </td>
                 <td>{item.totalPot}</td>
                 <td>
                   <div id={`WinnerAddress-${item.round}`}>
@@ -76,11 +79,6 @@ class OldWinners extends PureComponent {
                   >
                     {item.winnerAddress}
                   </UncontrolledTooltip>
-                </td>
-                <td>
-                  {moment(item.potEndedTimestamp).format(
-                    "YYYY-MM-DD hh:mm:ssZ"
-                  )}
                 </td>
               </tr>
             ))}
