@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 class ChanceRateReport extends PureComponent {
   render() {
     const { totalPlayerTickets, totalTickets } = this.props;
-    console.log(JSON.stringify(this.props));
     const winRate = ((totalPlayerTickets / totalTickets) * 100).toFixed(3);
     return (
       <div className="row row-winchance">

@@ -9,7 +9,6 @@ function* fetchWeb3() {
     // Get network provider and web3 instance.
     const web3 = yield getWeb3(true);
 
-    console.log('s');
     // Use web3 to get the user's accounts.
     const accounts = yield call(web3.eth.getAccounts);
 
@@ -54,7 +53,6 @@ const initialState = {
 };
 
 const reducer = (state = initialState, action) => {
-  console.log(`action=${JSON.stringify(action.type)}`);
   switch (action.type) {
     case "WEB3_FETCHING":
       return {

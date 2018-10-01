@@ -1,4 +1,4 @@
-import { call, put, takeLatest, select, fork } from "redux-saga/effects";
+import { call, put, takeLatest, select } from "redux-saga/effects";
 import { queryPot } from "../services/GameService";
 
 function* fetchPot() {
@@ -26,7 +26,6 @@ const initialState = {
 };
 
 const reducer = (state = initialState, action) => {
-  console.log(`action=${JSON.stringify(action.type)}`);
   switch (action.type) {
     case "POT_FETCH_FAILED":
       return {

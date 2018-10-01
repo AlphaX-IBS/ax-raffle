@@ -1,5 +1,5 @@
 import { call, put, takeLatest, select } from "redux-saga/effects";
-import { queryPotRecords, queryPotRecordsPerPlayer } from "../services/GameService";
+import { queryPotRecordsPerPlayer } from "../services/GameService";
 
 function* fetchTickets(action) {
   try {
@@ -23,18 +23,6 @@ function* fetchTickets(action) {
       type: "TICKET_FETCH_SUCCEEDED",
       payload: result
     });
-  } catch (e) {
-    yield put({ type: "TICKET_FETCH_FAILED", payload: e.message });
-  }
-}
-
-function* fetchPotRecords(action) {
-  try {
-    const contract = yield select(state => state.api.contract);
-
-    const potRecords = yield call(queryPotRecords, contract);
-
-    yield put({ type: "TICKET_FETCH_SUCCEEDED", payload: potRecords });
   } catch (e) {
     yield put({ type: "TICKET_FETCH_FAILED", payload: e.message });
   }

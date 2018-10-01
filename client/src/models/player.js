@@ -2,6 +2,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import { getPayableWeb3 } from "./../utils/getWeb3";
 import truffleContract from "truffle-contract";
 import AxRaffleContract from "../contracts/AxRaffle.test.json";
+import Notif from "../components/Notif";
 
 function* fetchWeb3() {
   try {
@@ -31,11 +32,8 @@ function* fetchWeb3() {
     yield put({ type: "PL_TICKETS_FETCH_REQUESTED" });
   } catch (e) {
     yield put({ type: "PL_JOIN_FAILED", payload: e.message });
-    // Catch any errors for any of the above operations.
-    alert(
-      `Failed to load web3, accounts, or contract. Check console for details. ${
-        e.message
-      }`
+    Notif.error(
+      `${e.message}`
     );
   }
 }

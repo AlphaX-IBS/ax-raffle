@@ -3,10 +3,16 @@ import { injectIntl } from "react-intl";
 import JackPotCountDown from "../../components/JackPotCountDown";
 import AwardTag from "../../components/AwardTag";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 
 class Home extends PureComponent {
+  goToPlayNow = () => {
+    const { history } = this.props;
+    history.push("/play");
+  };
+
   render() {
-    const { closedTime, totalPot } = this.props;
+    const { closedTime, totalPot, contractAddress } = this.props;
 
     return (
       <div>
@@ -16,7 +22,11 @@ class Home extends PureComponent {
               <h1>GLOBAL BLOCKCHAIN RAFFLES GAME</h1>
               <p>Win big daily - Play Now!</p>
               <div className="text-center">
-                <button type="button" className="btn btn-primary-home">
+                <button
+                  type="button"
+                  className="btn btn-primary-home"
+                  onClick={this.goToPlayNow}
+                >
                   Play now!
                 </button>
               </div>
@@ -81,7 +91,11 @@ class Home extends PureComponent {
                   alt=""
                 />
               </p>
-              <button type="button" className="btn-blue">
+              <button
+                type="button"
+                className="btn-blue"
+                onClick={this.goToPlayNow}
+              >
                 Join now!
               </button>
               <button type="button" className="btn-red">
@@ -113,9 +127,7 @@ class Home extends PureComponent {
                 />
                 <div className="raffle-card-body">
                   <h4>Send Ethereum to this smart contract address:</h4>
-                  <p className="raffle-card-text">
-                    {process.env.REACT_APP_CONTRACT_ADDRESS}
-                  </p>
+                  <p className="raffle-card-text">{contractAddress}</p>
                 </div>
               </div>
             </div>
@@ -129,7 +141,7 @@ class Home extends PureComponent {
                 <div className="raffle-card-body">
                   <h4>Each Ethereum gives you 1000 raffle tickets</h4>
                   <p className="raffle-card-text">
-                  check your ticket numbers <a href="/play">here</a>
+                    check your ticket numbers <a href="/play">here</a>
                   </p>
                 </div>
               </div>
@@ -144,7 +156,8 @@ class Home extends PureComponent {
                 <div className="raffle-card-body">
                   <h4>Every day at 0:00 GMT.</h4>
                   <p className="raffle-card-text">
-                  The smart contract will randomly select one winning ticket. The address that owns this ticket will wins the whole pot!
+                    The smart contract will randomly select one winning ticket.
+                    The address that owns this ticket will wins the whole pot!
                   </p>
                 </div>
               </div>
@@ -193,9 +206,21 @@ class Home extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ pot }) => ({
+const defaultProps = {
+  totalPot: 0,
+  closedTime: 0,
+  contractAddress: "..."
+};
+Home.defaultProps = defaultProps;
+
+const mapStateToProps = ({ api, pot }) => ({
   closedTime: pot.potClosedTimestamp,
-  totalPot: pot.totalPot
+  totalPot: pot.totalPot,
+  contractAddress: api.contract ? api.contract.address : "..."
 });
 
-export default injectIntl(connect(mapStateToProps)(Home), { withRef: true });
+export default withRouter(
+  injectIntl(connect(mapStateToProps)(Home), {
+    withRef: true
+  })
+);

@@ -29,7 +29,7 @@ class PlayOnline extends PureComponent {
     activeTab: "1",
     nextTab: null,
     modal: false,
-    connected: false,
+    connected: this.props.account ? true : false,
     ticketNumber: 1
   };
 
@@ -198,7 +198,7 @@ class PlayOnline extends PureComponent {
                   <OwnerTicketList />
                 </TabPane>
                 <TabPane tabId="3">
-                    <OldWinners />
+                  <OldWinners />
                 </TabPane>
               </TabContent>
             </div>

@@ -14,12 +14,12 @@ export async function queryWinners(web3, contract, start = 0, limit = 10) {
   const length = await contract.lengthOfGameWinnerList.call();
 
   const winners = [];
-  winners.push({
-    round: 0,
-    winnerAddress: "0x48b2f0f0b403b29667e7a54775451873d927185a",
-    totalPot: 1.001,
-    potEndedTimestamp: 1538153048516
-  });
+  // winners.push({
+  //   round: 0,
+  //   winnerAddress: "0x48b2f0f0b403b29667e7a54775451873d927185a",
+  //   totalPot: 1.001,
+  //   potEndedTimestamp: 1538153048516
+  // });
   const size = Math.min(limit, length - start);
 
   for (let i = 0; i < size; i++) {
@@ -55,7 +55,6 @@ export async function queryPotRecords(contract, start = 0, limit = 10) {
     });
   }
 
-  console.log(`records=${JSON.stringify(list)}`);
   return list;
 }
 
@@ -78,7 +77,7 @@ export async function queryPotRecordsPerPlayer(contract, start = 0, limit = 10) 
       totalTickets: tickets.totalPlTickets
     });
   }
-  console.log(`potPlayers=${list}`);
+
   return list;
 }
 

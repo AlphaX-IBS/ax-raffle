@@ -92,7 +92,6 @@ class Metamask extends Component {
 
   handleTicketAmountChange = evt => {
     let amount;
-    console.log(`Changed = ${JSON.stringify(evt.target.value)}`);
     if (evt.target.value === null || evt.target.value === "") {
       amount = 1;
     } else {

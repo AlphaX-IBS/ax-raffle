@@ -15,8 +15,6 @@ const all = context
   .filter(item => item !== "./index.js")
   .map(key => context(key));
 
-console.log(JSON.stringify(all));
-
 function requireAll(requireContext) {
   return requireContext.keys().map(requireContext);
 }
@@ -24,7 +22,6 @@ function requireAll(requireContext) {
 
 const modules = requireAll(context);
 
-console.log(`modules=${JSON.stringify(modules)}`);
 // is an array containing all the matching modules
 
 // function startSagas(...sagas) {

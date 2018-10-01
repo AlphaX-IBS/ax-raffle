@@ -5,11 +5,7 @@ import {
   NavbarToggler,
   Nav,
   NavItem,
-  NavbarBrand,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
+  NavbarBrand
 } from "reactstrap";
 import { NavLink } from "react-router-dom";
 import TopBar from "./../TopBar/index";
@@ -34,7 +30,8 @@ class RaffleHeader extends PureComponent {
         <Navbar light expand="md">
           <NavbarToggler onClick={this.toggle} />
           <NavbarBrand href="/">
-            <img src="img/logo.png" alt="" /></NavbarBrand>
+            <img src="img/logo.png" alt="" />
+          </NavbarBrand>
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
@@ -65,7 +62,7 @@ class RaffleHeader extends PureComponent {
               </UncontrolledDropdown> */}
             </Nav>
           </Collapse>
-        <TopBar /> {/* Topbar will be used for notification area*/}
+          <TopBar /> {/* Topbar will be used for notification area*/}
         </Navbar>
       </header>
     );

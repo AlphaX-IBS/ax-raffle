@@ -17,7 +17,6 @@ function* fetchGameConfigs() {
 }
 
 function* fetchAllGlobal() {
-  console.log("ttt");
   yield [
     fork(fetchGameConfigs),
     put({ type: "TICKET_FETCH_REQUESTED", payload: { page: 1, pageSize: 10 } }),
@@ -35,7 +34,6 @@ const initialState = {
 };
 
 const reducer = (state = initialState, action) => {
-  console.log(`action=${JSON.stringify(action.type)}`);
   switch (action.type) {
     case "GLOBAL_FETCH_FAILED":
       return {
