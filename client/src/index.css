@@ -70,17 +70,17 @@ header {
 }
 
 .row {
-  margin: 0!important;
+  margin: 0 !important;
 }
 
 .identicon {
   border-radius: 50%;
-  -webkit-box-shadow: 0px 0px 10px 0px rgba(173,173,173,1);
-  -moz-box-shadow: 0px 0px 10px 0px rgba(173,173,173,1);
-  box-shadow: 0px 0px 10px 0px rgba(173,173,173,1);
+  -webkit-box-shadow: 0px 0px 10px 0px rgba(173, 173, 173, 1);
+  -moz-box-shadow: 0px 0px 10px 0px rgba(173, 173, 173, 1);
+  box-shadow: 0px 0px 10px 0px rgba(173, 173, 173, 1);
   vertical-align: middle !important;
 }
-.logged-in span{
+.logged-in span {
   padding-right: 20px;
 }
 .navbar-nav {
@@ -92,7 +92,7 @@ header {
   padding-left: 10px;
   padding-right: 10px;
 }
-.navbar-nav a{
+.navbar-nav a {
   color: #2f353a;
 }
 
@@ -102,14 +102,6 @@ header {
   color: #fff;
 }
 
-#home h1 {
-  padding-top: 50px;
-  padding-left: 80px;
-}
-
-#home p {
-  padding-left: 80px;
-}
 
 #home .btn-primary-home {
   background-color: red;
@@ -268,8 +260,8 @@ footer li.list-group-item {
 
 .award .centered {
   position: absolute;
-  top: 48%;
-  left: 48%;
+  top: 55%;
+  left: 45%;
   transform: translate(-48%, -48%);
 }
 
@@ -298,8 +290,7 @@ footer li.list-group-item {
   padding: 30px 0;
 }
 
-
-.row-playonline{
+.row-playonline {
   padding: 10px;
   border-radius: 5px;
   background-color: rgba(138, 138, 138, 0.5);
@@ -317,10 +308,63 @@ footer li.list-group-item {
   background-color: rgba(138, 138, 138, 0.5);
   margin-top: 20px !important;
 }
-.row-howitwork{
+.row-howitwork {
   padding: 10px;
   border-radius: 5px;
   background-color: rgba(138, 138, 138, 0.5);
   margin-top: 20px !important;
   margin-bottom: 20px !important;
 }
+.pt-50{
+  padding-top: 50px;
+}
+.xs-currentpot{
+  background-image: url(/img/home-current-pot-bg.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  min-height: 200px !important;
+  margin-top: 30px;
+}
+@media only screen and (max-width: 1000px) {
+  .award .centered {
+    position: absolute;
+    left: 45%;
+    top:55%;
+  }
+}
+
+@media only screen and (max-width: 860px) {
+}
+@media only screen and (max-width: 768px) {
+  .navbar-brand {
+    margin-right: 0 !important;
+  }
+  .navbar-brand img {
+    max-width: 160px;
+  }
+  .home-img-countdown {
+    height: 150px;
+    margin-top: -75px;
+    max-width: 400px;
+    margin-left: -15px;
+  }
+  #raffles .centered {
+    width: 100%;
+  }
+  .xsnomargin{
+    margin: 0 !important;
+  }
+  .xsnopadding{
+    padding: 0 !important;
+  }
+}
+@media only screen and (min-width: 992px) {
+.md-pl-50{
+  padding-left: 50px;
+}
+.md-pl-80{
+  padding-left: 80px;
+}
+}
+

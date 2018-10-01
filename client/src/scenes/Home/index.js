@@ -4,6 +4,8 @@ import JackPotCountDown from "../../components/JackPotCountDown";
 import AwardTag from "../../components/AwardTag";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 class Home extends PureComponent {
   goToPlayNow = () => {
@@ -19,8 +21,8 @@ class Home extends PureComponent {
         <section id="home">
           <div className="row">
             <div className="col-md-5">
-              <h1>GLOBAL BLOCKCHAIN RAFFLES GAME</h1>
-              <p>Win big daily - Play Now!</p>
+              <h1 className="md-pl-80 pt-50">GLOBAL BLOCKCHAIN RAFFLES GAME</h1>
+              <p className="md-pl-50">Win big daily - Play Now!</p>
               <div className="text-center">
                 <button
                   type="button"
@@ -31,9 +33,9 @@ class Home extends PureComponent {
                 </button>
               </div>
             </div>
-            <div className="col-md-2 col-sm-6 award">
+            <div className="col-md-3 col-sm-6 award d-none d-sm-block">
               <img
-                style={{ maxHeight: "300px" }}
+                className="img-fluid"
                 src="/img/bare-home-current-pot.png"
                 alt=""
               />
@@ -41,9 +43,15 @@ class Home extends PureComponent {
                 <AwardTag value={totalPot} symbol="&#x29eb;" />
               </div>
             </div>
-            <div className="col-md-5 col-sm-6">
+            <div className="col pt-50 text-center d-block d-sm-none xs-currentpot">
+              <p style={{marginBottom:0}}>Current pot:</p>
+              <h2 className="text-center">
+                <FontAwesomeIcon icon={faEthereum} /> {totalPot}
+              </h2>
+            </div>
+            <div className="col-md-4 col-sm-6">
               <img
-                style={{ maxHeight: "350px" }}
+                className="img-fluid md-pt-50"
                 src="/img/home-raffles-game.png"
                 alt=""
               />
@@ -52,7 +60,7 @@ class Home extends PureComponent {
         </section>
         <section id="raffles">
           <div className="row text-center">
-            <div className="col-md-12">
+            <div className="col-md-12 xsnopadding">
               <img
                 className="home-img-countdown"
                 alt=""
@@ -66,7 +74,7 @@ class Home extends PureComponent {
           <div className="row">
             <div className="col-md-6">
               <img
-                style={{ maxHeight: "250px", paddingLeft: "50px" }}
+                className="img-fluid md-pl-50"
                 src="/img/raffles-img.png"
                 alt=""
               />
@@ -98,7 +106,11 @@ class Home extends PureComponent {
               >
                 Join now!
               </button>
-              <button type="button" className="btn-red" onClick={this.goToPlayNow}>
+              <button
+                type="button"
+                className="btn-red"
+                onClick={this.goToPlayNow}
+              >
                 Results
               </button>
             </div>
@@ -170,10 +182,7 @@ class Home extends PureComponent {
         </section>
         <section id="crypto-raffles">
           <div className="row">
-            <div
-              className="col-md-6"
-              style={{ paddingLeft: "80px", paddingTop: "50px" }}
-            >
+            <div className="col-md-6 md-pl-80 pl-50">
               <h3>What is Crypto Raffles?</h3>
               <p>
                 Crypto Raffles is the world first truly fair raffle game. You
@@ -181,10 +190,18 @@ class Home extends PureComponent {
                 laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
                 dolor in reprehenderit .
               </p>
-              <button type="button" className="btn-red" onClick={this.goToPlayNow}>
+              <button
+                type="button"
+                className="btn-red"
+                onClick={this.goToPlayNow}
+              >
                 Join now!
               </button>
-              <button type="button" className="btn-blue" onClick={this.goToPlayNow}>
+              <button
+                type="button"
+                className="btn-blue"
+                onClick={this.goToPlayNow}
+              >
                 Results
               </button>
             </div>
