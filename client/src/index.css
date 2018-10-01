@@ -232,6 +232,7 @@ footer li.list-group-item {
   font-weight: 100;
   text-align: center;
   font-size: 32px;
+  font-weight: 600;
 }
 
 .pot-count-down .clockdiv > div {
@@ -246,6 +247,7 @@ footer li.list-group-item {
 
 .pot-count-down .clockdiv .smalltext {
   font-size: 14px;
+  font-weight: 200;
 }
 
 .pot-count-down .clockdiv div.digit-separator {
