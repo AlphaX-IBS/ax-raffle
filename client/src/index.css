@@ -262,8 +262,8 @@ footer li.list-group-item {
 
 .award .centered {
   position: absolute;
-  top: 55%;
-  left: 45%;
+  top: 43%;
+  left: 48%;
   transform: translate(-48%, -48%);
 }
 
@@ -327,13 +327,6 @@ footer li.list-group-item {
   background-size: contain;
   min-height: 200px !important;
   margin-top: 30px;
-}
-@media only screen and (max-width: 1000px) {
-  .award .centered {
-    position: absolute;
-    left: 45%;
-    top:55%;
-  }
 }
 
 @media only screen and (max-width: 860px) {

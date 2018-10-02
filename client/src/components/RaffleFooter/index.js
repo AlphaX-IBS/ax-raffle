@@ -17,7 +17,7 @@ class RaffleFooter extends PureComponent {
   render() {
     return (
       <footer id="footer">
-        <div className="row">
+        <div className="row wow fadeIn" data-wow-delay="0.5s">
           <div className="col-md-3 col-sm-6 text-center">
             <img
               style={{ paddingBottom: "20px" }}

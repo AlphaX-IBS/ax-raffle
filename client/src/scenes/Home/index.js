@@ -7,8 +7,12 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import WOW from 'wowjs';
 
 class Home extends PureComponent {
+  componentDidMount(){
+    new WOW.WOW().init();
+  }
   goToPlayNow = () => {
     const { history } = this.props;
     history.push("/play");
@@ -21,8 +25,8 @@ class Home extends PureComponent {
       <div>
         <section id="home">
           <div className="row">
-            <div className="col-md-5">
-              <h1 className="md-pl-80 pt-50">GLOBAL BLOCKCHAIN RAFFLES GAME</h1>
+            <div className="col-md-4 wow fadeInLeft">
+              <h1 className="md-pl-50 pt-50">GLOBAL BLOCKCHAIN RAFFLES GAME</h1>
               <p className="md-pl-50">Win big daily - Play Now!</p>
               <div className="text-center">
                 <button
@@ -34,9 +38,11 @@ class Home extends PureComponent {
                 </button>
               </div>
             </div>
-            <div className="col-md-3 col-sm-6 award d-none d-sm-block">
+            {/* hide on mobile */}
+            <div className="col-md-4 award d-none d-sm-block wow fadeInUp">
               <img
                 className="img-fluid"
+                style={{maxWidth:'180px'}}
                 src="/img/bare-home-current-pot.png"
                 alt=""
               />
@@ -44,13 +50,14 @@ class Home extends PureComponent {
                 <AwardTag value={totalPot} symbol="&#x29eb;" />
               </div>
             </div>
+            {/* show only on mobile */}
             <div className="col pt-50 text-center d-block d-sm-none xs-currentpot">
               <p style={{ marginBottom: 0 }}>Current pot:</p>
               <h2 className="text-center">
                 <FontAwesomeIcon icon={faEthereum} /> {totalPot}
               </h2>
             </div>
-            <div className="col-md-4 col-sm-6">
+            <div className="col-md-4 col-sm-6 wow fadeInRight">
               <img
                 className="img-fluid md-pt-50"
                 src="/img/home-raffles-game.png"
@@ -59,8 +66,10 @@ class Home extends PureComponent {
             </div>
           </div>
         </section>
+        {/* Raffles Section include the countdown */}
         <section id="raffles">
-          <div className="row text-center">
+        {/* countdown here */}
+          <div className="row text-center wow fadeIn" data-wow-delay="1s">
             <div className="col-md-12 xsnopadding">
               <img
                 className="home-img-countdown"
@@ -73,14 +82,14 @@ class Home extends PureComponent {
             </div>
           </div>
           <div className="row">
-            <div className="col-md-6">
+            <div className="col-md-6 wow fadeInLeft">
               <img
                 className="img-fluid md-pl-50"
                 src="/img/raffles-img.png"
                 alt=""
               />
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 wow fadeInRight">
               <p>Crypto Raffles Lottery</p>
               <h3>International Decentralized lottery powered by Blockchain</h3>
               <p>
@@ -121,17 +130,18 @@ class Home extends PureComponent {
             style={{ minHeight: "50px" }}
           />
         </section>
+        {/* section how to play */}
         <section id="playnow">
           <div className="row">
             <div
               style={{ paddingTop: "30px", paddingBottom: "20px" }}
               className="col"
             >
-              <h3 className="text-center">Play now as easy as 1,2,3</h3>
+              <h3 className="text-center wow fadeInDown">Play now as easy as 1,2,3</h3>
             </div>
           </div>
           <div className="row">
-            <div className="col-md-4">
+            <div className="col-md-4 wow fadeInLeft">
               <div className="raffle-card text-center">
                 <img
                   className="raffle-card-img-top"
@@ -144,7 +154,7 @@ class Home extends PureComponent {
                 </div>
               </div>
             </div>
-            <div className="col-md-4">
+            <div className="col-md-4 wow fadeInUp">
               <div className="raffle-card text-center">
                 <img
                   className="raffle-card-img-top"
@@ -159,7 +169,7 @@ class Home extends PureComponent {
                 </div>
               </div>
             </div>
-            <div className="col-md-4">
+            <div className="col-md-4 wow fadeInRight">
               <div className="raffle-card text-center">
                 <img
                   className="raffle-card-img-top"
@@ -181,9 +191,10 @@ class Home extends PureComponent {
             style={{ minHeight: "50px" }}
           />
         </section>
+        {/* section what is raffles? */}
         <section id="crypto-raffles">
           <div className="row">
-            <div className="col-md-6 md-pl-80 pl-50">
+            <div className="col-md-6 md-pl-80 pt-50 wow fadeInLeft">
               <h3>What is Crypto Raffles?</h3>
               <p>
                 Crypto Raffles is the world first truly fair raffle game. You
@@ -206,7 +217,7 @@ class Home extends PureComponent {
                 Results
               </button>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 wow fadeInRight">
               <img
                 style={{ maxHeight: "300px", paddingTop: "50px" }}
                 src="img/what-is-crypto-raffles-img.png"
