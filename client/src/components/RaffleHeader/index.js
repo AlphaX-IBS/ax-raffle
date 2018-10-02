@@ -26,7 +26,7 @@ class RaffleHeader extends PureComponent {
   }
   render() {
     return (
-      <header>
+      <header className="wow fadeIn" data-wow-duration="1.5s">
         <Navbar light expand="md">
           <NavbarToggler onClick={this.toggle} />
           <NavbarBrand href="/">

@@ -7,12 +7,8 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import WOW from "wowjs";
 
 class Home extends PureComponent {
-  componentDidMount() {
-    new WOW.WOW().init();
-  }
   goToPlayNow = () => {
     const { history } = this.props;
     history.push("/play");
