@@ -2,15 +2,15 @@ import React, { PureComponent } from "react";
 import { injectIntl } from "react-intl";
 import { Link } from "react-router-dom";
 import JackPotCountDown from "../../components/JackPotCountDown";
-import AwardTag from "../../components/AwardTag";
+// import AwardTag from "../../components/AwardTag";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import WOW from 'wowjs';
+import WOW from "wowjs";
 
 class Home extends PureComponent {
-  componentDidMount(){
+  componentDidMount() {
     new WOW.WOW().init();
   }
   goToPlayNow = () => {
@@ -42,20 +42,27 @@ class Home extends PureComponent {
             <div className="col-md-4 award d-none d-sm-block wow fadeInUp">
               <img
                 className="img-fluid"
-                style={{maxWidth:'180px'}}
+                style={{ maxWidth: "180px" }}
                 src="/img/bare-home-current-pot.png"
                 alt=""
               />
               <div className="centered">
-                <AwardTag value={totalPot} symbol="&#x29eb;" />
+                <p style={{ marginBottom: 0 }}>Current pot:</p>
+                <h3 className="text-center">
+                  <FontAwesomeIcon icon={faEthereum} /> {totalPot}
+                </h3>
+                {/* <FontAwesomeIcon icon={faEthereum} /> <AwardTag value={totalPot}/> */}
               </div>
             </div>
             {/* show only on mobile */}
-            <div className="col pt-50 text-center d-block d-sm-none xs-currentpot">
+            <div
+              className="col pt-60 text-center d-block d-sm-none xs-currentpot wow fadeIn"
+              data-wow-delay="1s"
+            >
               <p style={{ marginBottom: 0 }}>Current pot:</p>
-              <h2 className="text-center">
+              <h3 className="text-center">
                 <FontAwesomeIcon icon={faEthereum} /> {totalPot}
-              </h2>
+              </h3>
             </div>
             <div className="col-md-4 col-sm-6 wow fadeInRight">
               <img
@@ -68,7 +75,7 @@ class Home extends PureComponent {
         </section>
         {/* Raffles Section include the countdown */}
         <section id="raffles">
-        {/* countdown here */}
+          {/* countdown here */}
           <div className="row text-center wow fadeIn" data-wow-delay="1s">
             <div className="col-md-12 xsnopadding">
               <img
@@ -137,7 +144,9 @@ class Home extends PureComponent {
               style={{ paddingTop: "30px", paddingBottom: "20px" }}
               className="col"
             >
-              <h3 className="text-center wow fadeInDown">Play now as easy as 1,2,3</h3>
+              <h3 className="text-center wow fadeInDown">
+                Play now as easy as 1,2,3
+              </h3>
             </div>
           </div>
           <div className="row">

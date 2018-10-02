@@ -320,6 +320,9 @@ footer li.list-group-item {
 .pt-50{
   padding-top: 50px;
 }
+.pt-60{
+  padding-top: 60px;
+}
 .xs-currentpot{
   background-image: url(/img/home-current-pot-bg.png);
   background-repeat: no-repeat;
