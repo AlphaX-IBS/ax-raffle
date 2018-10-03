@@ -4,7 +4,7 @@ import { combineReducers } from "redux";
 const context = require.context("./", false, /\.js$/);
 const modules = context
   .keys()
-  .filter(item => item !== "./index.js")
+  .filter(item => item !== "./index.js" && !item.endsWith(".test.js"))
   .map(key => context(key));
 
 const validModules = modules

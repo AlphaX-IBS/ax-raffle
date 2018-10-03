@@ -10,6 +10,11 @@ export async function queryGameConfigs(web3, contract) {
   return { ticketPrice, feeRate, gameIsActive };
 }
 
+export async function queryTotalWinners(contract) {
+  const count = await contract.lengthOfGameWinnerList.call();
+  return count.toNumber();
+}
+
 export async function queryWinners(web3, contract, start = 0, limit = 10) {
   const length = await contract.lengthOfGameWinnerList.call();
 
@@ -29,7 +34,7 @@ export async function queryWinners(web3, contract, start = 0, limit = 10) {
       round: i + 1,
       winnerAddress: winner.winnerAddress,
       totalPot: web3.utils.fromWei(winner.totalWei),
-      potEndedTimestamp: winner.potEndedTimestamp.toNumber()
+      potEndedTimestamp: winner.potEndedTimestamp.toNumber() * 1000 // seconds to millis
     });
   }
   return {
@@ -60,12 +65,16 @@ export async function queryPotRecords(contract, start = 0, limit = 10) {
   return list;
 }
 
-export async function queryPotRecordsPerPlayer(contract, start = 0, limit = 10) {
+export async function queryPotRecordsPerPlayer(
+  contract,
+  start = 0,
+  limit = 10
+) {
   const length = await contract.totalPotPlayers.call();
 
   const list = [];
   const size = Math.min(limit, length - start);
-  
+
   for (let i = start; i < size; i++) {
     const player = await contract.potPlayerList(i);
     const tickets = await queryAllPlayerTickets(

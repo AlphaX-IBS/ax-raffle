@@ -10,6 +10,26 @@
             "name": "Launch Chrome against localhost",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug CRA Tests",
+            "port": 9229,
+            "runtimeExecutable": "${workspaceFolder}/client/node_modules/.bin/react-scripts",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "test"
+            ],
+            "args": [
+                "--runInBand",
+                "--no-cache",
+                "--env=jsdom"
+            ],
+            "cwd": "${workspaceRoot}/client",
+            "protocol": "inspector",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }
