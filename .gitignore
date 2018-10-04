@@ -1,3 +1,5 @@
-/build/
-/client/contracts/
-/node_modules
+build/
+client/contracts/
+client/contracts
+node_modules
+*-lock.json

@@ -16,7 +16,7 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
-  ModalFooter
+  ModalFooter,Dropdown, DropdownToggle, DropdownMenu, DropdownItem
 } from "reactstrap";
 import RoundTicketList from "./components/RoundTicketList";
 import OwnerTicketList from "./components/OwnerTicketList/index";
@@ -103,6 +103,22 @@ class PlayOnline extends PureComponent {
       this.setState({ ticketNumber: e.target.value });
     }
   };
+  
+  // Constructor
+  constructor(props) {
+    super(props);
+
+    this.DropdownToggle = this.DropdownToggle.bind(this);
+    this.state = {
+      dropdownOpen: false
+    };
+  }
+
+  DropdownToggle() {
+    this.setState(prevState => ({
+      dropdownOpen: !prevState.dropdownOpen
+    }));
+  }
 
   render() {
     const { modal, ticketNumber } = this.state;
@@ -128,7 +144,16 @@ class PlayOnline extends PureComponent {
                   />
                   <InputGroupAddon addonType="append">
                     <InputGroupText>
-                      Total cost: {(ticketPrice * ticketNumber).toFixed(3)} ETH
+                      Cost:
+                {/* Dropdown select ETH or ERC20 token */}
+                <Dropdown isOpen={this.state.dropdownOpen} toggle={this.DropdownToggle}>
+                  <DropdownToggle caret color="paymentmethod">{(ticketPrice * ticketNumber).toFixed(3)} ETH</DropdownToggle>
+                  <DropdownMenu>
+                    <DropdownItem>{(ticketPrice * ticketNumber).toFixed(3)} ETH</DropdownItem>
+                    <DropdownItem>{(ticketPrice * ticketNumber).toFixed(3)} GEX</DropdownItem>
+                    <DropdownItem>{(ticketPrice * ticketNumber).toFixed(3)} BNB</DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
                     </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>

@@ -91,7 +91,10 @@ export async function queryPotRecordsPerPlayer(
 
   // console.log(`potRecords=${JSON.stringify(list)}`);
 
-  return list;
+  return {
+    list,
+    totalPotPlayers: length
+  };
 }
 
 export async function queryPot(web3, contract) {
