@@ -131,7 +131,7 @@ contract AxRaffle is Ownable, Pausable {
         weiPerTicket = _weiPerTicket;
         weiFeeRate = _weiFeeRate;
         tokenFeeRate = _tokenFeeRate;
-        Init variable value
+        // Init variable value
         gameIsActive = false;
         potOpenedTimestamp = 0;
         potClosedTimestamp = 0;
