@@ -1,6 +1,6 @@
 # Ax Raffle Contracts
 This folder contains solidity contracts for Raffle dapp, which will be developed on truffle framework.
-Here're some steps to deploy, excute and test raffle contract by yourself.
+Here're some steps to deploy, execute and test raffle contract by yourself.
 
 <h1>1- Conctract owner deploy raffle contract to blockchain network</h1>
   Use truffle or remix to deploy raffle contract to local blockchain (ganachecli) or ropsten testnet</br>
