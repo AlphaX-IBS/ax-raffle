@@ -209,8 +209,6 @@ contract AxRaffle is Ownable, Pausable {
         require(_tokens.length > 0);
         for (uint i = 0; i < _tokens.length; i++) {
             if (gameTokenStatuses[_tokens[i]] == true) {
-                // delete(gameTokens[_tokens[i]]);
-                // lengthOfGameTokens = lengthOfGameTokens - 1;
                 gameTokenStatuses[_tokens[i]] = false;
             }            
         }
