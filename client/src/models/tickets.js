@@ -1,32 +1,30 @@
-import { call, put, takeEvery, takeLatest, select } from "redux-saga/effects";
-import { queryTickets } from "../services/TicketService";
+import { call, put, takeLatest, select } from "redux-saga/effects";
+import { queryPotRecordsPerPlayer } from "../services/GameService";
 
 function* fetchTickets(action) {
   try {
     const { pageSize, page } = action.payload;
-    const tickets = yield select(state => state.tickets);
+    const { tickets, contract } = yield select(state => ({
+      tickets: state.tickets,
+      contract: state.api.contract
+    }));
     let start = 0;
     let limit = 10;
     const lastIndex = pageSize * page;
     const startIndex = pageSize * Math.max(0, page - 1);
-    let response;
+    let result = tickets.list.slice(0);
     if (tickets.list.length < lastIndex) {
       start = startIndex;
       limit = limit > pageSize ? limit : pageSize;
-      response = yield call(queryTickets, start, limit);
-    } else {
-      response = {
-        list: tickets.list,
-        totalTicketCount: tickets.totalTicketCount,
-        total: tickets.total
-      };
+      const response = yield call(queryPotRecordsPerPlayer, contract, start, limit);
+      result.push(...response);
     }
     yield put({
       type: "TICKET_FETCH_SUCCEEDED",
-      payload: response
+      payload: result
     });
   } catch (e) {
-    yield put({ type: "TICKET_FETCH_FAILED", message: e.message });
+    yield put({ type: "TICKET_FETCH_FAILED", payload: e.message });
   }
 }
 
@@ -37,20 +35,23 @@ function* ticketSaga() {
 const initialState = {
   loading: false,
   error: false,
-  list: [],
-  totalTicketCount: 0,
-  total: 0
+  list: []
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case "TICKET_FETCH_SUCCEEDED":
       return {
+        ...state,
         loading: false,
         error: false,
-        list: action.payload.list,
-        totalTicketCount: action.payload.totalTicketCount,
-        total: action.payload.total
+        list: action.payload
+      };
+    case "TICKET_FETCH_FAILED":
+      return {
+        ...state,
+        loading: false,
+        error: action.payload
       };
     default:
       return state;

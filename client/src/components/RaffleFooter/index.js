@@ -6,6 +6,7 @@ import {
   faTwitterSquare,
   faGooglePlusSquare
 } from "@fortawesome/free-brands-svg-icons";
+import WOW from "wowjs";
 
 library.add(faFacebookSquare, faTwitterSquare, faGooglePlusSquare);
 
@@ -14,10 +15,13 @@ const twitterIcon = <FontAwesomeIcon icon={faTwitterSquare} size="2x" />;
 const googlePlusIcon = <FontAwesomeIcon icon={faGooglePlusSquare} size="2x" />;
 
 class RaffleFooter extends PureComponent {
+  componentDidMount() {
+    new WOW.WOW().init();
+  }
   render() {
     return (
       <footer id="footer">
-        <div className="row">
+        <div className="row wow fadeIn" data-wow-delay="0.5s">
           <div className="col-md-3 col-sm-6 text-center">
             <img
               style={{ paddingBottom: "20px" }}

@@ -1,19 +1,27 @@
-import { fork } from "redux-saga/effects";
+import { all, fork } from "redux-saga/effects";
 import { combineReducers } from "redux";
-import TicketModel from "./tickets.js";
-import PlayerModel from "./player.js";
-import PlayerTicketsModel from "./playertickets.js";
+
+const context = require.context("./", false, /\.js$/);
+const modules = context
+  .keys()
+  .filter(item => item !== "./index.js" && !item.endsWith(".test.js"))
+  .map(key => context(key));
+
+const validModules = modules
+  .filter(model => model.default && model.default.name)
+  .map(model => model.default);
 
 export function* rootSaga() {
-  yield [
-    fork(TicketModel.saga),
-    fork(PlayerModel.saga),
-    fork(PlayerTicketsModel.saga)
-  ];
+  const effects = validModules.filter(m => m.saga).map(m => fork(m.saga));
+  yield all([...effects]);
 }
 
-export const rootReducer = combineReducers({
-  tickets: TicketModel.reducer,
-  player: PlayerModel.reducer,
-  playertickets: PlayerTicketsModel.reducer
-});
+function generateReducers() {
+  const reducers = validModules.filter(m => m.reducer).reduce(function(map, obj) {
+    map[obj.name] = obj.reducer;
+    return map;
+  }, {});
+  return reducers;
+}
+
+export const rootReducer = combineReducers(generateReducers());

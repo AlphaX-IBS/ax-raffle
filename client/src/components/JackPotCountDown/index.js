@@ -2,6 +2,13 @@ import React, { PureComponent } from "react";
 import { getRemainingTimeFromDaysToSeconds } from "../../utils/time";
 
 function fixedZero(val) {
+  if (
+    val === undefined ||
+    isNaN(val) ||
+    Object.prototype.toString.call(val) === "[object String]"
+  ) {
+    return "-";
+  }
   return val * 1 < 10 ? `0${val}` : val;
 }
 
@@ -47,6 +54,10 @@ class JackPotCountDown extends PureComponent {
   initTime = props => {
     let lastTime = 0;
     let targetTime = 0;
+    if (props.target === undefined) {
+      return lastTime;
+    }
+    // console.log(`target=${props.target}`);
     try {
       if (Object.prototype.toString.call(props.target) === "[object Date]") {
         targetTime = props.target.getTime();
@@ -74,25 +85,25 @@ class JackPotCountDown extends PureComponent {
           <span>{fixedZero(timeLeft.days)}</span>
           <div className="smalltext">Days</div>
         </div>
-        <div className='digit-separator'>
+        <div className="digit-separator">
           <span>|</span>
-          <div class="smalltext">&nbsp;</div>
+          <div className="smalltext">&nbsp;</div>
         </div>
         <div>
           <span>{fixedZero(timeLeft.hours)}</span>
           <div className="smalltext">Hours</div>
         </div>
-        <div className='digit-separator'>
+        <div className="digit-separator">
           <span>:</span>
-          <div class="smalltext">&nbsp;</div>
+          <div className="smalltext">&nbsp;</div>
         </div>
         <div>
           <span>{fixedZero(timeLeft.minutes)}</span>
           <div className="smalltext">Minutes</div>
         </div>
-        <div className='digit-separator'>
+        <div className="digit-separator">
           <span>:</span>
-          <div class="smalltext">&nbsp;</div>
+          <div className="smalltext">&nbsp;</div>
         </div>
         <div>
           <span>{fixedZero(timeLeft.seconds)}</span>

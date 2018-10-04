@@ -5,7 +5,7 @@ import GgLikedPagination from "./../../../../components/GgLikedPagination/index"
 
 class RoundTicketList extends PureComponent {
   state = {
-    pageSize: 2,
+    pageSize: 6,
     page: 1
   };
 
@@ -22,23 +22,24 @@ class RoundTicketList extends PureComponent {
     });
   }
 
-  handlePageClick = page => {
-    const { pageSize } = this.state;
+  handlePageClick = selectedPage => {
+    const { pageSize, page } = this.state;
     const { dispatch } = this.props;
-    dispatch({
-      type: "TICKET_FETCH_REQUESTED",
-      payload: {
-        pageSize,
-        page
-      }
-    });
-    this.setState({ page });
+    if (page !== selectedPage) {
+      dispatch({
+        type: "TICKET_FETCH_REQUESTED",
+        payload: {
+          pageSize,
+          page: selectedPage
+        }
+      });
+      this.setState({ page: selectedPage });
+    }
   };
 
   render() {
     const { pageSize, page } = this.state;
-    const { tickets } = this.props;
-    const { list, totalTicketCount, total } = tickets;
+    const { list, totalTickets, totalPotPlayers } = this.props;
 
     const startIndex = pageSize * Math.max(0, page - 1);
     const data = list.slice(startIndex, startIndex + pageSize);
@@ -50,24 +51,26 @@ class RoundTicketList extends PureComponent {
             <tr>
               <th>Total tickets</th>
               <th>Win chance</th>
-              <th>Nick Name</th>
+              <th>Player</th>
               <th>Amount</th>
             </tr>
           </thead>
           <tbody>
             {data.map(item => (
-              <tr key={item.address}>
-                <th scope="row">{item.sum}</th>
-                <td>{((item.sum / totalTicketCount) * 100).toFixed(2)}%</td>
+              <tr key={item.playerAddress}>
+                <th scope="row">{item.totalTickets}</th>
                 <td>
-                  {item.address.substr(0, 6)}
+                  {((item.totalTickets / totalTickets) * 100).toFixed(2)}%
+                </td>
+                <td>
+                  {item.playerAddress.substr(0, 6)}
                   ...
-                  {item.address.substr(
-                    item.address.length - 4,
-                    item.address.length
+                  {item.playerAddress.substr(
+                    item.playerAddress.length - 4,
+                    item.playerAddress.length
                   )}
                 </td>
-                <td>{item.sum / 1000}</td>
+                <td>{item.totalTickets / 1000}</td>
               </tr>
             ))}
           </tbody>
@@ -75,7 +78,7 @@ class RoundTicketList extends PureComponent {
 
         <GgLikedPagination
           pageSize={pageSize}
-          totalItems={total}
+          totalItems={totalPotPlayers}
           onChangePage={this.handlePageClick}
         />
       </div>
@@ -83,7 +86,9 @@ class RoundTicketList extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ tickets }) => ({
-  tickets
+const mapStateToProps = ({ pot, tickets }) => ({
+  list: tickets.list ? tickets.list : [],
+  totalTickets: pot.totalTickets,
+  totalPotPlayers: pot.totalPotPlayers
 });
 export default connect(mapStateToProps)(RoundTicketList);

@@ -5,10 +5,7 @@ import {
   NavbarToggler,
   Nav,
   NavItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
+  NavbarBrand
 } from "reactstrap";
 import { NavLink } from "react-router-dom";
 import TopBar from "./../TopBar/index";
@@ -29,10 +26,12 @@ class RaffleHeader extends PureComponent {
   }
   render() {
     return (
-      <header>
-        <TopBar />
-        <Navbar className="pl-0" light expand="md">
+      <header className="wow fadeIn" data-wow-duration="1.5s">
+        <Navbar light expand="md">
           <NavbarToggler onClick={this.toggle} />
+          <NavbarBrand href="/">
+            <img src="img/logo.png" alt="" />
+          </NavbarBrand>
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
@@ -45,12 +44,12 @@ class RaffleHeader extends PureComponent {
                   Play Online
                 </NavLink>
               </NavItem>
-              <NavItem>
+              {/* <NavItem>
                 <NavLink to="/contact" className="nav-link">
                   Contact
                 </NavLink>
-              </NavItem>
-              <UncontrolledDropdown nav inNavbar>
+              </NavItem> */}
+              {/* <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>
                   Options
                 </DropdownToggle>
@@ -60,9 +59,10 @@ class RaffleHeader extends PureComponent {
                   <DropdownItem divider />
                   <DropdownItem>Reset</DropdownItem>
                 </DropdownMenu>
-              </UncontrolledDropdown>
+              </UncontrolledDropdown> */}
             </Nav>
           </Collapse>
+          <TopBar /> {/* Topbar will be used for notification area*/}
         </Navbar>
       </header>
     );

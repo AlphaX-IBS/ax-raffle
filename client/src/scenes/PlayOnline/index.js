@@ -20,6 +20,7 @@ import {
 } from "reactstrap";
 import RoundTicketList from "./components/RoundTicketList";
 import OwnerTicketList from "./components/OwnerTicketList/index";
+import OldWinners from "./components/OldWinners";
 import { connect } from "react-redux";
 import ChanceRateReport from "./components/ChanceRateReport";
 
@@ -27,8 +28,16 @@ class PlayOnline extends PureComponent {
   state = {
     activeTab: "1",
     nextTab: null,
-    modal: false
+    modal: false,
+    connected: this.props.account ? true : false,
+    ticketNumber: 1
   };
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.account !== this.props.account) {
+      this.setState({ connected: true });
+    }
+  }
 
   componentDidUpdate() {
     const { account } = this.props;
@@ -70,30 +79,62 @@ class PlayOnline extends PureComponent {
 
   connectAccount = () => {
     const { dispatch } = this.props;
-    dispatch({ type: "WEB3_FETCH_REQUESTED", payload: {} });
+    console.log("request");
+    dispatch({ type: "PL_JOIN_REQUESTED", payload: {} });
     this.setState({
       modal: !this.state.modal
     });
   };
 
+  onBuyClick = () => {
+    const { connected, ticketNumber } = this.state;
+    const { dispatch, ticketPrice } = this.props;
+    if (connected) {
+      const totalCost = ticketNumber * ticketPrice;
+      dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: totalCost });
+    } else {
+      this.toggleModal();
+    }
+  };
+
+  onTicketNumberChange = e => {
+    const { ticketNumber } = this.state;
+    if (e.target.value !== undefined && e.target.value !== ticketNumber) {
+      this.setState({ ticketNumber: e.target.value });
+    }
+  };
+
   render() {
-    const { modal } = this.state;
+    const { modal, ticketNumber } = this.state;
+    const { ticketPrice } = this.props;
+
     return (
       <div className="play-online">
         <div className="container">
           <div className="row">
-            <div className="col-md-6">
+            <div className="col-md-6 wow fadeInLeft">
               <div className="row row-playonline justify-content-center">
                 <InputGroup>
                   <InputGroupAddon addonType="prepend">
                     <InputGroupText>Quantity</InputGroupText>
                   </InputGroupAddon>
-                  <Input className="text-center" placeholder="1000 Tickets" />
+                  <Input
+                    className="text-center"
+                    placeholder="1000 Tickets"
+                    type="number"
+                    min={1}
+                    value={ticketNumber}
+                    onChange={this.onTicketNumberChange}
+                  />
                   <InputGroupAddon addonType="append">
-                    <InputGroupText>Total cost: 0.1 ETH</InputGroupText>
+                    <InputGroupText>
+                      Total cost: {(ticketPrice * ticketNumber).toFixed(3)} ETH
+                    </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
-                <Button color="primary">Buy Now</Button>
+                <Button color="primary" onClick={this.onBuyClick}>
+                  Buy Now
+                </Button>
               </div>
               <ChanceRateReport />
               <Row className="row-howitwork">
@@ -104,14 +145,15 @@ class PlayOnline extends PureComponent {
                     lottery tickets and hope that one of your ticket numbers
                     will be picked. The draw takes place once per week, on
                     Thursday. How to play Click on tab "Buy ticket" and enter
-                    number of tickets you want to buy. Each ticket costs 0.0015
+                    number of tickets you want to buy. Each ticket costs
+                    <strong>{` ${ticketPrice} `}</strong>
                     ETH. You can buy tickets only with Ether. Lots will be drawn
                     each week on thursday using random numbers generated through
                   </p>
                 </Col>
               </Row>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 wow fadeInRight">
               <Nav tabs>
                 <NavItem>
                   <NavLink
@@ -137,6 +179,18 @@ class PlayOnline extends PureComponent {
                     Your tickets
                   </NavLink>
                 </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({
+                      active: this.state.activeTab === "3"
+                    })}
+                    onClick={() => {
+                      this.toggle("3");
+                    }}
+                  >
+                    Winner List
+                  </NavLink>
+                </NavItem>
               </Nav>
               <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
@@ -144,6 +198,9 @@ class PlayOnline extends PureComponent {
                 </TabPane>
                 <TabPane tabId="2">
                   <OwnerTicketList />
+                </TabPane>
+                <TabPane tabId="3">
+                  <OldWinners />
                 </TabPane>
               </TabContent>
             </div>
@@ -162,7 +219,7 @@ class PlayOnline extends PureComponent {
             <ModalFooter>
               <Button color="primary" onClick={this.connectAccount}>
                 Connect
-              </Button>{" "}
+              </Button>
               <Button color="secondary" onClick={this.toggleModal}>
                 Cancel
               </Button>
@@ -174,8 +231,11 @@ class PlayOnline extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ player }) => ({
+const mapStateToProps = ({ global, player }) => ({
   account: player.accounts.length > 0 ? player.accounts[0] : undefined,
+  ticketPrice: global.gameConfigs.ticketPrice
+    ? global.gameConfigs.ticketPrice
+    : NaN
 });
 
 export default connect(mapStateToProps)(PlayOnline);
