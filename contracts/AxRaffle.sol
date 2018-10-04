@@ -259,7 +259,7 @@ contract AxRaffle is Ownable, Pausable {
     // - Update pot plater list
     // - Update pot token amount
     // Note: token amount here will be received amount in its smallest unit based on its decimal
-    function PurchaseTicketsByTokens(address[] _tokens, uint[] _tokenAmts) external activatedGame potIsOpened activatedTokenPayment {
+    function purchaseTicketsByTokens(address[] _tokens, uint[] _tokenAmts) external activatedGame potIsOpened activatedTokenPayment {
         require(_tokens.length > 0 && _tokens.length == _tokenAmts.length);
         for (uint i = 0; i < _tokens.length; i++) {
             // require(gameTokens[_tokens[i]].contract_ == _tokens[i] && _tokenAmts[i] > 0);
