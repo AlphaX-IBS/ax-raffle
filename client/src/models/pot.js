@@ -11,6 +11,10 @@ function* fetchPot() {
     const pot = yield call(queryPot, web3, contract);
 
     yield put({ type: "POT_FETCH_SUCCEEDED", payload: pot });
+    yield put({
+      type: "TICKET_FETCH_REQUESTED",
+      payload: { page: 1, pageSize: 6 }
+    });
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
   }

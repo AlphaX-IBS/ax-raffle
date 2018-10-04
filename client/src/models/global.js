@@ -1,4 +1,4 @@
-import { call, put, takeLatest, select, fork } from "redux-saga/effects";
+import { all, call, put, takeLatest, select, fork } from "redux-saga/effects";
 import { queryGameConfigs, queryTotalWinners } from "../services/GameService";
 
 function* fetchGameConfigs() {
@@ -16,7 +16,7 @@ function* fetchGameConfigs() {
   }
 }
 
-function* fetchStuff() {
+function* fetchWinners() {
   try {
     const { contract } = yield select(state => ({
       contract: state.api.contract
@@ -24,6 +24,18 @@ function* fetchStuff() {
 
     const totalWinners = yield call(queryTotalWinners, contract);
     yield put({ type: "TOTAL_WINNERS_SAVE", payload: totalWinners });
+    yield put({
+      type: "WINNERS_FETCH_REQUESTED",
+      payload: { page: 1, pageSize: 6 }
+    });
+  } catch (e) {
+    console.error("Failed to load total of winners");
+  }
+}
+
+function* fetchTickets() {
+  try {
+    yield put({ type: "POT_FETCH_REQUESTED" });
   } catch (e) {
     console.error("Failed to load total of winners");
   }
@@ -31,12 +43,7 @@ function* fetchStuff() {
 
 function* fetchAllGlobal() {
   yield fork(fetchGameConfigs);
-  yield call(fetchStuff);
-  yield [
-    put({ type: "TICKET_FETCH_REQUESTED", payload: { page: 1, pageSize: 6 } }),
-    put({ type: "POT_FETCH_REQUESTED" }),
-    put({ type: "WINNERS_FETCH_REQUESTED", payload: { page: 1, pageSize: 6 } })
-  ];
+  yield all([call(fetchTickets), call(fetchWinners)]);
 }
 
 function* saga() {
