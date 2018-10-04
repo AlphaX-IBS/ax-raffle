@@ -63,9 +63,11 @@ Here're some steps to deploy, excute and test raffle contract by yourself.
   - Send ether directly from personal wallet to contract address
   <h2>2.9 Players buy tickets by accepted tokens (required)</h2>
   - Actor: players</br>
-  - Pre-conditions: game is active, pot is opened, player approved the relevant allowance for raffle contract before, payment token method is active and token is supported
-  - Players call function <b>approve</b> of the relevant token contract to give the relevant allowance for raffle contract address
-  - Players call function <b>purchaseTicketsByTokens</b> of raffle contract with relevant token address and token amount to buy tickets
+  - Pre-conditions: game is active, pot is opened, player approved the relevant allowance for raffle contract before, payment token method is active and token is supported</br>
+  - Players call function <b>approve</b> of the relevant token contract to give the relevant allowance for raffle contract address</br>
+  - Players call function <b>purchaseTicketsByTokens</b> of raffle contract with relevant token address and token amount to buy tickets</br>
+  - <b>Notes:</b></br>
+  + We must input token amount in the smallest unit based on its decimals, for example, GEX has 18 decimals, so gex token amount must multiply with 10^18 as input of function
   <h2>2.10 Contract owner draw ticket after closing game (required)</h2>
   - Actor: owner</br>
   - Function: drawTicket</br>
