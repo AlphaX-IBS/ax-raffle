@@ -1,5 +1,13 @@
 import { queryAllPlayerTickets } from "./PlayerService";
 
+const reverser = function(i, length) {
+  return length - 1 - i;
+};
+
+const noop = function(i, length) {
+  return i;
+};
+
 export async function queryGameConfigs(web3, contract) {
   const weiPerTicket = await contract.weiPerTicket.call();
   const ticketPrice = web3.utils.fromWei(weiPerTicket, "ether");
@@ -10,12 +18,35 @@ export async function queryGameConfigs(web3, contract) {
   return { ticketPrice, feeRate, gameIsActive };
 }
 
+export async function queryGlobalParams(web3, contract) {
+  const params = await contract.getRaffleParams();
+  return {
+    ticketPrice: web3.utils.fromWei(params[0], "ether"),
+    weiFeeRate: params[1],
+    lengthOfGameWinners: params[2].toNumber(),
+    potOpenedTimestamp: params[3].toNumber() * 1000,
+    potClosedTimestamp: params[4].toNumber() * 1000,
+    totalTickets: params[5].toNumber(),
+    totalPotPlayers: params[6].toNumber(),
+    totalPot: web3.utils.fromWei(params[7], "ether"),
+    tokenFeeRate: params[8],
+    lengthOfGameTokens: params[9].toNumber(),
+    lengthOfPotTokens: params[10].toNumber()
+  };
+}
+
 export async function queryTotalWinners(contract) {
   const count = await contract.lengthOfGameWinnerList.call();
   return count.toNumber();
 }
 
-export async function queryWinners(web3, contract, start = 0, limit = 10) {
+export async function queryWinners(
+  web3,
+  contract,
+  start = 0,
+  limit = 10,
+  reverse = false
+) {
   const length = await contract.lengthOfGameWinnerList.call();
 
   const winners = [];
@@ -27,11 +58,14 @@ export async function queryWinners(web3, contract, start = 0, limit = 10) {
   // });
   const size = Math.min(limit, length - start);
 
+  const indexTranslator = reverse ? reverser : noop;
+
   for (let i = 0; i < size; i++) {
-    const winner = await contract.gameWinnerList(i);
+    const index = indexTranslator(i, size);
+    const winner = await contract.gameWinnerList(index);
 
     winners.push({
-      round: i + 1,
+      round: index + 1,
       winnerAddress: winner.winnerAddress,
       totalPot: web3.utils.fromWei(winner.totalWei),
       potEndedTimestamp: winner.potEndedTimestamp.toNumber() * 1000 // seconds to millis

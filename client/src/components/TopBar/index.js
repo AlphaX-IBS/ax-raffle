@@ -10,7 +10,6 @@ class TopBar extends PureComponent {
 
   render() {
     const { account } = this.props;
-    console.log("account=" + account);
 
     let avatar = (
       <button

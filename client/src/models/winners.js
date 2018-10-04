@@ -1,5 +1,5 @@
 import { call, put, takeLatest, select } from "redux-saga/effects";
-import { queryWinners, queryWinnerCount } from "../services/GameService";
+import { queryWinners } from "../services/GameService";
 import { load } from "../utils/loadhelper";
 
 export const getWinnersContractState = state => ({
@@ -17,7 +17,7 @@ export function* fetchWinners(action) {
       load,
       { list: winners.list, total: winners.totalWinners },
       { pageSize, page },
-      (list, max, start, limit) => queryWinners(web3, contract, start, limit),
+      (list, max, start, limit) => queryWinners(web3, contract, start, limit, true),
       (resultList, max) => ({
         list: resultList,
         totalWinners: max

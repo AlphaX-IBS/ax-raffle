@@ -1,71 +1,58 @@
-import { all, call, put, takeLatest, select, fork } from "redux-saga/effects";
-import { queryGameConfigs, queryTotalWinners } from "../services/GameService";
+import { call, put, takeLatest, select } from "redux-saga/effects";
+import { queryGlobalParams } from "../services/GameService";
 
-function* fetchGameConfigs() {
+function* fetchGlobalParams() {
   try {
+    yield put({ type: "GLOBAL_FETCHING" });
+
     const { web3, contract } = yield select(state => ({
       web3: state.api.web3,
       contract: state.api.contract
     }));
+    
+    const params = yield call(queryGlobalParams, web3, contract);
 
-    const configs = yield call(queryGameConfigs, web3, contract);
+    const { lengthOfGameWinners, ...rest } = params;
 
-    yield put({ type: "GAME_CONFIGS_FETCH_SUCCEEDED", payload: configs });
-  } catch (e) {
-    yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
-  }
-}
+    yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
 
-function* fetchWinners() {
-  try {
-    const { contract } = yield select(state => ({
-      contract: state.api.contract
-    }));
+    yield put({ type: "TOTAL_WINNERS_SAVE", payload: lengthOfGameWinners });
 
-    const totalWinners = yield call(queryTotalWinners, contract);
-    yield put({ type: "TOTAL_WINNERS_SAVE", payload: totalWinners });
     yield put({
       type: "WINNERS_FETCH_REQUESTED",
       payload: { page: 1, pageSize: 6 }
     });
   } catch (e) {
-    console.error("Failed to load total of winners");
+    yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
   }
-}
-
-function* fetchTickets() {
-  try {
-    yield put({ type: "POT_FETCH_REQUESTED" });
-  } catch (e) {
-    console.error("Failed to load total of winners");
-  }
-}
-
-function* fetchAllGlobal() {
-  yield fork(fetchGameConfigs);
-  yield all([call(fetchTickets), call(fetchWinners)]);
 }
 
 function* saga() {
-  yield takeLatest("GLOBAL_FETCH_REQUESTED", fetchAllGlobal);
+  yield takeLatest("GLOBAL_FETCH_REQUESTED", fetchGlobalParams);
 }
 
 const initialState = {
-  gameConfigs: {}
+  status: 'init'
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case "GLOBAL_FETCHING":
+      return {
+        ...state,
+        status: 'loading'
+      };
     case "GLOBAL_FETCH_FAILED":
       return {
         ...state,
-        loading: false,
+        status: 'ready',
         error: action.payload
       };
-    case "GAME_CONFIGS_FETCH_SUCCEEDED":
+    case "GLOBAL_FETCH_SUCCEEDED":
       return {
         ...state,
-        gameConfigs: action.payload
+        status: 'ready',
+        ...action.payload
       };
     default:
       return state;

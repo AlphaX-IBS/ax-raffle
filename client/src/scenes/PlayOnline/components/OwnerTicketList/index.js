@@ -90,7 +90,7 @@ class OwnerTicketList extends Component {
 
 const mapStateToProps = ({ playertickets, global }) => ({
   playertickets,
-  ticketPrice: global.gameConfigs.ticketPrice
+  ticketPrice: global.ticketPrice
 });
 
 export default connect(mapStateToProps)(OwnerTicketList);

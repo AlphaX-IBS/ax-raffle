@@ -37,6 +37,7 @@ function* fetchWeb3() {
         e.message
       }`
     );
+    console.error(e.stack);
   }
 }
 

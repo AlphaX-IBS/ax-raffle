@@ -8,7 +8,7 @@ function* fetchTickets(action) {
     const { tickets, contract, totalPotPlayers } = yield select(state => ({
       tickets: state.tickets,
       contract: state.api.contract,
-      totalPotPlayers: state.pot.totalPotPlayers
+      totalPotPlayers: state.global.totalPotPlayers
     }));
 
     const result = yield call(
