@@ -1,7 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { getPayableWeb3 } from "./../utils/getWeb3";
 import truffleContract from "truffle-contract";
-import AxRaffleContract from "../contracts/AxRaffle.test.json";
+import AxRaffleContract from "../contracts/AxRaffle.json";
 import Notif from "../components/Notif";
 
 function* fetchWeb3() {
