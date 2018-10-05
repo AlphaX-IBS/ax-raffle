@@ -95,7 +95,7 @@ contract AxRaffle is Ownable, Pausable {
     }
 
     modifier potIsOpened() {
-        require(potOpenedTimestamp > 0 && now >= potOpenedTimestamp && now <= potClosedTimestamp, "game is not active");
+        require(potOpenedTimestamp > 0 && now >= potOpenedTimestamp && now <= potClosedTimestamp, "game is not opened");
         _;
     }
 
@@ -235,9 +235,17 @@ contract AxRaffle is Ownable, Pausable {
 
     // Open pot
     function openPot(uint _potOpenedTimestamp, uint _potSellingPeriod, uint _potOpeningPeriod) external onlyOwner {
-        potOpenedTimestamp = _potOpenedTimestamp;
-        potSellingPeriod = _potSellingPeriod;
-        potOpeningPeriod = _potOpeningPeriod;
+        if (_potOpenedTimestamp == 0) {
+            potOpenedTimestamp = now;
+        } else {
+            potOpenedTimestamp = _potOpenedTimestamp;
+        }
+        if (_potSellingPeriod != 0) {
+            potSellingPeriod = _potSellingPeriod;
+        }
+        if (_potOpeningPeriod != 0) {
+            potOpeningPeriod = _potOpeningPeriod;
+        }
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         potEndedTimestamp = 0;
     }
@@ -636,5 +644,20 @@ contract AxRaffle is Ownable, Pausable {
             }
         }
         return gameTokenList;
+    }
+
+    // Get pot status
+    // 0: opened
+    // 1: closed
+    // 2: not executed
+    function getPotStatus() external view returns(uint) {
+        if (potOpenedTimestamp > 0) {
+            if (now >= potOpenedTimestamp && now <= potClosedTimestamp) {
+                return 0;
+            } else if (now > potClosedTimestamp) {
+                return 1;
+            }
+        }
+        return 2;
     }
 }
