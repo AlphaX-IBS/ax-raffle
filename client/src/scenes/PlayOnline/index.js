@@ -113,7 +113,7 @@ class PlayOnline extends PureComponent {
     this.setState(prevState => ({
       dropdownOpen: !prevState.dropdownOpen
     }));
-  }
+  };
 
   render() {
     const { modal, ticketNumber, dropdownOpen } = this.state;
@@ -167,8 +167,47 @@ class PlayOnline extends PureComponent {
                   Buy Now
                 </Button>
               </div>
-              <ChanceRateReport />
-              <Row className="row-howitwork">
+              <ChanceRateReport /><Row className="nextdrawtime">
+                <Col xs={12} className="text-center">
+                  <strong>Next Draw Timestamp</strong>
+                  <p>Friday, October 5, 2018 12:00:00 AM (GMT)</p>
+                </Col>
+                <Col xs={6} md={6}>
+                  <strong>Total tickets (of all players)</strong>
+                  <p>1,000,000 Tickets</p>
+                </Col>
+                <Col xs={6} md={6}>
+                  <strong>Price Per Ticket</strong>
+                  <p>0,0001 ETH</p>
+                </Col>
+              </Row>
+              <Row className="totalpotamount text-center justify-content-center">
+                <Row>
+                  <Col>
+                    <strong>Total amount (ETH and all ERC20 Token)</strong>
+                    <p>100.001 ETH</p>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6} md={6}>
+                    <strong>ETH amount</strong>
+                    <p>100.001 ETH</p>
+                  </Col>
+                  <Col xs={6} md={6}>
+                    <strong>GreenX amount</strong>
+                    <p>100.001 GEX</p>
+                  </Col>
+                  <Col xs={6} md={6}>
+                    <strong>Binance amount</strong>
+                    <p>100.001 BNB</p>
+                  </Col>
+                  <Col xs={6} md={6}>
+                    <strong>HKK Token amount</strong>
+                    <p>100.001 HKK</p>
+                  </Col>
+                </Row>
+              </Row>
+              {/* <Row className="row-howitwork">
                 <Col>
                   <h3>How it work?</h3>
                   <p>
@@ -182,7 +221,7 @@ class PlayOnline extends PureComponent {
                     each week on thursday using random numbers generated through
                   </p>
                 </Col>
-              </Row>
+              </Row> */}
             </div>
             <div className="col-md-6 wow fadeInRight">
               <Nav tabs>
@@ -241,20 +280,29 @@ class PlayOnline extends PureComponent {
             toggle={this.toggleModal}
             className={this.props.className}
           >
-            <ModalHeader toggle={this.toggleModal}>
-              Connect Metamask
+            <ModalHeader className="text-center" toggle={this.toggleModal}>
+              Connect to your wallet through
             </ModalHeader>
-            <ModalBody>
+            <ModalBody className="text-center">
               Connecting to Metamask is required to use this function.
+              <p />
+              <Row className="justify-content-center">
+                <Col xs={4} md={3}>
+                  <Button color="" onClick={this.connectAccount}>
+                    <img src="/img/metamask.png" style={{ height: 48 }} />
+                    <p>Metamask</p>
+                  </Button>
+                </Col>
+                <Col xs={4} md={3}>
+                  <Button color="" onClick={this.connectAccount}>
+                    <img src="/img/key.png" style={{ height: 48 }} />
+                    <p>Private Key</p>
+                  </Button>
+                </Col>
+              </Row>
+              <p />
             </ModalBody>
-            <ModalFooter>
-              <Button color="primary" onClick={this.connectAccount}>
-                Connect
-              </Button>
-              <Button color="secondary" onClick={this.toggleModal}>
-                Cancel
-              </Button>
-            </ModalFooter>
+            <ModalFooter />
           </Modal>
         </div>
       </div>
