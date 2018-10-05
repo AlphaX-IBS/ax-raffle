@@ -127,13 +127,13 @@ contract AxRaffle is Ownable, Pausable {
     // Just for testing
     // constructor() public {
 
-        // require (_operatorAddress != address(0), "operator address is 0");
-        // operatorAddress = _operatorAddress;
-        // potSellingPeriod = _potSellingPeriod;
-        // potOpeningPeriod = _potOpeningPeriod;
-        // weiPerTicket = _weiPerTicket;
-        // weiFeeRate = _weiFeeRate;
-        // tokenFeeRate = _tokenFeeRate;
+        require (_operatorAddress != address(0), "operator address is 0");
+        operatorAddress = _operatorAddress;
+        potSellingPeriod = _potSellingPeriod;
+        potOpeningPeriod = _potOpeningPeriod;
+        weiPerTicket = _weiPerTicket;
+        weiFeeRate = _weiFeeRate;
+        tokenFeeRate = _tokenFeeRate;
         // Init variable value
         gameIsActive = false;
         potOpenedTimestamp = 0;
@@ -155,11 +155,13 @@ contract AxRaffle is Ownable, Pausable {
         weiFeeRate = 10;
         tokenFeeRate = 10;
         gameIsActive = true;
-        // isActiveTokenPayment = true;
+        isActiveTokenPayment = true;
         potOpenedTimestamp = now;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
-        // gameTokens[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = AxTokenInfo(address(0xf6425fab636a8065e0c625d52b17cb07c6839f77),"GEX",18,6000000000000000000);
-        // lengthOfGameTokens++;
+        gameTokens.push(AxTokenInfo(address(0xf6425fab636a8065e0c625d52b17cb07c6839f77),"GEX",18,6000000000000000000));
+        gameTokenIndexes[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = 0;
+        gameTokenStatuses[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = true;
+        lengthOfGameTokens++;
     }
 
     // Set operator wallet address
