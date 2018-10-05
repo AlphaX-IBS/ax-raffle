@@ -95,7 +95,7 @@ contract AxRaffle is Ownable, Pausable {
     }
 
     modifier potIsOpened() {
-        require(potOpenedTimestamp > 0 && now >= potOpenedTimestamp && now <= potClosedTimestamp, "game is not opened");
+        require(potOpenedTimestamp > 0 && now >= potOpenedTimestamp && now <= potClosedTimestamp, "pot is not opened");
         _;
     }
 
@@ -127,13 +127,13 @@ contract AxRaffle is Ownable, Pausable {
     // Just for testing
     // constructor() public {
 
-        require (_operatorAddress != address(0), "operator address is 0");
-        operatorAddress = _operatorAddress;
-        potSellingPeriod = _potSellingPeriod;
-        potOpeningPeriod = _potOpeningPeriod;
-        weiPerTicket = _weiPerTicket;
-        weiFeeRate = _weiFeeRate;
-        tokenFeeRate = _tokenFeeRate;
+        // require (_operatorAddress != address(0), "operator address is 0");
+        // operatorAddress = _operatorAddress;
+        // potSellingPeriod = _potSellingPeriod;
+        // potOpeningPeriod = _potOpeningPeriod;
+        // weiPerTicket = _weiPerTicket;
+        // weiFeeRate = _weiFeeRate;
+        // tokenFeeRate = _tokenFeeRate;
         // Init variable value
         gameIsActive = false;
         potOpenedTimestamp = 0;
@@ -148,16 +148,16 @@ contract AxRaffle is Ownable, Pausable {
         lengthOfPotTokens = 0;
 
         // just for testing
-        // operatorAddress = address(0x7da4907fc6bd5d6939f2954cf4eb0989c5726d16);
-        // potSellingPeriod = 28800;
-        // potOpeningPeriod = 86400;
-        // weiPerTicket = 1000000000000000;
-        // weiFeeRate = 10;
-        // tokenFeeRate = 10;
-        // gameIsActive = true;
+        operatorAddress = address(0x7da4907fc6bd5d6939f2954cf4eb0989c5726d16);
+        potSellingPeriod = 28800;
+        potOpeningPeriod = 86400;
+        weiPerTicket = 1000000000000000;
+        weiFeeRate = 10;
+        tokenFeeRate = 10;
+        gameIsActive = true;
         // isActiveTokenPayment = true;
-        // potOpenedTimestamp = now;
-        // potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
+        potOpenedTimestamp = now;
+        potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
         // gameTokens[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = AxTokenInfo(address(0xf6425fab636a8065e0c625d52b17cb07c6839f77),"GEX",18,6000000000000000000);
         // lengthOfGameTokens++;
     }
@@ -182,7 +182,7 @@ contract AxRaffle is Ownable, Pausable {
         require(_tokens.length > 0 && _tokens.length == _tokenSymbols.length && _tokens.length == _tokenDecimals.length && _tokens.length == _amountPerTicket.length);
         for (uint i = 0; i < _tokens.length; i++) {
             if (gameTokenStatuses[_tokens[i]] == false) {
-                if (gameTokens[gameTokenIndexes[_tokens[i]]].contract_ == _tokens[i]) {
+                if (gameTokens.length > 0 && gameTokens[gameTokenIndexes[_tokens[i]]].contract_ == _tokens[i]) {
                     gameTokenStatuses[_tokens[i]] = true;
                     gameTokens[gameTokenIndexes[_tokens[i]]].symbol_ = _tokenSymbols[i];
                     gameTokens[gameTokenIndexes[_tokens[i]]].decimals_ = _tokenDecimals[i];
@@ -337,6 +337,7 @@ contract AxRaffle is Ownable, Pausable {
 
     // Fallback function for buy tickets by Ether
     function () external payable activatedGame potIsOpened {
+    // function () external payable {
         purchaseTicketsByWei();
     }
     
@@ -352,7 +353,7 @@ contract AxRaffle is Ownable, Pausable {
         uint numberOfTickets = totalWeiAmt.div(weiPerTicket);
         // Update pot player list
         uint playerIdx = potPlayerIndexes[player];
-        // In case of existed players
+        // // In case of existed players
         if (potPlayers.length > 0 && potPlayers[playerIdx].player_ == player) {
             potPlayers[playerIdx].totalOwnedTickets_ += numberOfTickets;
             potPlayers[playerIdx].totalUsedWeiAmt_ = potPlayers[playerIdx].totalUsedWeiAmt_.add(totalWeiAmt);
@@ -362,12 +363,10 @@ contract AxRaffle is Ownable, Pausable {
         }
         // In case of non-existed players
         else {
-            uint[] ticketStartNumbers;
-            uint[] ticketEndNumbers;
-            ticketStartNumbers.push(ticketNumberCeiling + 1);
-            ticketEndNumbers.push(ticketNumberCeiling + numberOfTickets);            
-            AxPotPlayerInfo memory axPotPlayer = AxPotPlayerInfo(player,numberOfTickets,totalWeiAmt,new address[](0),new uint[](0),ticketStartNumbers,ticketEndNumbers,0,new address[](0),new uint[](0),0);
+            AxPotPlayerInfo memory axPotPlayer = AxPotPlayerInfo(player,numberOfTickets,totalWeiAmt,new address[](0),new uint[](0),new uint[](0),new uint[](0),0,new address[](0),new uint[](0),0);            
             potPlayers.push(axPotPlayer);
+            potPlayers[potPlayers.length - 1].ticketStartNumbers_.push(ticketNumberCeiling + 1);
+            potPlayers[potPlayers.length - 1].ticketEndNumbers_.push(ticketNumberCeiling + numberOfTickets);
             potPlayerIndexes[player] = potPlayers.length - 1;        
             lengthOfPotPlayers++;
         }
