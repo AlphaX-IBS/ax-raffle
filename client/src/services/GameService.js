@@ -104,26 +104,24 @@ export async function queryPotRecordsPerPlayer(
   start = 0,
   limit = 10
 ) {
-  const length = await contract.totalPotPlayers.call();
+  const length = await contract.lengthOfPotPlayers.call();
 
   const list = [];
   const size = Math.min(limit, length - start);
 
-  for (let i = start; i < size; i++) {
-    const player = await contract.potPlayerList(i);
-    const tickets = await queryAllPlayerTickets(
-      null,
-      contract,
-      player.playerAddress
-    );
-    list.push({
-      playerAddress: player.playerAddress,
-      list: tickets.list,
-      totalTickets: tickets.totalPlTickets
-    });
+  const fetchingTimes = Math.ceil(size / 100);
+
+  let fetchingIndex = start;
+  for (let round = 0; round < fetchingTimes; round++) {
+    const loadSize = Math.min(100, size - round * 100);
+    console.log(`loadSize=${loadSize}`);
+    const players = await contract.get100PotPlayers(fetchingIndex, loadSize);
+
+    list.push([...players.slice(0, loadSize)]);
+    fetchingIndex = 0;
   }
 
-  // console.log(`potRecords=${JSON.stringify(list)}`);
+  console.log(`potRecords=${JSON.stringify(list)}`);
 
   return {
     list,
