@@ -503,9 +503,9 @@ contract AxRaffle is Ownable, Pausable {
 
     // Get 100 pot players by index
     function get100PotPlayers(uint _from, uint _noPlayers) external view returns(AxPotPlayerInfo[100]) {
-        require(_noPlayers <= 100 && _from + _noPlayers < lengthOfPotPlayers);
+        require(_noPlayers <= 100 && _from + _noPlayers <= lengthOfPotPlayers);
         AxPotPlayerInfo[100] memory potPlayerList;
-        for (uint i = 0; i <=  _noPlayers; i++) {
+        for (uint i = 0; i <  _noPlayers; i++) {
             potPlayerList[i] = potPlayers[i+_from];
         }
         return potPlayerList;
@@ -541,7 +541,7 @@ contract AxRaffle is Ownable, Pausable {
 
     // Get 100 winners by index
     function get100Winners(uint _from, uint _noWinners) external view returns(AxPotPlayerInfo[100]) {
-        require(_noWinners <= 100 && _from + _noWinners < lengthOfGameWinners);
+        require(_noWinners <= 100 && _from + _noWinners <= lengthOfGameWinners);
         AxPotPlayerInfo[100] memory winnerList;
         for (uint i = 0; i < _noWinners; i++) {
             winnerList[i] = gameWinners[i+_from];
