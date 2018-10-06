@@ -26,7 +26,7 @@
     "redux": "^4.0.0",
     "redux-saga": "^0.16.0",
     "truffle-contract": "^4.0.0-next.0",
-    "web3": "^1.0.0-beta.35",
+    "web3": "^1.0.0-beta.36",
     "wowjs": "^1.1.3"
   },
   "scripts": {
