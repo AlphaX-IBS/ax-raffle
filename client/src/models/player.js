@@ -65,7 +65,8 @@ const initialState = {
   loading: false,
   error: false,
   web3: undefined,
-  accounts: [],
+  account: "",
+  modal: false,
   contract: undefined
 };
 
@@ -91,6 +92,11 @@ const reducer = (state = initialState, action) => {
         loading: false,
         error: action.payload
       };
+    case "PL_TOGGLE_MODAL":
+      return {
+        ...state,
+        modal: !state.modal
+      }
     default:
       return state;
   }

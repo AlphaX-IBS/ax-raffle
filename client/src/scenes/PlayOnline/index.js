@@ -34,7 +34,7 @@ class PlayOnline extends PureComponent {
   state = {
     activeTab: "1",
     nextTab: null,
-    modal: false,
+    // modal: false,
     connected: this.props.account ? true : false,
     ticketNumber: 1,
     dropdownOpen: false,
@@ -43,14 +43,11 @@ class PlayOnline extends PureComponent {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.account) {
-      // turn off modal once account is received after 'PL_JOIN_REQUESTED'
-      this.setState({
-        modal: !this.state.modal
-      });
-    }
-    if (nextProps.account !== this.props.account) {
+    const { dispatch } = this.props;
+    if (nextProps.account && nextProps.account !== this.props.account) {
       this.setState({ connected: true });
+      // turn off modal once account is received after 'PL_JOIN_REQUESTED'
+      dispatch({ type: "PL_TOGGLE_MODAL" });
     }
   }
 
@@ -87,11 +84,13 @@ class PlayOnline extends PureComponent {
   };
 
   toggleModal = () => {
+    const { dispatch } = this.props;
     this.setState({
       privateKey: "",
       keyInputOpened: false,
-      modal: !this.state.modal
+      // modal: !this.state.modal
     });
+    dispatch({ type: "PL_TOGGLE_MODAL" });
   };
 
   connectAccount = (type) => {
@@ -151,8 +150,8 @@ class PlayOnline extends PureComponent {
   };
 
   render() {
-    const { modal, ticketNumber, dropdownOpen } = this.state;
-    const { ticketPrice } = this.props;
+    const { ticketNumber, dropdownOpen } = this.state;
+    const { ticketPrice, modal } = this.props;
 
     return (
       <div className="play-online">
@@ -364,6 +363,7 @@ class PlayOnline extends PureComponent {
 
 const mapStateToProps = ({ global, player }) => ({
   account: player.account,
+  modal: player.modal,
   ticketPrice: global.ticketPrice ? global.ticketPrice : NaN
 });
 
