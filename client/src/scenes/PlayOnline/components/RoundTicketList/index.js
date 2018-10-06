@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
+import Loader from 'react-loader-spinner'
 import { Table } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
 
@@ -39,7 +40,11 @@ class RoundTicketList extends PureComponent {
 
   render() {
     const { pageSize, page } = this.state;
-    const { list, totalTickets, totalPotPlayers } = this.props;
+    const { loading, list, totalTickets, totalPotPlayers } = this.props;
+
+    if (loading) {
+      return <Loader type="Ball-Triangle" color="#226226" height={80} width={80} />
+    }
 
     const startIndex = pageSize * Math.max(0, page - 1);
     const data = list.slice(startIndex, startIndex + pageSize);
@@ -86,9 +91,10 @@ class RoundTicketList extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ pot, tickets }) => ({
+const mapStateToProps = ({ global, tickets }) => ({
+  loading: global.status === 'ready' ? false : true,
   list: tickets.list ? tickets.list : [],
-  totalTickets: pot.totalTickets,
-  totalPotPlayers: pot.totalPotPlayers
+  totalTickets: global.totalTickets,
+  totalPotPlayers: global.totalPotPlayers
 });
 export default connect(mapStateToProps)(RoundTicketList);

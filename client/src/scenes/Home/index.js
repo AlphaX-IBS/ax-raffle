@@ -247,9 +247,9 @@ const defaultProps = {
 };
 Home.defaultProps = defaultProps;
 
-const mapStateToProps = ({ api, pot }) => ({
-  closedTime: pot.potClosedTimestamp,
-  totalPot: pot.totalPot,
+const mapStateToProps = ({ api, global }) => ({
+  closedTime: global.potClosedTimestamp,
+  totalPot: global.totalPot,
   contractAddress: api.contract ? api.contract.address : "..."
 });
 

@@ -1,29 +1,31 @@
 import { call, put, takeLatest, select } from "redux-saga/effects";
 import { queryPotRecordsPerPlayer } from "../services/GameService";
+import { load } from "../utils/loadhelper";
 
 function* fetchTickets(action) {
   try {
     const { pageSize, page } = action.payload;
-    const { tickets, contract } = yield select(state => ({
+    const { tickets, contract, totalPotPlayers } = yield select(state => ({
       tickets: state.tickets,
-      contract: state.api.contract
+      contract: state.api.contract,
+      totalPotPlayers: state.global.totalPotPlayers
     }));
-    let start = 0;
-    let limit = 10;
-    const lastIndex = pageSize * page;
-    const startIndex = pageSize * Math.max(0, page - 1);
-    let result = tickets.list.slice(0);
-    if (tickets.list.length < lastIndex) {
-      start = startIndex;
-      limit = limit > pageSize ? limit : pageSize;
-      const response = yield call(queryPotRecordsPerPlayer, contract, start, limit);
-      result.push(...response);
-    }
+
+    const result = yield call(
+      load,
+      { list: tickets.list, total: totalPotPlayers },
+      { pageSize, page },
+      (list, max, start, limit) =>
+        queryPotRecordsPerPlayer(contract, start, limit),
+      (resultList, max) => resultList
+    );
+
     yield put({
       type: "TICKET_FETCH_SUCCEEDED",
       payload: result
     });
   } catch (e) {
+    console.error(JSON.stringify(e.stack));
     yield put({ type: "TICKET_FETCH_FAILED", payload: e.message });
   }
 }

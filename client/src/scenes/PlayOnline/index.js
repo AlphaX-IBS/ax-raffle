@@ -1,11 +1,13 @@
 import React, { PureComponent } from "react";
 import classnames from "classnames";
+import Notif from "../../components/Notif";
 import {
   InputGroup,
   InputGroupAddon,
   Input,
   InputGroupText,
   Button,
+  Collapse,
   TabContent,
   TabPane,
   Nav,
@@ -16,7 +18,11 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
-  ModalFooter
+  ModalFooter,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
 } from "reactstrap";
 import RoundTicketList from "./components/RoundTicketList";
 import OwnerTicketList from "./components/OwnerTicketList/index";
@@ -28,14 +34,20 @@ class PlayOnline extends PureComponent {
   state = {
     activeTab: "1",
     nextTab: null,
-    modal: false,
+    // modal: false,
     connected: this.props.account ? true : false,
-    ticketNumber: 1
+    ticketNumber: 1,
+    dropdownOpen: false,
+    keyInputOpened: false,
+    privateKey: ""
   };
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.account !== this.props.account) {
+    const { dispatch } = this.props;
+    if (nextProps.account && nextProps.account !== this.props.account) {
       this.setState({ connected: true });
+      // turn off modal once account is received after 'PL_JOIN_REQUESTED'
+      dispatch({ type: "PL_TOGGLE_MODAL" });
     }
   }
 
@@ -72,19 +84,46 @@ class PlayOnline extends PureComponent {
   };
 
   toggleModal = () => {
+    const { dispatch } = this.props;
     this.setState({
-      modal: !this.state.modal
+      privateKey: "",
+      keyInputOpened: false,
+      // modal: !this.state.modal
     });
+    dispatch({ type: "PL_TOGGLE_MODAL" });
   };
 
-  connectAccount = () => {
+  connectAccount = (type) => {
     const { dispatch } = this.props;
-    console.log("request");
-    dispatch({ type: "PL_JOIN_REQUESTED", payload: {} });
-    this.setState({
-      modal: !this.state.modal
-    });
+    if (type === 'meta') {
+      dispatch({ type: "PL_JOIN_REQUESTED" });
+      this.setState({
+        keyInputOpened: false
+      });
+    }
+    if (type === 'private') {
+      // show the Collapse component to let user type in private key
+      this.setState({
+        keyInputOpened: !this.state.keyInputOpened
+      })
+    }
   };
+
+  onPrivateKeyInputChange = (event) => {
+    this.setState({
+      privateKey: event.target.value
+    })
+  }
+
+  onPrivateKeyButtonClick = () => {
+    const { dispatch } = this.props;
+    if (this.state.privateKey) {
+      dispatch({ type: "PL_JOIN_REQUESTED", payload: this.state.privateKey });
+    }
+    else {
+      Notif.error('Please input private key')
+    }
+  }
 
   onBuyClick = () => {
     const { connected, ticketNumber } = this.state;
@@ -104,9 +143,15 @@ class PlayOnline extends PureComponent {
     }
   };
 
+  toggleDropdown = () => {
+    this.setState(prevState => ({
+      dropdownOpen: !prevState.dropdownOpen
+    }));
+  };
+
   render() {
-    const { modal, ticketNumber } = this.state;
-    const { ticketPrice } = this.props;
+    const { ticketNumber, dropdownOpen } = this.state;
+    const { ticketPrice, modal } = this.props;
 
     return (
       <div className="play-online">
@@ -128,7 +173,27 @@ class PlayOnline extends PureComponent {
                   />
                   <InputGroupAddon addonType="append">
                     <InputGroupText>
-                      Total cost: {(ticketPrice * ticketNumber).toFixed(3)} ETH
+                      Cost:
+                      {/* Dropdown select ETH or ERC20 token */}
+                      <Dropdown
+                        isOpen={dropdownOpen}
+                        toggle={this.toggleDropdown}
+                      >
+                        <DropdownToggle caret color="paymentmethod">
+                          {(ticketPrice * ticketNumber).toFixed(3)} ETH
+                        </DropdownToggle>
+                        <DropdownMenu>
+                          <DropdownItem>
+                            {(ticketPrice * ticketNumber).toFixed(3)} ETH
+                          </DropdownItem>
+                          <DropdownItem>
+                            {(ticketPrice * ticketNumber).toFixed(3)} GEX
+                          </DropdownItem>
+                          <DropdownItem>
+                            {(ticketPrice * ticketNumber).toFixed(3)} BNB
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </Dropdown>
                     </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
@@ -136,8 +201,47 @@ class PlayOnline extends PureComponent {
                   Buy Now
                 </Button>
               </div>
-              <ChanceRateReport />
-              <Row className="row-howitwork">
+              <ChanceRateReport /><Row className="nextdrawtime">
+                <Col xs={12} className="text-center">
+                  <strong>Next Draw Timestamp</strong>
+                  <p>Friday, October 5, 2018 12:00:00 AM (GMT)</p>
+                </Col>
+                <Col xs={6} md={6}>
+                  <strong>Total tickets (of all players)</strong>
+                  <p>1,000,000 Tickets</p>
+                </Col>
+                <Col xs={6} md={6}>
+                  <strong>Price Per Ticket</strong>
+                  <p>0,0001 ETH</p>
+                </Col>
+              </Row>
+              <Row className="totalpotamount text-center justify-content-center">
+                <Row>
+                  <Col>
+                    <strong>Total amount (ETH and all ERC20 Token)</strong>
+                    <p>100.001 ETH</p>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6} md={6}>
+                    <strong>ETH amount</strong>
+                    <p>100.001 ETH</p>
+                  </Col>
+                  <Col xs={6} md={6}>
+                    <strong>GreenX amount</strong>
+                    <p>100.001 GEX</p>
+                  </Col>
+                  <Col xs={6} md={6}>
+                    <strong>Binance amount</strong>
+                    <p>100.001 BNB</p>
+                  </Col>
+                  <Col xs={6} md={6}>
+                    <strong>HKK Token amount</strong>
+                    <p>100.001 HKK</p>
+                  </Col>
+                </Row>
+              </Row>
+              {/* <Row className="row-howitwork">
                 <Col>
                   <h3>How it work?</h3>
                   <p>
@@ -151,7 +255,7 @@ class PlayOnline extends PureComponent {
                     each week on thursday using random numbers generated through
                   </p>
                 </Col>
-              </Row>
+              </Row> */}
             </div>
             <div className="col-md-6 wow fadeInRight">
               <Nav tabs>
@@ -210,19 +314,45 @@ class PlayOnline extends PureComponent {
             toggle={this.toggleModal}
             className={this.props.className}
           >
-            <ModalHeader toggle={this.toggleModal}>
-              Connect Metamask
+            <ModalHeader className="text-center" toggle={this.toggleModal}>
+              Connect to your wallet through
             </ModalHeader>
-            <ModalBody>
+            <ModalBody className="text-center">
               Connecting to Metamask is required to use this function.
+              <p />
+              <Row className="justify-content-center">
+                <Col xs={4} md={3}>
+                  <Button color="" onClick={() => {
+                    this.connectAccount('meta')
+                  }}>
+                    <img src="/img/metamask.png" style={{ height: 48 }} />
+                    <p>Metamask</p>
+                  </Button>
+                </Col>
+                <Col xs={4} md={3}>
+                  <Button color="" onClick={() => {
+                    this.connectAccount('private')
+                  }}>
+                    <img src="/img/key.png" style={{ height: 48 }} />
+                    <p>Private Key</p>
+                  </Button>
+                </Col>
+              </Row>
+              <p />
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onClick={this.connectAccount}>
-                Connect
-              </Button>
-              <Button color="secondary" onClick={this.toggleModal}>
-                Cancel
-              </Button>
+              <Collapse style={{width: "100%"}} isOpen={this.state.keyInputOpened}>
+                <Row>
+                  <Col xs={8} md={9}>
+                    <Input type="password" placeholder="Enter Private Key" onChange={this.onPrivateKeyInputChange} />
+                  </Col>
+                  <Col xs={3} md={2}>
+                    <Button color="primary" onClick={this.onPrivateKeyButtonClick}>
+                      Connect!
+                    </Button>
+                  </Col>
+                </Row>
+              </Collapse>
             </ModalFooter>
           </Modal>
         </div>
@@ -232,10 +362,9 @@ class PlayOnline extends PureComponent {
 }
 
 const mapStateToProps = ({ global, player }) => ({
-  account: player.accounts.length > 0 ? player.accounts[0] : undefined,
-  ticketPrice: global.gameConfigs.ticketPrice
-    ? global.gameConfigs.ticketPrice
-    : NaN
+  account: player.account,
+  modal: player.modal,
+  ticketPrice: global.ticketPrice ? global.ticketPrice : NaN
 });
 
 export default connect(mapStateToProps)(PlayOnline);
