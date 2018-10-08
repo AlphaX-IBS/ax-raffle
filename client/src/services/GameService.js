@@ -64,11 +64,19 @@ export async function queryWinners(
     const index = indexTranslator(i, size);
     const winner = await contract.gameWinnerList(index);
 
+    const potTokenPrize = {};
+    for (let k = 0; k < winner.potPrizeTokens_.length; k++) {
+      const tokenAddress = winner.potPrizeTokens_[i];
+      const tokenAmount = winner.potPrizeWeiAmt_[i];
+      potTokenPrize[tokenAddress] = tokenAmount;
+    }
+
     winners.push({
       round: index + 1,
-      winnerAddress: winner.winnerAddress,
-      totalPot: web3.utils.fromWei(winner.totalWei),
-      potEndedTimestamp: winner.potEndedTimestamp.toNumber() * 1000 // seconds to millis
+      winnerAddress: winner.player_,
+      totalPot: web3.utils.fromWei(winner.potPrizeWeiAmt_),
+      potEndedTimestamp: winner.potEndedTimeStamp_.toNumber() * 1000, // seconds to millis
+      potTokenPrize
     });
   }
   return {
@@ -109,16 +117,13 @@ export async function queryPotRecordsPerPlayer(
   const list = [];
   const size = Math.min(limit, length - start);
 
-  const fetchingTimes = Math.ceil(size / 100);
+  for (let i = start; i < size; i++) {
+    const player = await contract.potPlayers(i);
 
-  let fetchingIndex = start;
-  for (let round = 0; round < fetchingTimes; round++) {
-    const loadSize = Math.min(100, size - round * 100);
-    console.log(`loadSize=${loadSize}`);
-    const players = await contract.get100PotPlayers(fetchingIndex, loadSize);
-
-    list.push([...players.slice(0, loadSize)]);
-    fetchingIndex = 0;
+    list.push({
+      playerAddress: player.player_,
+      totalTickets: player.totalOwnedTickets_.toNumber()
+    });
   }
 
   console.log(`potRecords=${JSON.stringify(list)}`);
