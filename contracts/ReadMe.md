@@ -52,11 +52,16 @@ Here're some steps to deploy, execute and test raffle contract by yourself.
   + uint _potOpenedTimestamp : ex 1538626714</br>
   + uint _potSellingPeriod : 28800</br>
   + uint _potOpeningPeriod : 86400</br>
+  - <b>Notes:</b></br>
+  + Input _potSellingPeriod / _potOpeningPeriod = 0 if don't want to change their current values</br>
+  + Input _potOpenedTimestamp = 0 to open pot at the current time
   <h2>2.7 Contract owner closes pot (optional)</h2>
   - Actor: owner</br>
   - Function: closePot</br>
   - Input: </br>
   + uint _potClosedTimestamp : ex 1538626714</br>
+  - <b>Notes:</b></br>
+  + Input _potClosedTimestamp = 0 to close pot at the current time
   <h2>2.8 Players buy tickets by ether (required)</h2>
   - Actor: players</br>
   - Pre-conditions: game is active and pot is opened.
