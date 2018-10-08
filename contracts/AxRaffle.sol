@@ -84,7 +84,8 @@ contract AxRaffle is Ownable, Pausable {
     event ActivateGame(bool _active);
     event DeactivateGame(bool _deactive);
     event PurchaseTicketsByWei(address indexed playerAddress, uint weiAmount, uint startTicketNumber, uint endTicketNumber);
-    event DrawTicket(address indexed winnerAddress, uint winnerTicketNumber, uint potEndedTimestamp);
+    event DrawTicketSuccessful(address indexed winnerAddress, uint winnerTicketNumber, uint potEndedTimestamp);
+    event DrawTicketFailed(address indexed winnerAddress);
     event TokenTransferFailed(address indexed from_, address indexed to_, address indexed token_, uint tokenAmount_);
     event TokenTransferSuccessful(address indexed from_, address indexed to_, address indexed token_, uint tokenAmount_);
 
@@ -382,50 +383,58 @@ contract AxRaffle is Ownable, Pausable {
     }
 
     // Draw ticket
-    // - Require pot closed
+    // - Check validation
     // - Randow ticket number for prize
     // - Set end pot timestamp
-    // - Update game winner list
+    // - Add and update game winner list
     // - Allocate prize and fee
     // - Prepare opening next pot
+    // function drawTicket() external onlyOwner activatedGame potIsClosed {
     function drawTicket() external onlyOwner activatedGame potIsClosed {
         // Draw ticket
+        require(ticketNumberCeiling > 0, "The number of tickets in pot are zero now!");
         uint winnerTicket = ticketNumberRandom();
         address winnerAddress = lookUpPlayerAddressByTicketNumber(winnerTicket);
-        uint totalWeiFeeAmt = (totalWeiPot.mul(weiFeeRate)).div(100);
-        uint totalWeiPrizeAmt = totalWeiPot.sub(totalWeiFeeAmt);
-        uint[] tokenFeeAmts;
-        uint[] tokenPrizeAmts;
-        for (uint i = 0; i < potTokenAmts.length; i++) {
-            uint tokenFeeAmt = (potTokenAmts[i].mul(tokenFeeRate)).div(100);
-            tokenFeeAmts.push(tokenFeeAmt);
-            tokenPrizeAmts.push(potTokenAmts[i].sub(tokenFeeAmt));
-        }
-        // End pot
-        potEndedTimestamp = now;
-        // Update winner list
-        AxPotPlayerInfo memory winner = potPlayers[potPlayerIndexes[winnerAddress]];
-        winner.potPrizeWeiAmt_ = totalWeiPrizeAmt;
-        winner.potPrizeTokens_ = potTokens;
-        winner.potPrizeTokenAmts_ = tokenPrizeAmts;
-        winner.potEndedTimeStamp_ = potEndedTimestamp;
-        gameWinners.push(winner);
-        lengthOfGameWinners++;
-        gameWinnerIndexes[winnerAddress].push(lengthOfGameWinners - 1);
-        // Allocate prize and fee
-        // Allocate wei
-        winnerAddress.transfer(totalWeiPrizeAmt);
-        operatorAddress.transfer(totalWeiFeeAmt);
-        // Allocate tokens
-        for (i = 0; i < potTokens.length; i++) {
-            ERC20Interface = ERC20(potTokens[i]);
-            ERC20Interface.transfer(winnerAddress,tokenPrizeAmts[i]);
-            ERC20Interface.transfer(operatorAddress,tokenFeeAmts[i]);
-        }
-        // Prepare opening next pot
-        prepareOpeningNextPot();
+        
+        if (winnerAddress != address(0) && potPlayers[potPlayerIndexes[winnerAddress]].player_ == winnerAddress) {
+            // Add new winner to list
+            gameWinners.push(potPlayers[potPlayerIndexes[winnerAddress]]);
+            lengthOfGameWinners++;
+            // Update new winner information
+            potEndedTimestamp = now;
+            uint totalWeiFeeAmt = (totalWeiPot.mul(weiFeeRate)).div(100);
+            uint totalWeiPrizeAmt = totalWeiPot.sub(totalWeiFeeAmt);
+            uint[] tokenFeeAmts;
+            for (uint i = 0; i < potTokenAmts.length; i++) {
+                uint tokenFeeAmt = (potTokenAmts[i].mul(tokenFeeRate)).div(100);
+                // Calculate pot token fee amount list
+                tokenFeeAmts.push(tokenFeeAmt);
+                // Update pot token amount list of winner
+                gameWinners[lengthOfGameWinners - 1].potPrizeTokenAmts_.push(potTokenAmts[i].sub(tokenFeeAmt));
+            }
+            // Update pot prize wei amount, prize token list, pot ended timestamp for new winner
+            gameWinners[lengthOfGameWinners - 1].potPrizeWeiAmt_ = totalWeiPrizeAmt;
+            gameWinners[lengthOfGameWinners - 1].potPrizeTokens_ = potTokens;
+            gameWinners[lengthOfGameWinners - 1].potEndedTimeStamp_ = potEndedTimestamp;
+            gameWinnerIndexes[winnerAddress].push(lengthOfGameWinners - 1);
+            // Allocate prize and fee
+            //  Allocate wei
+            winnerAddress.transfer(totalWeiPrizeAmt);
+            operatorAddress.transfer(totalWeiFeeAmt);
+            //  Allocate tokens
+            for (i = 0; i < potTokens.length; i++) {
+                ERC20Interface = ERC20(potTokens[i]);
+                ERC20Interface.transfer(winnerAddress,gameWinners[lengthOfGameWinners - 1].potPrizeTokenAmts_[i]);
+                ERC20Interface.transfer(operatorAddress,tokenFeeAmts[i]);
+            }
+            // Prepare opening next pot
+            prepareOpeningNextPot();
 
-        emit DrawTicket(winnerAddress,winnerTicket,potEndedTimestamp);
+            emit DrawTicketSuccessful(winnerAddress,winnerTicket,potEndedTimestamp);
+        } else {
+            emit DrawTicketFailed(winnerAddress);
+        }
+
     }
 
     // Prepare for opening next pot
