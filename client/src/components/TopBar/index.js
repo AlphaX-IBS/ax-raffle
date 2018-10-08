@@ -1,11 +1,20 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import Blockies from "react-blockies";
+import { withRouter } from "react-router";
 
 class TopBar extends PureComponent {
   handleConnect = () => {
-    const { dispatch } = this.props;
-    dispatch({ type: "PL_JOIN_REQUESTED", payload: {} });
+    // history is available thru `withRouter`
+    const { dispatch, history } = this.props;
+    const currentPath = history.location.pathname
+    if (currentPath === '/play') {
+      dispatch({ type: "PL_TOGGLE_MODAL" });
+    } else {
+      // go to player scene
+      history.push("/play");
+    }
+    
   };
 
   render() {
@@ -46,7 +55,10 @@ class TopBar extends PureComponent {
 }
 
 const mapStateToProps = ({ player }) => ({
-  account: player.accounts.length > 0 ? player.accounts[0] : undefined
+  account: player.account
 });
 
-export default connect(mapStateToProps)(TopBar);
+// withRouter to track History of routes
+export default withRouter(
+  connect(mapStateToProps)(TopBar)
+);

@@ -1,11 +1,13 @@
 import React, { PureComponent } from "react";
 import classnames from "classnames";
+import Notif from "../../components/Notif";
 import {
   InputGroup,
   InputGroupAddon,
   Input,
   InputGroupText,
   Button,
+  Collapse,
   TabContent,
   TabPane,
   Nav,
@@ -32,15 +34,20 @@ class PlayOnline extends PureComponent {
   state = {
     activeTab: "1",
     nextTab: null,
-    modal: false,
+    // modal: false,
     connected: this.props.account ? true : false,
     ticketNumber: 1,
-    dropdownOpen: false
+    dropdownOpen: false,
+    keyInputOpened: false,
+    privateKey: ""
   };
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.account !== this.props.account) {
+    const { dispatch } = this.props;
+    if (nextProps.account && nextProps.account !== this.props.account) {
       this.setState({ connected: true });
+      // turn off modal once account is received after 'PL_JOIN_REQUESTED'
+      dispatch({ type: "PL_TOGGLE_MODAL" });
     }
   }
 
@@ -77,19 +84,46 @@ class PlayOnline extends PureComponent {
   };
 
   toggleModal = () => {
+    const { dispatch } = this.props;
     this.setState({
-      modal: !this.state.modal
+      privateKey: "",
+      keyInputOpened: false,
+      // modal: !this.state.modal
     });
+    dispatch({ type: "PL_TOGGLE_MODAL" });
   };
 
-  connectAccount = () => {
+  connectAccount = (type) => {
     const { dispatch } = this.props;
-    console.log("request");
-    dispatch({ type: "PL_JOIN_REQUESTED", payload: {} });
-    this.setState({
-      modal: !this.state.modal
-    });
+    if (type === 'meta') {
+      dispatch({ type: "PL_JOIN_REQUESTED" });
+      this.setState({
+        keyInputOpened: false
+      });
+    }
+    if (type === 'private') {
+      // show the Collapse component to let user type in private key
+      this.setState({
+        keyInputOpened: !this.state.keyInputOpened
+      })
+    }
   };
+
+  onPrivateKeyInputChange = (event) => {
+    this.setState({
+      privateKey: event.target.value
+    })
+  }
+
+  onPrivateKeyButtonClick = () => {
+    const { dispatch } = this.props;
+    if (this.state.privateKey) {
+      dispatch({ type: "PL_JOIN_REQUESTED", payload: this.state.privateKey });
+    }
+    else {
+      Notif.error('Please input private key')
+    }
+  }
 
   onBuyClick = () => {
     const { connected, ticketNumber } = this.state;
@@ -116,8 +150,8 @@ class PlayOnline extends PureComponent {
   };
 
   render() {
-    const { modal, ticketNumber, dropdownOpen } = this.state;
-    const { ticketPrice } = this.props;
+    const { ticketNumber, dropdownOpen } = this.state;
+    const { ticketPrice, modal } = this.props;
 
     return (
       <div className="play-online">
@@ -288,13 +322,17 @@ class PlayOnline extends PureComponent {
               <p />
               <Row className="justify-content-center">
                 <Col xs={4} md={3}>
-                  <Button color="" onClick={this.connectAccount}>
+                  <Button color="" onClick={() => {
+                    this.connectAccount('meta')
+                  }}>
                     <img src="/img/metamask.png" style={{ height: 48 }} />
                     <p>Metamask</p>
                   </Button>
                 </Col>
                 <Col xs={4} md={3}>
-                  <Button color="" onClick={this.connectAccount}>
+                  <Button color="" onClick={() => {
+                    this.connectAccount('private')
+                  }}>
                     <img src="/img/key.png" style={{ height: 48 }} />
                     <p>Private Key</p>
                   </Button>
@@ -302,7 +340,20 @@ class PlayOnline extends PureComponent {
               </Row>
               <p />
             </ModalBody>
-            <ModalFooter />
+            <ModalFooter>
+              <Collapse style={{width: "100%"}} isOpen={this.state.keyInputOpened}>
+                <Row>
+                  <Col xs={8} md={9}>
+                    <Input type="password" placeholder="Enter Private Key" onChange={this.onPrivateKeyInputChange} />
+                  </Col>
+                  <Col xs={3} md={2}>
+                    <Button color="primary" onClick={this.onPrivateKeyButtonClick}>
+                      Connect!
+                    </Button>
+                  </Col>
+                </Row>
+              </Collapse>
+            </ModalFooter>
           </Modal>
         </div>
       </div>
@@ -311,7 +362,8 @@ class PlayOnline extends PureComponent {
 }
 
 const mapStateToProps = ({ global, player }) => ({
-  account: player.accounts.length > 0 ? player.accounts[0] : undefined,
+  account: player.account,
+  modal: player.modal,
   ticketPrice: global.ticketPrice ? global.ticketPrice : NaN
 });
 
