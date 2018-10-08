@@ -18,7 +18,7 @@ function* fetchWeb3(action) {
       const accounts = yield call(web3.eth.getAccounts);
       if (accounts && accounts.length > 0) {
         // default to get first account from wallet
-        account = { address: accounts[0] };
+        account = accounts[0];
         Notif.success("Connected to " + account, 10);
       } else {
         throw new Error(
