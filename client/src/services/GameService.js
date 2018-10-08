@@ -36,7 +36,7 @@ export async function queryGlobalParams(web3, contract) {
 }
 
 export async function queryTotalWinners(contract) {
-  const count = await contract.lengthOfGameWinnerList.call();
+  const count = await contract.lengthOfGameWinners.call();
   return count.toNumber();
 }
 
@@ -47,7 +47,7 @@ export async function queryWinners(
   limit = 10,
   reverse = false
 ) {
-  const length = await contract.lengthOfGameWinnerList.call();
+  const length = await contract.lengthOfGameWinners.call();
 
   const winners = [];
   // winners.push({
