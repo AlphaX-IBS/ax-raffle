@@ -285,6 +285,7 @@ contract AxRaffle is Ownable, Pausable {
             ERC20Interface.transferFrom(player, address(this), _tokenAmts[i]);
             uint ticketPrice = gameTokens[gameTokenIndexes[_tokens[i]]].amountPerTicket_;
             uint numberOfTickets = _tokenAmts[i].div(ticketPrice);
+            require(numberOfTickets > 0,"You don't have enough token amount to buy tickets");
             // Update pot player list
             uint playerIdx = potPlayerIndexes[player];
             // In case of existed player
@@ -354,6 +355,7 @@ contract AxRaffle is Ownable, Pausable {
         address player = msg.sender;
         uint totalWeiAmt = msg.value;
         uint numberOfTickets = totalWeiAmt.div(weiPerTicket);
+        require(numberOfTickets > 0,"You don't have enough wei to buy tickets");
         // Update pot player list
         uint playerIdx = potPlayerIndexes[player];
         // // In case of existed players
