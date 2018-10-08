@@ -37,6 +37,7 @@ class PlayOnline extends PureComponent {
     // modal: false,
     connected: this.props.account ? true : false,
     ticketNumber: 1,
+    gas: 70000,
     dropdownOpen: false,
     keyInputOpened: false,
     privateKey: ""
@@ -126,11 +127,14 @@ class PlayOnline extends PureComponent {
   }
 
   onBuyClick = () => {
-    const { connected, ticketNumber } = this.state;
+    const { connected, ticketNumber, gas } = this.state;
     const { dispatch, ticketPrice } = this.props;
     if (connected) {
       const totalCost = ticketNumber * ticketPrice;
-      dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: totalCost });
+      dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: {
+        totalCost: totalCost,
+        gas: gas,
+      } });
     } else {
       this.toggleModal();
     }
@@ -143,6 +147,13 @@ class PlayOnline extends PureComponent {
     }
   };
 
+  onGasChange = e => {
+    const { gas } = this.state;
+    if (e.target.value !== undefined && e.target.value !== gas) {
+      this.setState({ gas: e.target.value });
+    }
+  }
+
   toggleDropdown = () => {
     this.setState(prevState => ({
       dropdownOpen: !prevState.dropdownOpen
@@ -150,7 +161,7 @@ class PlayOnline extends PureComponent {
   };
 
   render() {
-    const { ticketNumber, dropdownOpen } = this.state;
+    const { ticketNumber, dropdownOpen, gas } = this.state;
     const { ticketPrice, modal } = this.props;
 
     return (
@@ -196,6 +207,19 @@ class PlayOnline extends PureComponent {
                       </Dropdown>
                     </InputGroupText>
                   </InputGroupAddon>
+                </InputGroup>
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText>Gas</InputGroupText>
+                  </InputGroupAddon>
+                  <Input
+                      className="text-center"
+                      placeholder="Gas"
+                      type="number"
+                      min={21000}
+                      value={gas}
+                      onChange={this.onGasChange}
+                  />
                 </InputGroup>
                 <Button color="primary" onClick={this.onBuyClick}>
                   Buy Now

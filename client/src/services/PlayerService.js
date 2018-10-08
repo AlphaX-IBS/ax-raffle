@@ -1,3 +1,4 @@
+import Notif from "../components/Notif";
 export async function queryAllPlayerTickets(web3, contract, account) {
   const numberList = await contract.lookUpTicketNumbersByPlayerAddress(account);
 
@@ -41,11 +42,31 @@ export async function queryAllPlayerTickets(web3, contract, account) {
   // };
 }
 
-export async function buyTickets(web3, contract, account, etherAmount) {
+export function buyTickets(web3, contract, account, connectType, etherAmount, gas) {
   const wei = web3.utils.toWei(etherAmount.toFixed(3).toString());
-  alert(`ether=${etherAmount} and wei=${wei}`);
+  alert(`ether=${etherAmount} and wei=${wei} and gas=${gas}`);
   // await contract.purchaseTicketsByEther({ from: account, value: wei });
-  await contract.send(wei, { from: account });
+  if (connectType === 0 ) {
+    // Metamask
+    return contract.send(wei, {from: account, gas: gas});
+  } else {
+    // Private key
+    // contract.send() somehow does not work with private key method
+    return web3.eth.sendTransaction({
+      from: account,
+      value: wei,
+      gas: gas,
+    }).on('transactionHash', hash => {
+      console.log('transaction sent! hash: ' + hash);
+      Notif.info('transaction hash: ' + hash, 5)
+    }).on('receipt', receipt => {
+      console.log('transaction done!', receipt);
+      Notif.success('transaction completed!', 5);
+    }).on('error', err => {
+      Notif.error(err.message, 5);
+      throw err;
+    })
+  }
 }
 
 export default {

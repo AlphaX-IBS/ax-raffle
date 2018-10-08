@@ -4,19 +4,22 @@ import { buyTickets } from "../services/PlayerService";
 function* requestBuyTickets(action) {
   try {
     yield put({ type: "PL_TICKETS_BUYING" });
-    const { web3, contract, account } = yield select(state => ({
+    const { web3, contract, account, connectType } = yield select(state => ({
       web3: state.player.web3,
       contract: state.player.contract,
-      account: state.player.account
+      account: state.player.account,
+      connectType: state.player.connectType,
     }));
 
-    const totalCost = action.payload;
-    const tickets = yield call(buyTickets, web3, contract, account, totalCost);
+    const totalCost = action.payload.totalCost;
+    const gas = action.payload.gas;
+    const tickets = yield call(buyTickets, web3, contract, account, connectType, totalCost, gas);
 
     yield put({type: "POT_FETCH_REQUESTED"});
 
     yield put({ type: "PL_TICKETS_BUY_SUCCEEDED", payload: tickets });
   } catch (e) {
+    console.error(e)
     yield put({ type: "PL_TICKETS_BUY_FAILED", payload: e.message });
   }
 }
