@@ -478,8 +478,9 @@ contract AxRaffle is Ownable, Pausable {
             uint[] ticketEndNumbers = potPlayers[i].ticketEndNumbers_;
             if (player == _playerAddress) {
                 for (uint j = 0; j < ticketStartNumbers.length; j++) {
-                    potTicketList[j] = ticketStartNumbers[j];
-                    potTicketList[j+1] = ticketEndNumbers[j];                    
+                    potTicketList[h] = ticketStartNumbers[j];
+                    potTicketList[h+1] = ticketEndNumbers[j];
+                    h += 2;
                 }
                 break;
             }
