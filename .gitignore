@@ -1,7 +1,8 @@
 /build/
-/client/contracts/
-/client/src/contracts
 /node_modules/
 /ganache-cli/
 *-lock.json
+/client/contracts/
+/client/src/contracts
 /client/src/contracts/
+/client/*-lock.json
