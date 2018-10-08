@@ -318,14 +318,14 @@ class PlayOnline extends PureComponent {
               Connect to your wallet through
             </ModalHeader>
             <ModalBody className="text-center">
-              Connecting to Metamask is required to use this function.
+              Connecting to Wallet is required to use this function.
               <p />
               <Row className="justify-content-center">
                 <Col xs={4} md={3}>
                   <Button color="" onClick={() => {
                     this.connectAccount('meta')
                   }}>
-                    <img src="/img/metamask.png" style={{ height: 48 }} />
+                    <img src="/img/metamask.svg" style={{ height: 48 }} />
                     <p>Metamask</p>
                   </Button>
                 </Col>
@@ -333,7 +333,7 @@ class PlayOnline extends PureComponent {
                   <Button color="" onClick={() => {
                     this.connectAccount('private')
                   }}>
-                    <img src="/img/key.png" style={{ height: 48 }} />
+                    <img src="/img/private-key.svg" style={{ height: 48 }} />
                     <p>Private Key</p>
                   </Button>
                 </Col>
