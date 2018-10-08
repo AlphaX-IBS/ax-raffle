@@ -472,6 +472,7 @@ contract AxRaffle is Ownable, Pausable {
     // Look up ticket numbers by player address
     function lookUpTicketNumbersByPlayerAddress(address _playerAddress) public view returns (uint[1000]) {
         uint[1000] memory potTicketList;
+        uint h=0;
         for (uint i = 0; i < potPlayers.length; i++) {
             address player = potPlayers[i].player_;
             uint[] ticketStartNumbers = potPlayers[i].ticketStartNumbers_;
