@@ -5,31 +5,48 @@ import AxRaffleContract from "../contracts/AxRaffle.json";
 import Notif from "../components/Notif";
 
 function* fetchWeb3(action) {
+  let connectType = undefined;
   try {
     yield put({ type: "PL_JOINING" });
 
-    let web3, account
-    if(!action.payload) { // Metamask
+    let web3, account;
+    if (!action.payload) {
+      // Metamask
       // Get network provider and web3 instance.
       web3 = yield getPayableWeb3();
       // Use web3 to get the user's accounts.
       const accounts = yield call(web3.eth.getAccounts);
       if (accounts && accounts.length > 0) {
         // default to get first account from wallet
-        account = accounts[0];
-        Notif.success("Connected to " + account, 10)
+        account = { address: accounts[0] };
+        Notif.success("Connected to " + account, 10);
+      } else {
+        throw new Error(
+          "No accounts found inside Metamask wallet or Metamask is not connected"
+        );
       }
-      else {
-        throw new Error('No accounts found inside Metamask wallet or Metamask is not connected')
-      }
+      connectType = 0;
     } else {
-      console.log('getting web3 with private key')
+      console.log("getting web3 with private key");
       // payload is the private key user typed in from 'privatekey button' from onPrivateKeyButtonClick() function
       web3 = yield getWeb3(true);
       // create account from key, need to append '0x' to get correct account
       // https://github.com/ethereum/web3.js/issues/1072
-      account = web3.eth.accounts.privateKeyToAccount('0x' + action.payload);
-      if (account.address) Notif.success("Connected to " + account.address, 10)
+      let privk;
+      if (action.payload.toString().startsWith("0x")) {
+        privk = action.payload;
+      } else {
+        privk = "0x" + action.payload;
+      }
+      const privAcc = web3.eth.accounts.privateKeyToAccount(privk);
+      web3.eth.accounts.wallet.add(privAcc);
+      web3.eth.defaultAccount = privAcc.address;
+      account = privAcc.address;
+      if (account.address) {
+        Notif.success("Connected to " + account, 10);
+      }
+
+      connectType = 1;
     }
 
     // Get the contract instance.
@@ -44,6 +61,7 @@ function* fetchWeb3(action) {
       payload: {
         web3,
         account,
+        connectType,
         contract: instance
       }
     });
@@ -51,9 +69,7 @@ function* fetchWeb3(action) {
     yield put({ type: "PL_TICKETS_FETCH_REQUESTED" });
   } catch (e) {
     yield put({ type: "PL_JOIN_FAILED", payload: e.message });
-    Notif.error(
-      `${e.message}`
-    );
+    Notif.error(`${e.message}`);
   }
 }
 
@@ -61,11 +77,16 @@ function* playerSaga() {
   yield takeLatest("PL_JOIN_REQUESTED", fetchWeb3);
 }
 
+// connectType:
+//   0: metamask
+//   1: private key
+
 const initialState = {
   loading: false,
   error: false,
   web3: undefined,
   account: "",
+  connectType: 0,
   modal: false,
   contract: undefined
 };
@@ -84,7 +105,8 @@ const reducer = (state = initialState, action) => {
         error: false,
         web3: action.payload.web3,
         account: action.payload.account,
-        contract: action.payload.contract
+        contract: action.payload.contract,
+        connectType: action.payload.connectType
       };
     case "PL_JOIN_FAILED":
       return {
@@ -96,7 +118,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         modal: !state.modal
-      }
+      };
     default:
       return state;
   }

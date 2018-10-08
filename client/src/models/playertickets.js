@@ -7,7 +7,7 @@ function* fetchPlayerTickets() {
     const { web3, contract, account } = yield select(state => ({
       web3: state.player.web3,
       contract: state.player.contract,
-      account: state.player.accounts[0]
+      account: state.player.account
     }));
 
     const tickets = yield call(queryAllPlayerTickets, web3, contract, account);
