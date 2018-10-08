@@ -48,7 +48,7 @@ export function buyTickets(web3, contract, account, connectType, etherAmount, ga
   // await contract.purchaseTicketsByEther({ from: account, value: wei });
   if (connectType === 0 ) {
     // Metamask
-    return contract.send(wei, {from: account, gas: gas});
+    return contract.send(wei, {from: account});
   } else {
     // Private key
     // contract.send() somehow does not work with private key method

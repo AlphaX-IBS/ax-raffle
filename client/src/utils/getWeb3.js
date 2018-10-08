@@ -54,4 +54,15 @@ export const getPayableWeb3 = () =>
     }
   });
 
-export default { getWeb3, getPayableWeb3 };
+export const getEstimatedGas = (web3, from, to) => 
+  new Promise((resolve) => {
+    // console.log('from', from);
+    // console.log('to', to);
+    // estimate gas always fails !?
+    resolve(web3.eth.estimateGas({
+      from: from,
+      to: to,
+    }))
+  })
+
+export default { getWeb3, getPayableWeb3, getEstimatedGas };

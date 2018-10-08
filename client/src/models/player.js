@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { getWeb3, getPayableWeb3 } from "./../utils/getWeb3";
+import { getWeb3, getPayableWeb3, getEstimatedGas } from "./../utils/getWeb3";
 import truffleContract from "truffle-contract";
 import AxRaffleContract from "../contracts/AxRaffle.json";
 import Notif from "../components/Notif";
@@ -54,6 +54,8 @@ function* fetchWeb3(action) {
     Contract.setProvider(web3.currentProvider);
     const instance = yield call(Contract.deployed);
 
+    const estimatedGas = getEstimatedGas(web3, account, instance.address)
+
     // Set web3, accounts, and contract to the state, and then proceed with an
     // example of interacting with the contract's methods.
     yield put({
@@ -62,6 +64,7 @@ function* fetchWeb3(action) {
         web3,
         account,
         connectType,
+        estimatedGas: estimatedGas,
         contract: instance
       }
     });
@@ -88,7 +91,8 @@ const initialState = {
   account: "",
   connectType: 0,
   modal: false,
-  contract: undefined
+  contract: undefined,
+  estimatedGas: 70000,
 };
 
 const reducer = (state = initialState, action) => {

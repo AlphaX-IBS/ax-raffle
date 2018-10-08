@@ -35,6 +35,7 @@ class PlayOnline extends PureComponent {
     activeTab: "1",
     nextTab: null,
     // modal: false,
+    infoModal: false,
     connected: this.props.account ? true : false,
     ticketNumber: 1,
     gas: 70000,
@@ -94,6 +95,15 @@ class PlayOnline extends PureComponent {
     dispatch({ type: "PL_TOGGLE_MODAL" });
   };
 
+  toggleInfoModal = () => {
+    const { infoModal } = this.state;
+    const estimatedGas = this.props.estimatedGas || this.state.gas;
+    this.setState({
+      infoModal: !infoModal,
+      gas: estimatedGas,
+    })
+  }
+
   connectAccount = (type) => {
     const { dispatch } = this.props;
     if (type === 'meta') {
@@ -127,18 +137,31 @@ class PlayOnline extends PureComponent {
   }
 
   onBuyClick = () => {
-    const { connected, ticketNumber, gas } = this.state;
-    const { dispatch, ticketPrice } = this.props;
+    const { connected } = this.state;
+    const { connectType } = this.props;
     if (connected) {
-      const totalCost = ticketNumber * ticketPrice;
-      dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: {
-        totalCost: totalCost,
-        gas: gas,
-      } });
+      if (connectType === 0) {
+        // if user is using metamask, then skip the Info modal
+        this.dispatchBuyAction();
+      } else {
+        // show modal to allow input GAS if user is using private key
+        this.toggleInfoModal();
+      }
     } else {
       this.toggleModal();
     }
   };
+
+  dispatchBuyAction = () => {
+    const { dispatch, ticketPrice } = this.props; 
+    const { gas, ticketNumber } = this.state;
+    const totalCost = ticketNumber * ticketPrice;
+    dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: {
+      totalCost: totalCost,
+      gas: gas,
+    } });
+    this.toggleInfoModal();
+  }
 
   onTicketNumberChange = e => {
     const { ticketNumber } = this.state;
@@ -161,8 +184,9 @@ class PlayOnline extends PureComponent {
   };
 
   render() {
-    const { ticketNumber, dropdownOpen, gas } = this.state;
+    const { ticketNumber, dropdownOpen, gas, infoModal } = this.state;
     const { ticketPrice, modal } = this.props;
+    const totalCost = ticketNumber * ticketPrice;
 
     return (
       <div className="play-online">
@@ -207,19 +231,6 @@ class PlayOnline extends PureComponent {
                       </Dropdown>
                     </InputGroupText>
                   </InputGroupAddon>
-                </InputGroup>
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>Gas</InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                      className="text-center"
-                      placeholder="Gas"
-                      type="number"
-                      min={21000}
-                      value={gas}
-                      onChange={this.onGasChange}
-                  />
                 </InputGroup>
                 <Button color="primary" onClick={this.onBuyClick}>
                   Buy Now
@@ -379,6 +390,40 @@ class PlayOnline extends PureComponent {
               </Collapse>
             </ModalFooter>
           </Modal>
+          <Modal
+            isOpen={infoModal}
+            toggle={this.toggleInfoModal}
+            className={this.props.className}
+          >
+            <ModalBody>
+              <InputGroup>
+                <InputGroupAddon addonType="prepend">
+                  <InputGroupText>Cost</InputGroupText>
+                </InputGroupAddon>
+                <Input
+                  disabled={true}
+                  className="text-center"
+                  placeholder={totalCost}>
+                </Input>
+              </InputGroup>
+              <InputGroup>
+                <InputGroupAddon addonType="prepend">
+                  <InputGroupText>Gas </InputGroupText>
+                </InputGroupAddon>
+                <Input
+                    className="text-center"
+                    placeholder="Gas"
+                    type="number"
+                    min={21000}
+                    value={gas}
+                    onChange={this.onGasChange}
+                />
+              </InputGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.dispatchBuyAction}>Buy Tickets!</Button>
+            </ModalFooter>
+          </Modal>
         </div>
       </div>
     );
@@ -388,6 +433,8 @@ class PlayOnline extends PureComponent {
 const mapStateToProps = ({ global, player }) => ({
   account: player.account,
   modal: player.modal,
+  connectType: player.connectType,
+  estimatedGas: player.estimatedGas,
   ticketPrice: global.ticketPrice ? global.ticketPrice : NaN
 });
 
