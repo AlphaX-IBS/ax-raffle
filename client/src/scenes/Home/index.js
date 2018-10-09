@@ -7,6 +7,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import Loader from "react-loader-spinner";
 
 class Home extends PureComponent {
   goToPlayNow = () => {
@@ -15,7 +16,44 @@ class Home extends PureComponent {
   };
 
   render() {
-    const { closedTime, totalPot, contractAddress } = this.props;
+    const {
+      openedTime,
+      closedTime,
+      totalPot,
+      contractAddress,
+      gamestatus,
+      globalStatus
+    } = this.props;
+
+    let isLoading = false;
+    if (globalStatus === "init") {
+      isLoading = true;
+    }
+
+    const prize = isLoading ? (
+      <h3 className="text-center">
+        <Loader type="Rings" color="#226226" height={32} width={32} />
+      </h3>
+    ) : (
+      <h3 className="text-center">
+        <FontAwesomeIcon icon={faEthereum} /> {totalPot}
+      </h3>
+    );
+
+    let targetTime = 0;
+    let countDownMsg = "";
+    if (!isLoading) {
+      switch (gamestatus) {
+        case "starting":
+          countDownMsg = "Next Pot Starts In";
+          targetTime = openedTime;
+          break;
+        case "opening":
+          countDownMsg = "Next Draw Remaining Time";
+          targetTime = closedTime;
+          break;
+      }
+    }
 
     return (
       <div>
@@ -44,9 +82,7 @@ class Home extends PureComponent {
               />
               <div className="centered">
                 <p style={{ marginBottom: 0 }}>Current pot:</p>
-                <h3 className="text-center">
-                  <FontAwesomeIcon icon={faEthereum} /> {totalPot}
-                </h3>
+                {prize}
                 {/* <FontAwesomeIcon icon={faEthereum} /> <AwardTag value={totalPot}/> */}
               </div>
             </div>
@@ -56,9 +92,7 @@ class Home extends PureComponent {
               data-wow-delay="1s"
             >
               <p style={{ marginBottom: 0 }}>Current pot:</p>
-              <h3 className="text-center">
-                <FontAwesomeIcon icon={faEthereum} /> {totalPot}
-              </h3>
+              {prize}
             </div>
             <div className="col-md-4 col-sm-6 wow fadeInRight">
               <img
@@ -80,7 +114,7 @@ class Home extends PureComponent {
                 src="/img/bare-home-count-down.png"
               />
               <div className="centered">
-                <JackPotCountDown target={closedTime} />
+                <JackPotCountDown msg={countDownMsg} target={targetTime} />
               </div>
             </div>
           </div>
@@ -248,8 +282,11 @@ const defaultProps = {
 Home.defaultProps = defaultProps;
 
 const mapStateToProps = ({ api, global }) => ({
+  openedTime: global.potOpenedTimestamp,
   closedTime: global.potClosedTimestamp,
   totalPot: global.totalPot,
+  gamestatus: global.gamestatus,
+  globalStatus: global.status,
   contractAddress: api.contract ? api.contract.address : "..."
 });
 

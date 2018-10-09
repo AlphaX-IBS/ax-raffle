@@ -20,6 +20,8 @@ export async function queryGameConfigs(web3, contract) {
 
 export async function queryGlobalParams(web3, contract) {
   const params = await contract.getRaffleParams();
+  const potOpeningPeriod = await contract.potOpeningPeriod.call();
+
   return {
     ticketPrice: web3.utils.fromWei(params[0], "ether"),
     weiFeeRate: params[1],
@@ -31,7 +33,8 @@ export async function queryGlobalParams(web3, contract) {
     totalPot: web3.utils.fromWei(params[7], "ether"),
     tokenFeeRate: params[8],
     lengthOfGameTokens: params[9].toNumber(),
-    lengthOfPotTokens: params[10].toNumber()
+    lengthOfPotTokens: params[10].toNumber(),
+    potOpeningPeriod: potOpeningPeriod.toNumber()
   };
 }
 

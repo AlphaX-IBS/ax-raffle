@@ -9,7 +9,7 @@ function* fetchGlobalParams() {
       web3: state.api.web3,
       contract: state.api.contract
     }));
-    
+
     const params = yield call(queryGlobalParams, web3, contract);
 
     const { lengthOfGameWinners, ...rest } = params;
@@ -31,8 +31,32 @@ function* saga() {
   yield takeLatest("GLOBAL_FETCH_REQUESTED", fetchGlobalParams);
 }
 
+function calculateGameStatus(oldValue, payload) {
+  const {
+    potOpenedTimestamp,
+    potClosedTimestamp
+  } = payload;
+  const now = Date.now();
+  let gamestatus = oldValue;
+  if (potOpenedTimestamp < now) {
+    if (now < potClosedTimestamp) {
+      gamestatus = "opening";
+    } else {
+      gamestatus = "drawing";
+    }
+  } else {
+    gamestatus = "starting";
+  }
+  return gamestatus;
+}
+
+// const gamestatus = [
+//   'stopped', 'starting', 'opening', 'drawing'
+// ];
+
 const initialState = {
-  status: 'init'
+  status: "init",
+  gamestatus: "stopped"
 };
 
 const reducer = (state = initialState, action) => {
@@ -40,19 +64,21 @@ const reducer = (state = initialState, action) => {
     case "GLOBAL_FETCHING":
       return {
         ...state,
-        status: 'loading'
+        status: "loading"
       };
     case "GLOBAL_FETCH_FAILED":
       return {
         ...state,
-        status: 'ready',
+        status: "ready",
         error: action.payload
       };
     case "GLOBAL_FETCH_SUCCEEDED":
+      const gamestatus = calculateGameStatus(state.gamestatus, action.payload);
       return {
         ...state,
-        status: 'ready',
-        ...action.payload
+        status: "ready",
+        ...action.payload,
+        gamestatus
       };
     default:
       return state;

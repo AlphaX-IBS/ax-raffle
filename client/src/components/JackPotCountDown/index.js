@@ -145,13 +145,13 @@ class JackPotCountDown extends PureComponent {
   };
 
   render() {
-    const { format = this.defaultFormat, onEnd, ...rest } = this.props;
+    const { format = this.defaultFormat, onEnd, msg, ...rest } = this.props;
     const { lastTime } = this.state;
     const result = format(lastTime);
 
     return (
       <div className="pot-count-down">
-        <div className="headline">Next Draw Remaining Time</div>
+        <div className="headline">{msg}</div>
         <div {...rest}>{result}</div>
       </div>
     );

@@ -69,7 +69,7 @@ contract AxRaffle is Ownable, Pausable {
     // For token payment
     bool public isActiveTokenPayment; // status of token payment method
     uint public tokenFeeRate; // fee for using token payment
-    AxTokenInfo[] gameTokens; // List of tokens accepted in game
+    AxTokenInfo[] public gameTokens; // List of tokens accepted in game
     mapping(address => uint) public gameTokenIndexes; // Game token indexes
     mapping(address => bool) public gameTokenStatuses; // Game token status, true: active, false: inactive
     uint public lengthOfGameTokens; // Total tokens accepted as payment in game
