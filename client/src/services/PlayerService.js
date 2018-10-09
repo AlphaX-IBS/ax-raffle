@@ -54,6 +54,7 @@ export function buyTickets(web3, contract, account, connectType, etherAmount, ga
     // contract.send() somehow does not work with private key method
     return web3.eth.sendTransaction({
       from: account,
+      to: contract.address,
       value: wei,
       gas: gas,
     }).on('transactionHash', hash => {
