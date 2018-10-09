@@ -160,7 +160,7 @@ class PlayOnline extends PureComponent {
       totalCost: totalCost,
       gas: gas,
     } });
-    !wontToggle ? this.toggleInfoModal();
+    if(!wontToggle) this.toggleInfoModal();
   }
 
   onTicketNumberChange = e => {
