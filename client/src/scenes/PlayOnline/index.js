@@ -38,7 +38,7 @@ class PlayOnline extends PureComponent {
     infoModal: false,
     connected: this.props.account ? true : false,
     ticketNumber: 1,
-    gas: 70000,
+    gas: 7000000,
     dropdownOpen: false,
     keyInputOpened: false,
     privateKey: ""
@@ -142,7 +142,7 @@ class PlayOnline extends PureComponent {
     if (connected) {
       if (connectType === 0) {
         // if user is using metamask, then skip the Info modal
-        this.dispatchBuyAction();
+        this.dispatchBuyAction(true);
       } else {
         // show modal to allow input GAS if user is using private key
         this.toggleInfoModal();
@@ -152,7 +152,7 @@ class PlayOnline extends PureComponent {
     }
   };
 
-  dispatchBuyAction = () => {
+  dispatchBuyAction = (wontToggle) => {
     const { dispatch, ticketPrice } = this.props; 
     const { gas, ticketNumber } = this.state;
     const totalCost = ticketNumber * ticketPrice;
@@ -160,7 +160,7 @@ class PlayOnline extends PureComponent {
       totalCost: totalCost,
       gas: gas,
     } });
-    this.toggleInfoModal();
+    !wontToggle ? this.toggleInfoModal();
   }
 
   onTicketNumberChange = e => {
