@@ -11,12 +11,10 @@ const noop = function(i, length) {
 export async function querySupportedTokens(web3, contract) {
   const length = await contract.lengthOfGameTokens.call();
 
-  console.log(length);
-
   const tokens = {};
   for (let i = 0; i < length; i++) {
     const tokenInfo = await contract.gameTokens(i);
-    console.log(`tokens=${JSON.stringify(tokenInfo)}`);
+    // console.log(`tokens=${JSON.stringify(tokenInfo)}`);
     const address = tokenInfo.contract_;
     const active = await contract.gameTokenStatuses(address);
     if (active) {
@@ -89,14 +87,15 @@ export async function queryWinners(
 
   for (let i = 0; i < size; i++) {
     const index = indexTranslator(i, size);
-    const winner = await contract.gameWinnerList(index);
+    const winner = await contract.gameWinners(index);
 
     const potTokenPrize = {};
-    for (let k = 0; k < winner.potPrizeTokens_.length; k++) {
-      const tokenAddress = winner.potPrizeTokens_[i];
-      const tokenAmount = winner.potPrizeWeiAmt_[i];
-      potTokenPrize[tokenAddress] = tokenAmount;
-    }
+    // Web3 does not support array in struct.
+    // for (let k = 0; k < winner.potPrizeTokens_.length; k++) {
+    //   const tokenAddress = winner.potPrizeTokens_[i];
+    //   const tokenAmount = winner.potPrizeWeiAmt_[i];
+    //   potTokenPrize[tokenAddress] = tokenAmount;
+    // }
 
     winners.push({
       round: index + 1,
@@ -146,14 +145,14 @@ export async function queryPotRecordsPerPlayer(
 
   for (let i = start; i < size; i++) {
     const player = await contract.potPlayers(i);
-
+    // console.log(JSON.stringify(player));
     list.push({
       playerAddress: player.player_,
       totalTickets: player.totalOwnedTickets_.toNumber()
     });
   }
 
-  console.log(`potRecords=${JSON.stringify(list)}`);
+  // console.log(`potRecords=${JSON.stringify(list)}`);
 
   return {
     list,

@@ -1,4 +1,5 @@
-import { call, put, takeLatest, select } from "redux-saga/effects";
+import { actionChannel, call, put, select, take } from "redux-saga/effects";
+import { buffers } from "redux-saga";
 import { queryWinners } from "../services/GameService";
 import { load } from "../utils/loadhelper";
 
@@ -17,7 +18,8 @@ export function* fetchWinners(action) {
       load,
       { list: winners.list, total: winners.totalWinners },
       { pageSize, page },
-      (list, max, start, limit) => queryWinners(web3, contract, start, limit, true),
+      (list, max, start, limit) =>
+        queryWinners(web3, contract, start, limit, true),
       (resultList, max) => ({
         list: resultList,
         totalWinners: max
@@ -37,7 +39,17 @@ export function* fetchWinners(action) {
 }
 
 function* saga() {
-  yield takeLatest("WINNERS_FETCH_REQUESTED", fetchWinners);
+  // Take the latest request. Doing this as we only have one view using this data.
+  const requestChan = yield actionChannel(
+    "WINNERS_FETCH_REQUESTED",
+    buffers.sliding(1)
+  );
+  yield take("GLOBAL_FETCH_SUCCEEDED");
+
+  while (true) {
+    const action = yield take(requestChan);
+    yield call(fetchWinners, action);
+  }
 }
 
 const initialState = {

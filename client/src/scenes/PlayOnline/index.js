@@ -340,7 +340,7 @@ class PlayOnline extends PureComponent {
                       this.connectAccount("meta");
                     }}
                   >
-                    <img src="/img/metamask.svg" style={{ height: 48 }} />
+                    <img alt="metamask" src="/img/metamask.svg" style={{ height: 48 }} />
                     <p>Metamask</p>
                   </Button>
                 </Col>
@@ -351,7 +351,7 @@ class PlayOnline extends PureComponent {
                       this.connectAccount("private");
                     }}
                   >
-                    <img src="/img/private-key.svg" style={{ height: 48 }} />
+                    <img alt="private key" src="/img/private-key.svg" style={{ height: 48 }} />
                     <p>Private Key</p>
                   </Button>
                 </Col>

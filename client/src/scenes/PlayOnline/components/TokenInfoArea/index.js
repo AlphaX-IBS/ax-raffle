@@ -17,7 +17,6 @@ class GameInfoArea extends PureComponent {
         const amountInWeiAsStr = tk.amountPerTicket.toString();
         const power = tk.decimals.toNumber();
         const amountAsStr = negativePowerOfTen(amountInWeiAsStr, power);
-        console.log(`num=${amountAsStr}`);
         return {
           symbol,
           amount: new BigNumber(amountAsStr)
@@ -25,7 +24,6 @@ class GameInfoArea extends PureComponent {
       });
 
       nodes = data.map(item => {
-        console.log(item.amount.toString());
         return (
           <Col key={item.symbol} className="text-nowrap" xs={6} md={6}>
             <strong>{`${item.symbol} amount`}</strong>

@@ -12,8 +12,7 @@ class GameInfoArea extends PureComponent {
       openedTime,
       closedTime,
       totalTickets,
-      ticketPriceInEth,
-      global
+      ticketPriceInEth
     } = this.props;
 
     if (globalStatus !== "ready") {
@@ -49,6 +48,7 @@ class GameInfoArea extends PureComponent {
           gameMsg = "Drawing";
           targetTime = "---";
           break;
+        default:
       }
 
       return (
@@ -78,8 +78,7 @@ const mapStateToProps = ({ global }) => ({
   gamestatus: global.gamestatus,
   globalStatus: global.status,
   totalTickets: global.totalTickets | 0,
-  ticketPriceInEth: global.ticketPrice,
-  global
+  ticketPriceInEth: global.ticketPrice
 });
 
 export default connect(mapStateToProps)(GameInfoArea);

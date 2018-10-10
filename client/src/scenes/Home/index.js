@@ -52,6 +52,7 @@ class Home extends PureComponent {
           countDownMsg = "Next Draw Remaining Time";
           targetTime = closedTime;
           break;
+        default:
       }
     }
 

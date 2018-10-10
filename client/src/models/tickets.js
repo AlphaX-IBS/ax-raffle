@@ -1,4 +1,11 @@
-import { call, put, takeLatest, select } from "redux-saga/effects";
+import {
+  actionChannel,
+  call,
+  put,
+  select,
+  take
+} from "redux-saga/effects";
+import { buffers } from "redux-saga";
 import { queryPotRecordsPerPlayer } from "../services/GameService";
 import { load } from "../utils/loadhelper";
 
@@ -31,11 +38,23 @@ function* fetchTickets(action) {
 }
 
 function* ticketSaga() {
-  yield takeLatest("TICKET_FETCH_REQUESTED", fetchTickets);
+  // 1- Create a channel for request actions, keep only one request and it is the latest one.
+  const requestChan = yield actionChannel(
+    "TICKET_FETCH_REQUESTED",
+    buffers.sliding(1)
+  );
+  yield take("GLOBAL_FETCH_SUCCEEDED");
+
+  while (true) {
+    // 2- take from the channel
+    const action = yield take(requestChan);
+    // 3- Note that we're using a blocking call
+    yield call(fetchTickets, action);
+  }
 }
 
 const initialState = {
-  loading: false,
+  status: "init",
   error: false,
   list: []
 };
@@ -45,14 +64,14 @@ const reducer = (state = initialState, action) => {
     case "TICKET_FETCH_SUCCEEDED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: false,
         list: action.payload
       };
     case "TICKET_FETCH_FAILED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: action.payload
       };
     default:

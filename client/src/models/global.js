@@ -16,15 +16,9 @@ function* fetchGlobalParams() {
     const params = yield call(queryGlobalParams, web3, contract);
 
     const { lengthOfGameWinners, ...rest } = params;
-
-    yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
-
+    
     yield put({ type: "TOTAL_WINNERS_SAVE", payload: lengthOfGameWinners });
-
-    yield put({
-      type: "WINNERS_FETCH_REQUESTED",
-      payload: { page: 1, pageSize: 6 }
-    });
+    yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
   }
