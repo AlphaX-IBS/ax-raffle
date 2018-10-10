@@ -12,7 +12,7 @@ class GameInfoArea extends PureComponent {
       openedTime,
       closedTime,
       totalTickets,
-      ticketPriceInEth
+      tokens
     } = this.props;
 
     if (globalStatus !== "ready") {
@@ -51,6 +51,15 @@ class GameInfoArea extends PureComponent {
         default:
       }
 
+      const cryptoPricePerTicketNodes = Object.keys(tokens).map(key => {
+        const tk = tokens[key];
+        return (
+          <p>
+            {tk.displayValue.toString()} {tk.symbol}
+          </p>
+        );
+      });
+
       return (
         <Row className="nextdrawtime">
           <Col xs={12} className="text-center">
@@ -63,7 +72,7 @@ class GameInfoArea extends PureComponent {
           </Col>
           <Col xs={6} md={6}>
             <strong>Price Per Ticket</strong>
-            <p>{ticketPriceInEth} ETH</p>
+            {cryptoPricePerTicketNodes}
           </Col>
         </Row>
       );
@@ -78,7 +87,8 @@ const mapStateToProps = ({ global }) => ({
   gamestatus: global.gamestatus,
   globalStatus: global.status,
   totalTickets: global.totalTickets | 0,
-  ticketPriceInEth: global.ticketPrice
+  ticketPriceInEth: global.ticketPrice,
+  tokens: global.supportedTokens
 });
 
 export default connect(mapStateToProps)(GameInfoArea);
