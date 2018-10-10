@@ -26,7 +26,7 @@ const initialState = {
   loading: false,
   error: false,
   list: [],
-  totalPlTickets: 0
+  totalPlTickets: null
 };
 
 const reducer = (state = initialState, action) => {

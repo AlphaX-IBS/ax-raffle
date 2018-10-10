@@ -1,5 +1,8 @@
-import { call, put, takeLatest, select } from "redux-saga/effects";
-import { queryGlobalParams } from "../services/GameService";
+import { call, put, takeLatest, select, fork } from "redux-saga/effects";
+import {
+  queryGlobalParams,
+  querySupportedTokens
+} from "../services/GameService";
 
 function* fetchGlobalParams() {
   try {
@@ -25,6 +28,17 @@ function* fetchGlobalParams() {
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
   }
+
+  yield fork(fetchSupportedTokens);
+}
+
+function* fetchSupportedTokens() {
+  const { web3, contract } = yield select(state => ({
+    web3: state.api.web3,
+    contract: state.api.contract
+  }));
+  const tokens = yield call(querySupportedTokens, web3, contract);
+  yield put({ type: "SAVE_SUPPORTED_TOKENS", payload: tokens });
 }
 
 function* saga() {
@@ -32,10 +46,7 @@ function* saga() {
 }
 
 function calculateGameStatus(oldValue, payload) {
-  const {
-    potOpenedTimestamp,
-    potClosedTimestamp
-  } = payload;
+  const { potOpenedTimestamp, potClosedTimestamp } = payload;
   const now = Date.now();
   let gamestatus = oldValue;
   if (potOpenedTimestamp < now) {
@@ -56,7 +67,8 @@ function calculateGameStatus(oldValue, payload) {
 
 const initialState = {
   status: "init",
-  gamestatus: "stopped"
+  gamestatus: "stopped",
+  supportedTokens: {}
 };
 
 const reducer = (state = initialState, action) => {
@@ -79,6 +91,11 @@ const reducer = (state = initialState, action) => {
         status: "ready",
         ...action.payload,
         gamestatus
+      };
+    case "SAVE_SUPPORTED_TOKENS":
+      return {
+        ...state,
+        supportedTokens: action.payload
       };
     default:
       return state;

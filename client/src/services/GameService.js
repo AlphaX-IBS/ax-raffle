@@ -8,6 +8,30 @@ const noop = function(i, length) {
   return i;
 };
 
+export async function querySupportedTokens(web3, contract) {
+  const length = await contract.lengthOfGameTokens.call();
+
+  console.log(length);
+
+  const tokens = {};
+  for (let i = 0; i < length; i++) {
+    const tokenInfo = await contract.gameTokens(i);
+    console.log(`tokens=${JSON.stringify(tokenInfo)}`);
+    const address = tokenInfo.contract_;
+    const active = await contract.gameTokenStatuses(address);
+    if (active) {
+      tokens[address] = {
+        contract: tokenInfo.contract_,
+        symbol: web3.utils.toAscii(tokenInfo.symbol_).trim(),
+        decimals: tokenInfo.decimals_,
+        amountPerTicket: tokenInfo.amountPerTicket_
+      };
+    }
+  }
+
+  return tokens;
+}
+
 export async function queryGameConfigs(web3, contract) {
   const weiPerTicket = await contract.weiPerTicket.call();
   const ticketPrice = web3.utils.fromWei(weiPerTicket, "ether");
