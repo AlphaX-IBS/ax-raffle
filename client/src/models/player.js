@@ -92,7 +92,7 @@ const initialState = {
   connectType: 0,
   modal: false,
   contract: undefined,
-  estimatedGas: 70000,
+  estimatedGas: 700000,
 };
 
 const reducer = (state = initialState, action) => {

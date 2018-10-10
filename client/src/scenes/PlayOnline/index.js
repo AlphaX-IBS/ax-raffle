@@ -6,6 +6,8 @@ import {
   InputGroupAddon,
   Input,
   InputGroupText,
+  Label,
+  FormText,
   Button,
   Collapse,
   TabContent,
@@ -38,7 +40,8 @@ class PlayOnline extends PureComponent {
     infoModal: false,
     connected: this.props.account ? true : false,
     ticketNumber: 1,
-    gas: 7000000,
+    gas: 700000,
+    gasprice: 2000000000,
     dropdownOpen: false,
     keyInputOpened: false,
     privateKey: ""
@@ -89,7 +92,7 @@ class PlayOnline extends PureComponent {
     const { dispatch } = this.props;
     this.setState({
       privateKey: "",
-      keyInputOpened: false,
+      keyInputOpened: false
       // modal: !this.state.modal
     });
     dispatch({ type: "PL_TOGGLE_MODAL" });
@@ -100,41 +103,40 @@ class PlayOnline extends PureComponent {
     const estimatedGas = this.props.estimatedGas || this.state.gas;
     this.setState({
       infoModal: !infoModal,
-      gas: estimatedGas,
-    })
-  }
+      gas: estimatedGas
+    });
+  };
 
-  connectAccount = (type) => {
+  connectAccount = type => {
     const { dispatch } = this.props;
-    if (type === 'meta') {
+    if (type === "meta") {
       dispatch({ type: "PL_JOIN_REQUESTED" });
       this.setState({
         keyInputOpened: false
       });
     }
-    if (type === 'private') {
+    if (type === "private") {
       // show the Collapse component to let user type in private key
       this.setState({
         keyInputOpened: !this.state.keyInputOpened
-      })
+      });
     }
   };
 
-  onPrivateKeyInputChange = (event) => {
+  onPrivateKeyInputChange = event => {
     this.setState({
       privateKey: event.target.value
-    })
-  }
+    });
+  };
 
   onPrivateKeyButtonClick = () => {
     const { dispatch } = this.props;
     if (this.state.privateKey) {
       dispatch({ type: "PL_JOIN_REQUESTED", payload: this.state.privateKey });
+    } else {
+      Notif.error("Please input private key");
     }
-    else {
-      Notif.error('Please input private key')
-    }
-  }
+  };
 
   onBuyClick = () => {
     const { connected } = this.state;
@@ -152,16 +154,19 @@ class PlayOnline extends PureComponent {
     }
   };
 
-  dispatchBuyAction = (wontToggle) => {
-    const { dispatch, ticketPrice } = this.props; 
+  dispatchBuyAction = wontToggle => {
+    const { dispatch, ticketPrice } = this.props;
     const { gas, ticketNumber } = this.state;
     const totalCost = ticketNumber * ticketPrice;
-    dispatch({ type: "PL_TICKETS_BUY_REQUESTED", payload: {
-      totalCost: totalCost,
-      gas: gas,
-    } });
-    if(!wontToggle) this.toggleInfoModal();
-  }
+    dispatch({
+      type: "PL_TICKETS_BUY_REQUESTED",
+      payload: {
+        totalCost: totalCost,
+        gas: gas
+      }
+    });
+    if (!wontToggle) this.toggleInfoModal();
+  };
 
   onTicketNumberChange = e => {
     const { ticketNumber } = this.state;
@@ -175,8 +180,15 @@ class PlayOnline extends PureComponent {
     if (e.target.value !== undefined && e.target.value !== gas) {
       this.setState({ gas: e.target.value });
     }
-  }
+  };
 
+  onGasPriceChange = e => {
+    const { gasprice } = this.state;
+    if (e.target.value !== undefined && e.target.value !== gasprice) {
+      this.setState({ gasprice: e.target.value });
+    }
+  };
+  
   toggleDropdown = () => {
     this.setState(prevState => ({
       dropdownOpen: !prevState.dropdownOpen
@@ -184,7 +196,7 @@ class PlayOnline extends PureComponent {
   };
 
   render() {
-    const { ticketNumber, dropdownOpen, gas, infoModal } = this.state;
+    const { ticketNumber, dropdownOpen, gas, gasprice, infoModal } = this.state;
     const { ticketPrice, modal } = this.props;
     const totalCost = ticketNumber * ticketPrice;
 
@@ -236,7 +248,8 @@ class PlayOnline extends PureComponent {
                   Buy Now
                 </Button>
               </div>
-              <ChanceRateReport /><Row className="nextdrawtime">
+              <ChanceRateReport />
+              <Row className="nextdrawtime">
                 <Col xs={12} className="text-center">
                   <strong>Next Draw Timestamp</strong>
                   <p>Friday, October 5, 2018 12:00:00 AM (GMT)</p>
@@ -357,17 +370,23 @@ class PlayOnline extends PureComponent {
               <p />
               <Row className="justify-content-center">
                 <Col xs={4} md={3}>
-                  <Button color="" onClick={() => {
-                    this.connectAccount('meta')
-                  }}>
+                  <Button
+                    color=""
+                    onClick={() => {
+                      this.connectAccount("meta");
+                    }}
+                  >
                     <img src="/img/metamask.svg" style={{ height: 48 }} />
                     <p>Metamask</p>
                   </Button>
                 </Col>
                 <Col xs={4} md={3}>
-                  <Button color="" onClick={() => {
-                    this.connectAccount('private')
-                  }}>
+                  <Button
+                    color=""
+                    onClick={() => {
+                      this.connectAccount("private");
+                    }}
+                  >
                     <img src="/img/private-key.svg" style={{ height: 48 }} />
                     <p>Private Key</p>
                   </Button>
@@ -376,13 +395,23 @@ class PlayOnline extends PureComponent {
               <p />
             </ModalBody>
             <ModalFooter>
-              <Collapse style={{width: "100%"}} isOpen={this.state.keyInputOpened}>
+              <Collapse
+                style={{ width: "100%" }}
+                isOpen={this.state.keyInputOpened}
+              >
                 <Row>
                   <Col xs={8} md={9}>
-                    <Input type="password" placeholder="Enter Private Key" onChange={this.onPrivateKeyInputChange} />
+                    <Input
+                      type="password"
+                      placeholder="Enter Private Key"
+                      onChange={this.onPrivateKeyInputChange}
+                    />
                   </Col>
                   <Col xs={3} md={2}>
-                    <Button color="primary" onClick={this.onPrivateKeyButtonClick}>
+                    <Button
+                      color="primary"
+                      onClick={this.onPrivateKeyButtonClick}
+                    >
                       Connect!
                     </Button>
                   </Col>
@@ -395,33 +424,71 @@ class PlayOnline extends PureComponent {
             toggle={this.toggleInfoModal}
             className={this.props.className}
           >
+            <ModalHeader toggle={this.toggleInfoModal} className="text-center">
+              Transaction Detail
+            </ModalHeader>
             <ModalBody>
               <InputGroup>
-                <InputGroupAddon addonType="prepend">
-                  <InputGroupText>Cost</InputGroupText>
-                </InputGroupAddon>
-                <Input
-                  disabled={true}
-                  className="text-center"
-                  placeholder={totalCost}>
-                </Input>
+                <Label for="ticketcost" sm={4} className="text-right">
+                  Ticket cost:
+                </Label>
+                <Col sm={8}>
+                  <Input
+                    id="ticketcost"
+                    disabled={true}
+                    className="text-left"
+                    placeholder={totalCost}
+                  />
+                </Col>
               </InputGroup>
-              <InputGroup>
-                <InputGroupAddon addonType="prepend">
-                  <InputGroupText>Gas </InputGroupText>
-                </InputGroupAddon>
-                <Input
-                    className="text-center"
-                    placeholder="Gas"
+              <InputGroup className="pt-3">
+                <Label for="gaslimit" sm={4} className="text-right">
+                  Gas Limit:
+                </Label>
+                <Col sm={8}>
+                  <Input
+                    id="gaslimit"
+                    disabled={true}
+                    className="text-left"
+                    placeholder="Gas Limit"
                     type="number"
                     min={21000}
                     value={gas}
                     onChange={this.onGasChange}
-                />
+                  />
+                  <FormText color="muted">
+                    Recommended gas limit is 700,000 gas. All unused gas is
+                    refunded to you at the end of a transaction.
+                  </FormText>
+                </Col>
+              </InputGroup>
+              <InputGroup className="pt-3">
+                <Label for="gasprice" sm={4} className="text-right">
+                  Gas Price (Gwei):
+                </Label>
+                <Col sm={8}>
+                  <Input
+                    id="gasprice"
+                    disabled={true}
+                    className="text-left"
+                    placeholder="Gas Price"
+                    type="number"
+                    step={0.1}
+                    min={2}
+                    value={gasprice}
+                    onChange={this.onGasPriceChange}
+                  />
+                  <FormText color="muted">
+                    Gas based on current network conditions. Recommended gas
+                    price is 2Gwei.
+                  </FormText>
+                </Col>
               </InputGroup>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onClick={this.dispatchBuyAction}>Buy Tickets!</Button>
+              <Button color="primary" onClick={this.dispatchBuyAction}>
+                Buy Tickets!
+              </Button>
             </ModalFooter>
           </Modal>
         </div>

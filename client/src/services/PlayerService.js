@@ -44,7 +44,7 @@ export async function queryAllPlayerTickets(web3, contract, account) {
 
 export function buyTickets(web3, contract, account, connectType, etherAmount, gas) {
   const wei = web3.utils.toWei(etherAmount.toFixed(3).toString());
-  alert(`ether=${etherAmount} and wei=${wei} and gas=${gas}`);
+  alert(`ether=${etherAmount} and wei=${wei} and gas limit=${gas} and gas price = 2000000000 (2Gwei)`);
   // await contract.purchaseTicketsByEther({ from: account, value: wei });
   if (connectType === 0 ) {
     // Metamask
@@ -57,6 +57,7 @@ export function buyTickets(web3, contract, account, connectType, etherAmount, ga
       to: contract.address,
       value: wei,
       gas: gas,
+      gasPrice: 2000000000,//2Gwei
     }).on('transactionHash', hash => {
       console.log('transaction sent! hash: ' + hash);
       Notif.info('transaction hash: ' + hash, 5)
