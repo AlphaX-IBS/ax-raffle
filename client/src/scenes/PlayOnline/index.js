@@ -31,8 +31,21 @@ import OwnerTicketList from "./components/OwnerTicketList/index";
 import OldWinners from "./components/OldWinners";
 import { connect } from "react-redux";
 import ChanceRateReport from "./components/ChanceRateReport";
-import GameInfoArea from './components/GameInfoArea/index';
+import GameInfoArea from "./components/GameInfoArea/index";
 import TokenInfoArea from "./components/TokenInfoArea";
+import Loader from "react-loader-spinner";
+
+function calculateTicketPriceForCrypto(cryptoCurrency, ticketNumber) {
+  if (cryptoCurrency) {
+    const value = cryptoCurrency.displayValue.multipliedBy(ticketNumber);
+    return value.toFixed(3).concat(" ", cryptoCurrency.symbol);
+  }
+  return (
+    <span className="d-inline">
+      <Loader type="ThreeDots" color="#226226" height={24} width={24} />
+    </span>
+  );
+}
 
 class PlayOnline extends PureComponent {
   state = {
@@ -46,7 +59,8 @@ class PlayOnline extends PureComponent {
     gasprice: 2000000000,
     dropdownOpen: false,
     keyInputOpened: false,
-    privateKey: ""
+    privateKey: "",
+    selectedTokenKey: "0x0" // contract of token (address), ETH is 0x0 by default.
   };
 
   componentWillReceiveProps(nextProps) {
@@ -156,7 +170,7 @@ class PlayOnline extends PureComponent {
     }
   };
 
-  dispatchBuyAction = wontToggle => {
+  dispatchBuyAction = event => {
     const { dispatch, ticketPrice } = this.props;
     const { gas, ticketNumber } = this.state;
     const totalCost = ticketNumber * ticketPrice;
@@ -167,7 +181,7 @@ class PlayOnline extends PureComponent {
         gas: gas
       }
     });
-    if (!wontToggle) this.toggleInfoModal();
+    this.setState({ infoModal: false });
   };
 
   onTicketNumberChange = e => {
@@ -190,17 +204,44 @@ class PlayOnline extends PureComponent {
       this.setState({ gasprice: e.target.value });
     }
   };
-  
+
   toggleDropdown = () => {
     this.setState(prevState => ({
       dropdownOpen: !prevState.dropdownOpen
     }));
   };
 
+  onCryptoCurrencyChange = e => {
+    const key = e.target.id;
+    if (Object.prototype.toString.call(key) === "[object String]") {
+      this.setState({ selectedTokenKey: key });
+    }
+  };
+
   render() {
-    const { ticketNumber, dropdownOpen, gas, gasprice, infoModal } = this.state;
-    const { ticketPrice, modal } = this.props;
+    const {
+      ticketNumber,
+      dropdownOpen,
+      gas,
+      gasprice,
+      infoModal,
+      selectedTokenKey
+    } = this.state;
+    const { ticketPrice, modal, tokens } = this.props;
     const totalCost = ticketNumber * ticketPrice;
+
+    const tokenPriceList = Object.keys(tokens).map(address => {
+      const token = tokens[address];
+      return (
+        <DropdownItem
+          key={token.contract}
+          id={token.contract}
+          onClick={this.onCryptoCurrencyChange}
+        >
+          {calculateTicketPriceForCrypto(token, ticketNumber)}
+        </DropdownItem>
+      );
+    });
 
     return (
       <div className="play-online">
@@ -229,19 +270,12 @@ class PlayOnline extends PureComponent {
                         toggle={this.toggleDropdown}
                       >
                         <DropdownToggle caret color="paymentmethod">
-                          {(ticketPrice * ticketNumber).toFixed(3)} ETH
+                          {calculateTicketPriceForCrypto(
+                            tokens[selectedTokenKey],
+                            ticketNumber
+                          )}
                         </DropdownToggle>
-                        <DropdownMenu>
-                          <DropdownItem>
-                            {(ticketPrice * ticketNumber).toFixed(3)} ETH
-                          </DropdownItem>
-                          <DropdownItem>
-                            {(ticketPrice * ticketNumber).toFixed(3)} GEX
-                          </DropdownItem>
-                          <DropdownItem>
-                            {(ticketPrice * ticketNumber).toFixed(3)} BNB
-                          </DropdownItem>
-                        </DropdownMenu>
+                        <DropdownMenu>{tokenPriceList}</DropdownMenu>
                       </Dropdown>
                     </InputGroupText>
                   </InputGroupAddon>
@@ -340,7 +374,11 @@ class PlayOnline extends PureComponent {
                       this.connectAccount("meta");
                     }}
                   >
-                    <img alt="metamask" src="/img/metamask.svg" style={{ height: 48 }} />
+                    <img
+                      alt="metamask"
+                      src="/img/metamask.svg"
+                      style={{ height: 48 }}
+                    />
                     <p>Metamask</p>
                   </Button>
                 </Col>
@@ -351,7 +389,11 @@ class PlayOnline extends PureComponent {
                       this.connectAccount("private");
                     }}
                   >
-                    <img alt="private key" src="/img/private-key.svg" style={{ height: 48 }} />
+                    <img
+                      alt="private key"
+                      src="/img/private-key.svg"
+                      style={{ height: 48 }}
+                    />
                     <p>Private Key</p>
                   </Button>
                 </Col>
@@ -466,7 +508,8 @@ const mapStateToProps = ({ global, player }) => ({
   modal: player.modal,
   connectType: player.connectType,
   estimatedGas: player.estimatedGas,
-  ticketPrice: global.ticketPrice ? global.ticketPrice : NaN
+  ticketPrice: global.ticketPrice ? global.ticketPrice : NaN,
+  tokens: global.supportedTokens
 });
 
 export default connect(mapStateToProps)(PlayOnline);

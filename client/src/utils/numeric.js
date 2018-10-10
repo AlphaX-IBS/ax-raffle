@@ -13,11 +13,13 @@ export function negativePowerOfTen(number = "0", power = 0) {
   for (let i = 0; i < result.length; i++) {
     const nth = result.length - i - 1;
     const digit = result[nth];
-    if (digit === "." || digit !== "0") {
+    if (digit === ".") {
       marker = nth;
       break;
-    } else {
+    } else if (digit === "0") {
       marker = nth;
+    } else {
+      break;
     }
   }
 

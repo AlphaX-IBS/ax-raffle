@@ -1,4 +1,5 @@
-import { queryAllPlayerTickets } from "./PlayerService";
+import { negativePowerOfTen } from "./../utils/numeric";
+import { BigNumber } from 'bignumber.js';
 
 const reverser = function(i, length) {
   return length - 1 - i;
@@ -11,18 +12,33 @@ const noop = function(i, length) {
 export async function querySupportedTokens(web3, contract) {
   const length = await contract.lengthOfGameTokens.call();
 
-  const tokens = {};
+  const weiPerTicket = await contract.weiPerTicket.call();
+  const ethAmountAsStr = negativePowerOfTen(weiPerTicket.toString(), 18);
+
+  const tokens = {
+    "0x0": {
+      contract: "0x0",
+      symbol: "ETH",
+      decimals: 18,
+      amountPerTicket: weiPerTicket,
+      displayValue: new BigNumber(ethAmountAsStr)
+    }
+  };
   for (let i = 0; i < length; i++) {
     const tokenInfo = await contract.gameTokens(i);
     // console.log(`tokens=${JSON.stringify(tokenInfo)}`);
     const address = tokenInfo.contract_;
     const active = await contract.gameTokenStatuses(address);
     if (active) {
+      const amountInWeiAsStr = tokenInfo.amountPerTicket_.toString();
+      const power = tokenInfo.decimals_.toNumber();
+      const amountAsStr = negativePowerOfTen(amountInWeiAsStr, power);
       tokens[address] = {
         contract: tokenInfo.contract_,
-        symbol: web3.utils.toAscii(tokenInfo.symbol_).trim(),
-        decimals: tokenInfo.decimals_,
-        amountPerTicket: tokenInfo.amountPerTicket_
+        symbol: web3.utils.toAscii(tokenInfo.symbol_).replace(/\u0000/g, ""),
+        decimals: tokenInfo.decimals_.toNumber(),
+        amountPerTicket: tokenInfo.amountPerTicket_,
+        displayValue: new BigNumber(amountAsStr)
       };
     }
   }

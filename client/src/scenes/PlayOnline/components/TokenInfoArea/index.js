@@ -1,9 +1,7 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import Loader from "react-loader-spinner";
-import { negativePowerOfTen } from "./../../../../utils/numeric";
 import { Row, Col, UncontrolledTooltip } from "reactstrap";
-import BigNumber from "bignumber.js";
 
 class GameInfoArea extends PureComponent {
   render() {
@@ -13,14 +11,7 @@ class GameInfoArea extends PureComponent {
     if (globalStatus === "ready" && Object.keys(tokens).length > 0) {
       const data = Object.keys(tokens).map(address => {
         const tk = tokens[address];
-        const symbol = tk.symbol.replace(/\u0000/g, "");
-        const amountInWeiAsStr = tk.amountPerTicket.toString();
-        const power = tk.decimals.toNumber();
-        const amountAsStr = negativePowerOfTen(amountInWeiAsStr, power);
-        return {
-          symbol,
-          amount: new BigNumber(amountAsStr)
-        };
+        return tk;
       });
 
       nodes = data.map(item => {
@@ -28,13 +19,13 @@ class GameInfoArea extends PureComponent {
           <Col key={item.symbol} className="text-nowrap" xs={6} md={6}>
             <strong>{`${item.symbol} amount`}</strong>
             <p id={`${item.symbol}-amount`}>
-              {item.amount.toFixed(3)} {item.symbol}
+              {item.displayValue.toFixed(3)} {item.symbol}
             </p>
             <UncontrolledTooltip
               placement="bottom"
               target={`${item.symbol}-amount`}
             >
-              {item.amount.toString()}
+              {item.displayValue.toString()}
             </UncontrolledTooltip>
           </Col>
         );
@@ -66,13 +57,6 @@ class GameInfoArea extends PureComponent {
             </Col>
           </Row>
           <Row>
-            <Col xs={6} md={6}>
-              <strong>ETH amount</strong>
-              <p id="ETH-amount">{ticketPriceInEth} ETH</p>
-              <UncontrolledTooltip placement="bottom" target="ETH-amount">
-                {ticketPriceInEth}
-              </UncontrolledTooltip>
-            </Col>
             {nodes}
           </Row>
         </Row>
