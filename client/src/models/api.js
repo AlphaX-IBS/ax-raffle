@@ -50,7 +50,8 @@ const initialState = {
   error: false,
   web3: undefined,
   accounts: [],
-  contract: undefined
+  contract: undefined,
+  tokenContracts: {}
 };
 
 const reducer = (state = initialState, action) => {

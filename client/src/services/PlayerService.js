@@ -1,4 +1,6 @@
 import Notif from "../components/Notif";
+import BN from "bn.js";
+
 export async function queryAllPlayerTickets(web3, contract, account) {
   const numberList = await contract.lookUpTicketNumbersByPlayerAddress(account);
 
@@ -42,9 +44,45 @@ export async function queryAllPlayerTickets(web3, contract, account) {
   // };
 }
 
-export function buyTickets(web3, contract, account, connectType, etherAmount, gas) {
-  const wei = web3.utils.toWei(etherAmount.toFixed(3).toString());
-  alert(`ether=${etherAmount} and wei=${wei} and gas limit=${gas} and gas price = 2000000000 (2Gwei)`);
+export async function transferTokens(web3, cryptoContract, fromAddress, raffleContractAddress, connectType, cryptoCurrency, ticketAmount, gas) {
+
+  const wei =  cryptoCurrency.amountPerTicket.mul(new BN(ticketAmount.toString()));
+
+  alert(`Wei=${Intl.NumberFormat().format(wei)} and gas limit=${Intl.NumberFormat().format(gas)} and gas price = 2000000000 (2Gwei)`);
+
+  let transactionHash = null;
+
+  // Attention, This is a web3 contract, not truffle contract.
+  await cryptoContract.methods.approve(raffleContractAddress, wei.toString(10)).send({from: fromAddress}, function (err, txHash) {
+    if (err) console.error(err);
+   
+    if (txHash) {
+      console.log('Transaction sent');
+      console.dir(txHash);
+      transactionHash = txHash;
+    }
+  });
+
+  return transactionHash;
+}
+
+export async function exchangeTokensForTickets(web3, contract, account, cryptoCurrency, ticketAmount, gas) {
+  const wei =  cryptoCurrency.amountPerTicket.mul(new BN(ticketAmount.toString()));
+
+  alert(`Wei=${Intl.NumberFormat().format(wei)} and gas limit=${Intl.NumberFormat().format(gas)} and gas price = 2000000000 (2Gwei)`);
+
+  const tokens = [cryptoCurrency.contract];
+  const tokenAmounts = [wei];
+
+  await contract.purchaseTicketsByTokens(tokens, tokenAmounts, { from: account});
+}
+
+export function buyTickets(web3, contract, account, connectType,  cryptoCurrency, ticketAmount, gas) {
+  // const wei = web3.utils.toWei(etherAmount.toFixed(3).toString());
+
+  const wei =  cryptoCurrency.amountPerTicket.mul(new BN(ticketAmount.toString()));
+
+  alert(`Wei=${Intl.NumberFormat().format(wei)} and gas limit=${Intl.NumberFormat().format(gas)} and gas price = 2000000000 (2Gwei)`);
   // await contract.purchaseTicketsByEther({ from: account, value: wei });
   if (connectType === 0 ) {
     // Metamask

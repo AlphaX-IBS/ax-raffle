@@ -34,6 +34,7 @@ import ChanceRateReport from "./components/ChanceRateReport";
 import GameInfoArea from "./components/GameInfoArea/index";
 import TokenInfoArea from "./components/TokenInfoArea";
 import Loader from "react-loader-spinner";
+import TokenToTicketExchanger from "./components/TokenToTicketExchanger/index";
 
 function calculateTicketPriceForCrypto(cryptoCurrency, ticketNumber) {
   if (cryptoCurrency) {
@@ -60,7 +61,8 @@ class PlayOnline extends PureComponent {
     dropdownOpen: false,
     keyInputOpened: false,
     privateKey: "",
-    selectedTokenKey: "0x0" // contract of token (address), ETH is 0x0 by default.
+    selectedTokenKey: "0x0", // contract of token (address), ETH is 0x0 by default.
+    tokenToTicketModal: false
   };
 
   componentWillReceiveProps(nextProps) {
@@ -123,6 +125,11 @@ class PlayOnline extends PureComponent {
     });
   };
 
+  toggleTokenToTicketModal = () => {
+    const { tokenToTicketModal } = this.state;
+    this.setState({ tokenToTicketModal: !tokenToTicketModal });
+  };
+
   connectAccount = type => {
     const { dispatch } = this.props;
     if (type === "meta") {
@@ -155,15 +162,19 @@ class PlayOnline extends PureComponent {
   };
 
   onBuyClick = () => {
-    const { connected } = this.state;
+    const { connected, selectedTokenKey } = this.state;
     const { connectType } = this.props;
     if (connected) {
-      if (connectType === 0) {
-        // if user is using metamask, then skip the Info modal
-        this.dispatchBuyAction(true);
+      if (selectedTokenKey !== "0x0") {
+        this.toggleTokenToTicketModal();
       } else {
-        // show modal to allow input GAS if user is using private key
-        this.toggleInfoModal();
+        if (connectType === 0) {
+          // if user is using metamask, then skip the Info modal
+          this.dispatchBuyAction(true);
+        } else {
+          // show modal to allow input GAS if user is using private key
+          this.toggleInfoModal();
+        }
       }
     } else {
       this.toggleModal();
@@ -171,14 +182,18 @@ class PlayOnline extends PureComponent {
   };
 
   dispatchBuyAction = event => {
-    const { dispatch, ticketPrice } = this.props;
-    const { gas, ticketNumber } = this.state;
-    const totalCost = ticketNumber * ticketPrice;
+    const { dispatch, tokens } = this.props;
+    const { gas, ticketNumber, selectedTokenKey } = this.state;
+    const cryptoCurrency = tokens[selectedTokenKey];
     dispatch({
       type: "PL_TICKETS_BUY_REQUESTED",
       payload: {
-        totalCost: totalCost,
-        gas: gas
+        type: "BUY_WITH_ETH",
+        payload: {
+          cryptoCurrency,
+          ticketAmount: ticketNumber,
+          gas: gas
+        }
       }
     });
     this.setState({ infoModal: false });
@@ -225,7 +240,8 @@ class PlayOnline extends PureComponent {
       gas,
       gasprice,
       infoModal,
-      selectedTokenKey
+      selectedTokenKey,
+      tokenToTicketModal
     } = this.state;
     const { ticketPrice, modal, tokens } = this.props;
     const totalCost = ticketNumber * ticketPrice;
@@ -497,6 +513,12 @@ class PlayOnline extends PureComponent {
               </Button>
             </ModalFooter>
           </Modal>
+          <TokenToTicketExchanger
+            isOpen={tokenToTicketModal}
+            toggle={this.toggleTokenToTicketModal}
+            cryptoCurrency={tokens[selectedTokenKey]}
+            ticketAmount={ticketNumber}
+          />
         </div>
       </div>
     );

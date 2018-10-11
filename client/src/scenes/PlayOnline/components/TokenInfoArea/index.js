@@ -5,7 +5,7 @@ import { Row, Col, UncontrolledTooltip } from "reactstrap";
 
 class GameInfoArea extends PureComponent {
   render() {
-    const { globalStatus, tokens, ticketPriceInEth } = this.props;
+    const { globalStatus, tokens } = this.props;
 
     let nodes = [];
     if (globalStatus === "ready" && Object.keys(tokens).length > 0) {
@@ -68,8 +68,7 @@ class GameInfoArea extends PureComponent {
 const mapStateToProps = ({ global }) => ({
   gamestatus: global.gamestatus,
   globalStatus: global.status,
-  tokens: global.supportedTokens,
-  ticketPriceInEth: global.ticketPrice
+  tokens: global.supportedTokens
 });
 
 export default connect(mapStateToProps)(GameInfoArea);

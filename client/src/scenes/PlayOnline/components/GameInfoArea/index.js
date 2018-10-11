@@ -54,7 +54,7 @@ class GameInfoArea extends PureComponent {
       const cryptoPricePerTicketNodes = Object.keys(tokens).map(key => {
         const tk = tokens[key];
         return (
-          <p>
+          <p key={tk.contract}>
             {tk.displayValue.toString()} {tk.symbol}
           </p>
         );
