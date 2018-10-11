@@ -37,11 +37,11 @@ class RaffleFooter extends PureComponent {
           </div>
           <div className="col-md-2 col-sm-6 ">
             <h3 className="text-center">Info</h3>
-            <ul className="list-group text-md-left">
-              <li className="list-group-item">Term and conditions</li>
-              <li className="list-group-item">Privacy</li>
-              <li className="list-group-item" style={{ whiteSpace: "nowrap" }}>
-                info@crypto-raffles.com
+            <ul className="list-group text-md-left" style={{ whiteSpace: "nowrap" }}>
+              <li className="list-group-item"><a href="#">Term and conditions</a></li>
+              <li className="list-group-item"><a href="#">Privacy</a></li>
+              <li className="list-group-item">
+                <a href="mailto:info@crypto-raffles.com">info@crypto-raffles.com</a>
               </li>
             </ul>
           </div>
@@ -51,18 +51,18 @@ class RaffleFooter extends PureComponent {
             <div className="row justify-content-center">
               <div className="col-xs-6">
                 <ul className="list-group text-md-left">
-                  <li className="list-group-item">Home</li>
-                  <li className="list-group-item">Raffles</li>
-                  <li className="list-group-item">How it works?</li>
-                  <li className="list-group-item">Resultes & info</li>
+                  <li className="list-group-item"><a href="/home#">Home</a></li>
+                  <li className="list-group-item"><a href="/home#raffles">Raffles</a></li>
+                  {/* <li className="list-group-item"><a href="/home#playnow">How it works?</a></li> */}
+                  <li className="list-group-item"><a href="/play">Resultes & info</a></li>
                 </ul>
               </div>
               <div className="col-xs-6">
                 <ul className="list-group text-md-left">
-                  <li className="list-group-item">Play online</li>
-                  <li className="list-group-item">Winners & stories</li>
-                  <li className="list-group-item">Statistic</li>
-                  <li className="list-group-item">Contact</li>
+                  <li className="list-group-item"><a href="/play">Play online</a></li>
+                  <li className="list-group-item"><a href="/play">Winners & stories</a></li>
+                  <li className="list-group-item"><a href="/play">Statistic</a></li>
+                  {/* <li className="list-group-item">Contact</li> */}
                 </ul>
               </div>
             </div>

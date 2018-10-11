@@ -102,7 +102,6 @@ header {
   color: #fff;
 }
 
-
 #home .btn-primary-home {
   background-color: red;
   border-radius: 5px;
@@ -304,7 +303,9 @@ footer li.list-group-item {
   padding-left: 30px;
   padding-right: 30px;
 }
-.nextdrawtime, .row-winchance, .totalpotamount {
+.nextdrawtime,
+.row-winchance,
+.totalpotamount {
   padding: 10px;
   border-radius: 5px;
   background-color: rgba(138, 138, 138, 0.5);
@@ -317,13 +318,13 @@ footer li.list-group-item {
   margin-top: 20px !important;
   margin-bottom: 20px !important;
 }
-.pt-50{
+.pt-50 {
   padding-top: 50px;
 }
-.pt-60{
+.pt-60 {
   padding-top: 60px;
 }
-.xs-currentpot{
+.xs-currentpot {
   background-image: url(/img/home-current-pot-bg.png);
   background-repeat: no-repeat;
   background-position: center;
@@ -346,6 +347,11 @@ footer li.list-group-item {
   padding-right: 5px;
 }
 
+.dropdown-token-loader {
+  float: left;
+  padding-right: 5px;
+  padding-left: 5px;
+}
 @media only screen and (max-width: 860px) {
 }
 @media only screen and (max-width: 768px) {
@@ -364,19 +370,18 @@ footer li.list-group-item {
   #raffles .centered {
     width: 100%;
   }
-  .xsnomargin{
+  .xsnomargin {
     margin: 0 !important;
   }
-  .xsnopadding{
+  .xsnopadding {
     padding: 0 !important;
   }
 }
 @media only screen and (min-width: 992px) {
-.md-pl-50{
-  padding-left: 50px;
+  .md-pl-50 {
+    padding-left: 50px;
+  }
+  .md-pl-80 {
+    padding-left: 80px;
+  }
 }
-.md-pl-80{
-  padding-left: 80px;
-}
-}
-

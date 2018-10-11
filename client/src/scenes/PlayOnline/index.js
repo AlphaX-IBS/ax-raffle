@@ -41,7 +41,7 @@ function calculateTicketPriceForCrypto(cryptoCurrency, ticketNumber) {
     return value.toFixed(3).concat(" ", cryptoCurrency.symbol);
   }
   return (
-    <span className="d-inline">
+    <span className="dropdown-token-loader">
       <Loader type="ThreeDots" color="#226226" height={24} width={24} />
     </span>
   );
