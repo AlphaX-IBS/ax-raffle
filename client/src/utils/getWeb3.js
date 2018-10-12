@@ -58,11 +58,24 @@ export const getEstimatedGas = (web3, from, to) =>
   new Promise((resolve) => {
     // console.log('from', from);
     // console.log('to', to);
-    // estimate gas always fails !?
+    // estimate gas always fails? => No, it worked after adding value. See below.
     resolve(web3.eth.estimateGas({
       from: from,
       to: to,
+      value: web3.utils.toWei("1", "ether")
     }))
   })
+
+// // This ways fails too :(
+// export const getEstimatedGas = (web3, contract, from, to) => {
+//   const wei = web3.utils.toWei("1", "ether");
+//   return contract.purchaseTicketsByWei.estimateGas({ from: from, to: to, value: wei, gas: 90000 }).then(function(result) {
+//     console.log(`gasresult=${JSON.stringify(result)}`);
+//     return result;
+//   }, function(reason) {
+//     console.error(reason);
+//     return reason;
+//   });
+// }
 
 export default { getWeb3, getPayableWeb3, getEstimatedGas };

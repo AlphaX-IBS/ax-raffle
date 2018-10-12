@@ -54,7 +54,8 @@ function* fetchWeb3(action) {
     Contract.setProvider(web3.currentProvider);
     const instance = yield call(Contract.deployed);
 
-    const estimatedGas = getEstimatedGas(web3, account, instance.address)
+    // This works now. But the gas is not enough for purchaseTicketsByTokens!
+    // const estimatedGas = yield getEstimatedGas(web3, account, instance.address);
 
     // Set web3, accounts, and contract to the state, and then proceed with an
     // example of interacting with the contract's methods.
@@ -64,7 +65,6 @@ function* fetchWeb3(action) {
         web3,
         account,
         connectType,
-        estimatedGas: estimatedGas,
         contract: instance
       }
     });
@@ -73,6 +73,7 @@ function* fetchWeb3(action) {
   } catch (e) {
     yield put({ type: "PL_JOIN_FAILED", payload: e.message });
     Notif.error(`${e.message}`);
+    console.error(e.stack);
   }
 }
 

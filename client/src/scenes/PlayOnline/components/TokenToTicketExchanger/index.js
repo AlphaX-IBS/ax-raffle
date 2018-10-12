@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import Stepper from "react-stepper-horizontal";
 import { Modal, ModalBody, ModalFooter, ModalHeader, Button } from "reactstrap";
 import { connect } from "react-redux";
+import CostEstimation from "./../CostEstimation/index";
+import { BigNumber } from "bignumber.js";
 
 class TokenToTicketExchanger extends PureComponent {
   state = {
@@ -15,20 +17,43 @@ class TokenToTicketExchanger extends PureComponent {
       }
     ],
     currentStep: 0,
-    executing: false
+    executing: false,
+    gas: 700000,
+    gasprice: 2000000000
   };
 
   componentWillReceiveProps(nextProps) {
     const { currentStep, executing } = this.state;
     const { txHash } = nextProps;
-    if (txHash && executing) {
-      this.setState({ currentStep: currentStep + 1, executing: false });
+    if (txHash) {
+      if (executing) {
+        this.setState({ currentStep: currentStep + 1, executing: false });
+      }
+    } else {
+      this.setState({ currentStep: 0, executing: false });
     }
   }
+
+  onGasChange = e => {
+    const { gas } = this.state;
+    if (e.target.value !== undefined && e.target.value !== gas) {
+      this.setState({ gas: e.target.value });
+    }
+  };
+
+  onGasPriceChange = e => {
+    const { gasprice } = this.state;
+    if (e.target.value !== undefined && e.target.value !== gasprice) {
+      this.setState({ gasprice: e.target.value });
+    }
+  };
 
   onClickProceed = () => {
     const { steps, currentStep, executing } = this.state;
     const { dispatch, cryptoCurrency, ticketAmount, toggle } = this.props;
+
+    const estimatedGas = this.props.estimatedGas || this.state.gas;
+
     switch (currentStep) {
       case 0:
         dispatch({
@@ -38,7 +63,7 @@ class TokenToTicketExchanger extends PureComponent {
             payload: {
               cryptoCurrency,
               ticketAmount,
-              gas: 0 // TODO: require input later
+              gas: estimatedGas
             }
           }
         });
@@ -52,7 +77,7 @@ class TokenToTicketExchanger extends PureComponent {
             payload: {
               cryptoCurrency,
               ticketAmount,
-              gas: 0 // TODO: require input later
+              gas: estimatedGas
             }
           }
         });
@@ -62,17 +87,53 @@ class TokenToTicketExchanger extends PureComponent {
     }
   };
 
+  onCancel = () => {
+    const { dispatch, toggle } = this.props;
+    dispatch({
+      type: "PL_TICKETS_BUY_REQUESTED",
+      payload: {
+        type: "CANCEL_EXCHANGE",
+        payload: {
+        }
+      }
+    });
+    toggle();
+  };
+
   render() {
-    const { steps, currentStep, executing } = this.state;
-    const { isOpen, toggle, className } = this.props;
+    const { steps, currentStep, executing, gas, gasprice } = this.state;
+    const {
+      isOpen,
+      toggle,
+      className,
+      ticketAmount,
+      cryptoCurrency
+    } = this.props;
+
+    const totalCostAsBigNum = cryptoCurrency.displayValue.multipliedBy(
+      ticketAmount
+    );
 
     return (
-      <Modal isOpen={isOpen} toggle={toggle} className={className}>
-        <ModalHeader toggle={this.toggleInfoModal} className="text-center">
+      <Modal
+        isOpen={isOpen}
+        toggle={toggle}
+        className={className}
+        backdrop="static"
+      >
+        <ModalHeader toggle={toggle} className="text-center">
           Exchange
         </ModalHeader>
         <ModalBody>
           <Stepper steps={steps} activeStep={currentStep} />
+          <CostEstimation
+            cost={{
+              label: "Ticket cost:",
+              value: totalCostAsBigNum.toString()
+            }}
+            gas={gas}
+            gasprice={gasprice}
+          />
         </ModalBody>
         <ModalFooter>
           <Button
@@ -82,14 +143,26 @@ class TokenToTicketExchanger extends PureComponent {
           >
             {currentStep == steps.length - 1 ? "Buy" : "Next"}
           </Button>
+          <Button color="secondary" onClick={this.onCancel}>
+            Cancel
+          </Button>
         </ModalFooter>
       </Modal>
     );
   }
 }
 
-const mapStateToProps = ({ playeractions }) => ({
-  txHash: playeractions.txHash
+const defaultProps = {
+  ticketAmount: 0,
+  cryptoCurrency: {
+    displayValue: new BigNumber(0)
+  }
+};
+TokenToTicketExchanger.defaultProps = defaultProps;
+
+const mapStateToProps = ({ playeractions, player }) => ({
+  txHash: playeractions.txHash,
+  estimatedGas: player.estimatedGas
 });
 
 export default connect(mapStateToProps)(TokenToTicketExchanger);

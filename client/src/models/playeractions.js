@@ -1,8 +1,12 @@
 import { call, put, select, takeEvery } from "redux-saga/effects";
-import { buyTickets, transferTokens, exchangeTokensForTickets } from "../services/PlayerService";
+import {
+  buyTickets,
+  transferTokens,
+  exchangeTokensForTickets
+} from "../services/PlayerService";
 import ERC20ABI from "human-standard-token-abi";
 
-function* buyTicketsWithTokens(action) {
+function* requestTokensTransferApproval(action) {
   try {
     yield put({ type: "PL_TICKETS_BUYING" });
     const { web3, contract, account, connectType } = yield select(state => ({
@@ -22,7 +26,7 @@ function* buyTicketsWithTokens(action) {
     );
     const fromAddress = account;
     const toAddress = contract.address;
-    // const cryptoContract = yield call(Contract.deployed);
+
     const txHash = yield call(
       transferTokens,
       web3,
@@ -40,13 +44,22 @@ function* buyTicketsWithTokens(action) {
   }
 }
 
-function* requestTicketsFromTransferedTokens(action) {
+function* cancelExchange(action) {
+  try {
+    yield put({ type: "PL_TOKENS_TRANSFER_FAILED", payload: "Player cancelled!" });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function* buyTicketsWithTokens(action) {
   try {
     yield put({ type: "PL_TICKETS_BUYING" });
-    const { web3, contract, account } = yield select(state => ({
+    const { web3, contract, account, connectType } = yield select(state => ({
       web3: state.player.web3,
       contract: state.player.contract,
-      account: state.player.account
+      account: state.player.account,
+      connectType: state.player.connectType
     }));
 
     const ticketAmount = action.payload.ticketAmount;
@@ -58,13 +71,15 @@ function* requestTicketsFromTransferedTokens(action) {
       web3,
       contract,
       account,
+      connectType,
       cryptoCurrency,
       ticketAmount,
       gas
     );
-    yield put({ type: "PL_TICKETS_BUY_SUCCEEDED"});
+    yield put({ type: "PL_TICKETS_BUY_SUCCEEDED" });
   } catch (e) {
-    console.error(e);
+    alert(e);
+    console.error(e.stack);
   }
 }
 
@@ -101,15 +116,17 @@ function* buyTicketsWithEth(action) {
 }
 
 function* requestBuyTickets(action) {
-  const innerAct = action.payload;
-  const { type } = innerAct;
+  const nestedAction = action.payload;
+  const { type } = nestedAction;
 
   if (type === "TRANSFER_TOKENS") {
-    yield call(buyTicketsWithTokens, innerAct);
+    yield call(requestTokensTransferApproval, nestedAction);
   } else if (type === "EXCHANGE_FOR_TICKETS") {
-    yield call(requestTicketsFromTransferedTokens, innerAct);
+    yield call(buyTicketsWithTokens, nestedAction);
+  } else if (type === "CANCEL_EXCHANGE") {
+    yield call(cancelExchange, nestedAction);
   } else {
-    yield call(buyTicketsWithEth, innerAct);
+    yield call(buyTicketsWithEth, nestedAction);
   }
 }
 
@@ -143,6 +160,13 @@ const reducer = (state = initialState, action) => {
         loading: false,
         error: false,
         txHash: action.payload
+      };
+      case "PL_TOKENS_TRANSFER_FAILED":
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        txHash: null
       };
     case "PL_TICKETS_BUY_FAILED":
       return {

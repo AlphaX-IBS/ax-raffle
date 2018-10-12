@@ -6,8 +6,6 @@ import {
   InputGroupAddon,
   Input,
   InputGroupText,
-  Label,
-  FormText,
   Button,
   Collapse,
   TabContent,
@@ -35,6 +33,7 @@ import GameInfoArea from "./components/GameInfoArea/index";
 import TokenInfoArea from "./components/TokenInfoArea";
 import Loader from "react-loader-spinner";
 import TokenToTicketExchanger from "./components/TokenToTicketExchanger/index";
+import CostEstimation from "./components/CostEstimation";
 
 function calculateTicketPriceForCrypto(cryptoCurrency, ticketNumber) {
   if (cryptoCurrency) {
@@ -71,6 +70,11 @@ class PlayOnline extends PureComponent {
       this.setState({ connected: true });
       // turn off modal once account is received after 'PL_JOIN_REQUESTED'
       dispatch({ type: "PL_TOGGLE_MODAL" });
+    }
+    if (nextProps.estimatedGas !== this.props.estimatedGas) {
+      const estimatedGas = nextProps.estimatedGas;
+      console.log(`will estimatedGas=${estimatedGas}`);
+      this.setState({ gas: estimatedGas });
     }
   }
 
@@ -118,10 +122,8 @@ class PlayOnline extends PureComponent {
 
   toggleInfoModal = () => {
     const { infoModal } = this.state;
-    const estimatedGas = this.props.estimatedGas || this.state.gas;
     this.setState({
-      infoModal: !infoModal,
-      gas: estimatedGas
+      infoModal: !infoModal
     });
   };
 
@@ -450,62 +452,13 @@ class PlayOnline extends PureComponent {
               Transaction Detail
             </ModalHeader>
             <ModalBody>
-              <InputGroup>
-                <Label for="ticketcost" sm={4} className="text-right">
-                  Ticket cost:
-                </Label>
-                <Col sm={8}>
-                  <Input
-                    id="ticketcost"
-                    disabled={true}
-                    className="text-left"
-                    placeholder={totalCost}
-                  />
-                </Col>
-              </InputGroup>
-              <InputGroup className="pt-3">
-                <Label for="gaslimit" sm={4} className="text-right">
-                  Gas Limit:
-                </Label>
-                <Col sm={8}>
-                  <Input
-                    id="gaslimit"
-                    disabled={true}
-                    className="text-left"
-                    placeholder="Gas Limit"
-                    type="number"
-                    min={21000}
-                    value={gas}
-                    onChange={this.onGasChange}
-                  />
-                  <FormText color="muted">
-                    Recommended gas limit is 700,000 gas. All unused gas is
-                    refunded to you at the end of a transaction.
-                  </FormText>
-                </Col>
-              </InputGroup>
-              <InputGroup className="pt-3">
-                <Label for="gasprice" sm={4} className="text-right">
-                  Gas Price (Gwei):
-                </Label>
-                <Col sm={8}>
-                  <Input
-                    id="gasprice"
-                    disabled={true}
-                    className="text-left"
-                    placeholder="Gas Price"
-                    type="number"
-                    step={0.1}
-                    min={2}
-                    value={gasprice}
-                    onChange={this.onGasPriceChange}
-                  />
-                  <FormText color="muted">
-                    Gas based on current network conditions. Recommended gas
-                    price is 2Gwei.
-                  </FormText>
-                </Col>
-              </InputGroup>
+              <CostEstimation
+                cost={{ label: "Ticket cost:", value: totalCost }}
+                gas={gas}
+                onGasChange={this.onGasChange}
+                gasprice={gasprice}
+                onGasPriceChange={this.onGasChange}
+              />
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onClick={this.dispatchBuyAction}>
