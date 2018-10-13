@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { Table } from "reactstrap";
 import { connect } from "react-redux";
 import GgLikedPagination from "../../../../components/GgLikedPagination";
@@ -10,7 +10,7 @@ function formatTicketRange(startNum, endNum) {
   return `[ ${startNum} - ${endNum} ]`;
 }
 
-class OwnerTicketList extends Component {
+class OwnerTicketList extends PureComponent {
   state = {
     pageSize: 6,
     page: 1
@@ -79,6 +79,7 @@ class OwnerTicketList extends Component {
           </tbody>
         </Table>
         <GgLikedPagination
+          initialPage={page}
           pageSize={pageSize}
           totalItems={list.length}
           onChangePage={this.handlePageClick}

@@ -70,6 +70,8 @@ function* watchSaga() {
           options
         );
 
+        const eventMap = {};
+
         eventObjs.map(elem => {
           const evt = {
             event: elem.event,
@@ -80,7 +82,33 @@ function* watchSaga() {
             topics: elem.raw.topics
           };
           console.log(`EVENT => ${JSON.stringify(evt)}`);
+
+          if (!eventMap[elem.event]) {
+            eventMap[elem.event] = [];
+          }
+          eventMap[elem.event] = evt;
         });
+
+        if (Object.keys(eventMap).length > 0) {
+          yield put({ type: "GLOBAL_FETCH_REQUESTED" });
+        }
+
+        const eventNames = Object.keys(eventMap);
+        for(let i = 0;i < eventNames.length;i++) {
+          const eventObj = eventMap[i];
+          const eventName = eventNames[i];
+          
+          if (
+            eventName === "PurchaseTicketsByWei" ||
+            eventName === "TokenTransferSuccessful"
+          ) {
+            yield put({ type: "PL_TICKETS_FETCH_REQUESTED", payload: { events: eventObj } });
+          } else if (eventName === "DrawTicketSuccessful") {
+            yield put({ type: "WINNERS_FETCH_REQUESTED/EVENTS", payload: { events: eventObj } });
+          }
+        }
+        
+
         // let curBlkNum = getBlockNumberFromEventObj(eventObjs);
         // if (!curBlkNum) {
         //   latestBlock = yield call(

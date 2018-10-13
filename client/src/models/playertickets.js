@@ -11,6 +11,7 @@ function* fetchPlayerTickets() {
     }));
 
     const tickets = yield call(queryAllPlayerTickets, web3, contract, account);
+    tickets.list = tickets.list.reverse();
 
     yield put({ type: "PL_TICKETS_FETCH_SUCCEEDED", payload: tickets });
   } catch (e) {
