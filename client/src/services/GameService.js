@@ -1,5 +1,5 @@
 import { negativePowerOfTen } from "./../utils/numeric";
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from "bignumber.js";
 
 const reverser = function(i, length) {
   return length - 1 - i;
@@ -68,7 +68,7 @@ export async function queryGlobalParams(web3, contract) {
     potClosedTimestamp: params[4].toNumber() * 1000,
     totalTickets: params[5].toNumber(),
     totalPotPlayers: params[6].toNumber(),
-    totalPot: web3.utils.fromWei(params[7], "ether"),
+    totalEthPot: web3.utils.fromWei(params[7], "ether"),
     tokenFeeRate: params[8],
     lengthOfGameTokens: params[9].toNumber(),
     lengthOfPotTokens: params[10].toNumber(),
@@ -184,7 +184,7 @@ export async function queryPot(web3, contract) {
   const potClosedTimestamp = potClosedTimestampBigNumber.toNumber() * 1000; // seconds to millis
 
   const totalWeiPot = await contract.totalWeiPot.call();
-  const totalPot = web3.utils.fromWei(totalWeiPot, "ether");
+  const totalEthPot = web3.utils.fromWei(totalWeiPot, "ether");
 
   const totalTicketsBigNumber = await contract.ticketNumberCeiling.call();
   const totalTickets = totalTicketsBigNumber.toNumber();
@@ -195,8 +195,74 @@ export async function queryPot(web3, contract) {
   return {
     potOpenedTimestamp,
     potClosedTimestamp,
-    totalPot,
+    totalEthPot,
     totalTickets,
     totalPotPlayers
+  };
+}
+
+// Get total amount of tokens used in pot
+export async function queryPotTokenAmounts(web3, contract) {
+  const length = await contract.lengthOfPotTokens.call();
+  const potTokenAmts = [];
+  for (let i = 0; i < length; i++) {
+    const tokenAddress = await contract.potTokens(i);
+    const tokenAmt = await contract.potTokenAmts(i);
+    potTokenAmts.push({
+      tokenAddress,
+      tokenAmt
+    });
+  }
+  return {
+    list: potTokenAmts,
+    totalPotTokens: length.toNumber()
+  };
+}
+
+export function calculatePotPrize(
+  supportedTokens,
+  potTokens,
+  ticketPrice,
+  totalEthPot
+) {
+  let totalPot = new BigNumber(totalEthPot);
+
+  const length = potTokens.totalPotTokens;
+
+  const ethAmtDisplayValue = new BigNumber(totalEthPot);
+  const data = [
+    {
+      tokenAddress: "0x0",
+      tokenSymbol: "ETH",
+      tokenAmtDisplayValue: ethAmtDisplayValue,
+      tokenAmtToETH: ethAmtDisplayValue
+    }
+  ];
+
+  for (let i = 0; i < length; i++) {
+    const tokenAddress = potTokens.list[i].tokenAddress;
+    const tokenAmount = potTokens.list[i].tokenAmt;
+    const tokenSymbol = supportedTokens[tokenAddress].symbol;
+    const power = supportedTokens[tokenAddress].decimals;
+    const tokenAmtDisplayValue = new BigNumber(
+      negativePowerOfTen(tokenAmount.toString(), power)
+    );
+    const tokenDisplayAmtPerTicket = supportedTokens[tokenAddress].displayValue;
+    const tokenAmtToETH = tokenAmtDisplayValue
+      .multipliedBy(new BigNumber(ticketPrice))
+      .dividedBy(tokenDisplayAmtPerTicket);
+    totalPot = totalPot.plus(tokenAmtToETH);
+
+    data.push({
+      tokenAddress,
+      tokenSymbol,
+      tokenAmtDisplayValue,
+      tokenAmtToETH
+    });
+  }
+
+  return {
+    potTokens: data,
+    totalPot: totalPot
   };
 }

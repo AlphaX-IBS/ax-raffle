@@ -1,8 +1,12 @@
 import { call, put, takeLatest, select, fork } from "redux-saga/effects";
 import {
   queryGlobalParams,
-  querySupportedTokens
+  querySupportedTokens,
+  queryPotTokenAmounts,
+  calculatePotPrize
 } from "../services/GameService";
+import { BigNumber } from "bignumber.js";
+import { negativePowerOfTen } from "./../utils/numeric";
 
 function* fetchGlobalParams() {
   try {
@@ -16,7 +20,7 @@ function* fetchGlobalParams() {
     const params = yield call(queryGlobalParams, web3, contract);
 
     const { lengthOfGameWinners, ...rest } = params;
-    
+
     yield put({ type: "TOTAL_WINNERS_SAVE", payload: lengthOfGameWinners });
     yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
   } catch (e) {
@@ -27,12 +31,31 @@ function* fetchGlobalParams() {
 }
 
 function* fetchSupportedTokens() {
-  const { web3, contract } = yield select(state => ({
+  const { web3, contract, ticketPrice, totalEthPot } = yield select(state => ({
     web3: state.api.web3,
-    contract: state.api.contract
+    contract: state.api.contract,
+    ticketPrice: state.global.ticketPrice,
+    totalEthPot: state.global.totalEthPot
   }));
+
   const tokens = yield call(querySupportedTokens, web3, contract);
+
   yield put({ type: "SAVE_SUPPORTED_TOKENS", payload: tokens });
+
+  const potTokens = yield call(queryPotTokenAmounts, web3, contract);
+
+  // Calculate total pot amount
+  const result = yield call(calculatePotPrize, tokens, potTokens, ticketPrice, totalEthPot);
+
+  yield put({
+    type: "SAVE_POT_TOKENS",
+    payload: result.potTokens
+  });
+
+  yield put({
+    type: "SAVE_POT_AMOUNT",
+    payload: result.totalPot.toString()
+  });
 }
 
 function* saga() {
@@ -62,7 +85,9 @@ function calculateGameStatus(oldValue, payload) {
 const initialState = {
   status: "init",
   gamestatus: "stopped",
-  supportedTokens: {}
+  totalPot: 0,
+  supportedTokens: {},
+  potTokens: {}
 };
 
 const reducer = (state = initialState, action) => {
@@ -90,6 +115,16 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         supportedTokens: action.payload
+      };
+    case "SAVE_POT_TOKENS":
+      return {
+        ...state,
+        potTokens: action.payload
+      };
+    case "SAVE_POT_AMOUNT":
+      return {
+        ...state,
+        totalPot: action.payload
       };
     default:
       return state;

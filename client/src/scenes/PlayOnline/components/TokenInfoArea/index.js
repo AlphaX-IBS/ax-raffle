@@ -5,27 +5,27 @@ import { Row, Col, UncontrolledTooltip } from "reactstrap";
 
 class GameInfoArea extends PureComponent {
   render() {
-    const { globalStatus, tokens } = this.props;
+    const { globalStatus, potTokens, totalPot } = this.props;
 
     let nodes = [];
-    if (globalStatus === "ready" && Object.keys(tokens).length > 0) {
-      const data = Object.keys(tokens).map(address => {
-        const tk = tokens[address];
+    if (globalStatus === "ready" && Object.keys(potTokens).length > 0) {
+      const data = Object.keys(potTokens).map(address => {
+        const tk = potTokens[address];
         return tk;
       });
 
       nodes = data.map(item => {
         return (
-          <Col key={item.symbol} className="text-nowrap" xs={6} md={6}>
-            <strong>{`${item.symbol} amount`}</strong>
-            <p id={`${item.symbol}-amount`}>
-              {item.displayValue.toFixed(3)} {item.symbol}
+          <Col key={item.tokenAddress} className="text-nowrap" xs={6} md={6}>
+            <strong>{`${item.tokenSymbol} amount`}</strong>
+            <p id={`${item.tokenSymbol}-amount`}>
+              {item.tokenAmtDisplayValue.toString()} {item.tokenSymbol}
             </p>
             <UncontrolledTooltip
               placement="bottom"
-              target={`${item.symbol}-amount`}
+              target={`${item.tokenSymbol}-amount`}
             >
-              {item.displayValue.toString()}
+              {item.tokenAmtDisplayValue.toString()}
             </UncontrolledTooltip>
           </Col>
         );
@@ -52,8 +52,8 @@ class GameInfoArea extends PureComponent {
         <Row className="totalpotamount text-center justify-content-center">
           <Row>
             <Col>
-              <strong>Total amount (ETH and all ERC20 Token)</strong>
-              <p>100.001 ETH</p>
+              <strong>Total amount (ETH and all ERC20 Tokens)</strong>
+              <p>{totalPot} ETH</p>
             </Col>
           </Row>
           <Row>
@@ -68,7 +68,8 @@ class GameInfoArea extends PureComponent {
 const mapStateToProps = ({ global }) => ({
   gamestatus: global.gamestatus,
   globalStatus: global.status,
-  tokens: global.supportedTokens
+  potTokens: global.potTokens,
+  totalPot: global.totalPot
 });
 
 export default connect(mapStateToProps)(GameInfoArea);

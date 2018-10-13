@@ -2,7 +2,7 @@ export function negativePowerOfTen(number = "0", power = 0) {
   const offset = number.length - Math.abs(power);
   let result = number;
   if (offset > 0) {
-    const tmp = number.substring(offset - 1, offset);
+    const tmp = number.substring(0, offset);
     result = tmp.concat(".", number.substring(offset, number.length));
   } else {
     const missing = "0".repeat(Math.abs(offset));
