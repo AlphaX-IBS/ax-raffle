@@ -286,7 +286,7 @@ contract AxRaffle is Ownable, Pausable {
             // Update pot player list
             uint playerIdx = potPlayerIndexes[msg.sender];
             // In case of existed player
-            if (potPlayers.length > 0 && potPlayers[playerIdx].player_ == msg.sender) {
+            if (potPlayers.length > 0 && playerIdx < potPlayers.length && potPlayers[playerIdx].player_ == msg.sender) {
                 potPlayers[playerIdx].totalOwnedTickets_ += numberOfTickets;
                 // Update relevant used token amount
                 bool isUpdated = false;
@@ -356,7 +356,7 @@ contract AxRaffle is Ownable, Pausable {
         // Update pot player list
         uint playerIdx = potPlayerIndexes[player];
         // // In case of existed players
-        if (potPlayers.length > 0 && potPlayers[playerIdx].player_ == player) {
+        if (potPlayers.length > 0 && playerIdx < potPlayers.length && potPlayers[playerIdx].player_ == player) {
             potPlayers[playerIdx].totalOwnedTickets_ += numberOfTickets;
             potPlayers[playerIdx].totalUsedWeiAmt_ = potPlayers[playerIdx].totalUsedWeiAmt_.add(totalWeiAmt);
             // Update range of tickets
@@ -395,7 +395,7 @@ contract AxRaffle is Ownable, Pausable {
         uint winnerTicket = ticketNumberRandom();
         address winnerAddress = lookUpPlayerAddressByTicketNumber(winnerTicket);
         
-        if (winnerAddress != address(0) && potPlayers[potPlayerIndexes[winnerAddress]].player_ == winnerAddress) {
+        if (winnerAddress != address(0) && potPlayerIndexes[winnerAddress] < potPlayers.length && potPlayers[potPlayerIndexes[winnerAddress]].player_ == winnerAddress) {
             // Add new winner to list
             gameWinners.push(potPlayers[potPlayerIndexes[winnerAddress]]);
             lengthOfGameWinners++;
