@@ -127,28 +127,6 @@ export async function queryWinners(
   };
 }
 
-export async function queryPotRecords(contract, start = 0, limit = 10) {
-  const length = await contract.lengthOfpotPlayerTicketList.call();
-
-  const list = [];
-  const size = Math.min(limit, length - start);
-
-  for (let i = start; i < size; i++) {
-    // const exrecord = { playerAddress, totalTickets };
-    const playerRecord = await contract.potPlayerTicketList(i);
-    list.push({
-      playerAddress: playerRecord.playerAddress,
-      ticketStartNumber: playerRecord.ticketStartNumber.toNumber(),
-      ticketEndNumber: playerRecord.ticketEndNumber.toNumber(),
-      totalTickets: playerRecord.totalTickets.toNumber()
-    });
-  }
-
-  // console.log(`potRecords=${JSON.stringify(list)}`);
-
-  return list;
-}
-
 function trimArray(arr = [], omitString = "") {
   const result = [];
   for (let k in arr) {
@@ -160,6 +138,57 @@ function trimArray(arr = [], omitString = "") {
     }
   }
   return result;
+}
+
+export async function getPlayerUsedTokens(
+  contract,
+  playerAddress,
+  totalUsedWeiAmt
+) {
+  const usedTokenAddresses = trimArray(
+    await contract.getPotPlayerUsedTokensByAddress(playerAddress),
+    "0x0000000000000000000000000000000000000000"
+  );
+  const usedTokenAmts = trimArray(
+    await contract.getPotPlayerUsedTokenAmtsByAddress(playerAddress),
+    "0"
+  );
+  const minLength = Math.min(usedTokenAddresses.length, usedTokenAmts.length);
+  const usedTokens = [
+    {
+      tokenAddress: "0x0",
+      tokenAmount: new BigNumber(totalUsedWeiAmt.toString())
+    }
+  ];
+
+  for (let i = 0; i < minLength; i++) {
+    usedTokens.push({
+      tokenAddress: usedTokenAddresses[i],
+      tokenAmount: usedTokenAmts[i]
+    });
+  }
+
+  return usedTokens;
+}
+
+export async function queryPotPlayer(contract, account) {
+  const response = await contract.getPotPlayerTotalOwnedTicketsAndUsedWeiByAddress(account);
+
+  const totalOwnedTickets = response[0];
+  const totalUsedWeiAmt = response[1];
+
+  const usedTokens = await getPlayerUsedTokens(
+    contract,
+    account,
+    totalUsedWeiAmt
+  );
+
+  const record = {
+    totalTickets: totalOwnedTickets.toNumber(),
+    totalUsedWeiAmt: new BigNumber(totalUsedWeiAmt.toString()),
+    usedTokens
+  };
+  return record;
 }
 
 export async function queryPotRecordsPerPlayer(
@@ -175,30 +204,16 @@ export async function queryPotRecordsPerPlayer(
   for (let i = start; i < size; i++) {
     const player = await contract.potPlayers(i);
 
-    const usedTokenAddresses = trimArray(
-      await contract.getPotPlayerUsedTokensByAddress(player.player_),
-      "0x0000000000000000000000000000000000000000"
+    const usedTokens = await getPlayerUsedTokens(
+      contract,
+      player.player_,
+      player.totalUsedWeiAmt_
     );
-    const usedTokenAmts = trimArray(
-      await contract.getPotPlayerUsedTokenAmtsByAddress(player.player_),
-      "0"
-    );
-    const minLength = Math.min(usedTokenAddresses.length, usedTokenAmts.length);
-    const usedTokens = [{
-      tokenAddress: "0x0",
-      tokenAmount: new BigNumber(player.totalUsedWeiAmt_.toString())
-    }];
-    
-    for (let i = 0; i < minLength; i++) {
-      usedTokens.push({
-        tokenAddress: usedTokenAddresses[i],
-        tokenAmount: usedTokenAmts[i]
-      });
-    }
+
     const record = {
       playerAddress: player.player_,
       totalTickets: player.totalOwnedTickets_.toNumber(),
-      totalUsedWeiAmt: new BigNumber(player.totalUsedWeiAmt_.toString),
+      totalUsedWeiAmt: new BigNumber(player.totalUsedWeiAmt_.toString()),
       usedTokens
     };
     list.push(record);

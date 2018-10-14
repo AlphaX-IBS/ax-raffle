@@ -34,7 +34,9 @@ function shouldUpdateCurrentPage(page = 1, pageSize = 6, list = [], events) {
     }
   }
 
-  return false;
+  const currentTotalPages = Math.ceil(list.length / pageSize);
+
+  return page === currentTotalPages;
 }
 
 function* fetchTickets(action) {
