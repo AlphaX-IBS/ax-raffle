@@ -1,5 +1,4 @@
 import { actionChannel, call, put, select, take } from "redux-saga/effects";
-import { buffers } from "redux-saga";
 import { queryPotRecordsPerPlayer } from "../services/GameService";
 import { load } from "../utils/loadhelper";
 
@@ -14,8 +13,6 @@ function getPlayerAddressFromEvent(eventObj) {
 }
 
 function shouldUpdateCurrentPage(page = 1, pageSize = 6, list = [], events) {
-  const totalPages = Math.ceil(list.length / pageSize);
-
   const playerAddresses = events.map(eventObj =>
     getPlayerAddressFromEvent(eventObj)
   );

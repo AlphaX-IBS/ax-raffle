@@ -1,5 +1,4 @@
 import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
 import Stepper from "react-stepper-horizontal";
 import { Modal, ModalBody, ModalFooter, ModalHeader, Button } from "reactstrap";
 import { connect } from "react-redux";
@@ -49,7 +48,7 @@ class TokenToTicketExchanger extends PureComponent {
   };
 
   onClickProceed = () => {
-    const { steps, currentStep, executing } = this.state;
+    const { currentStep } = this.state;
     const { dispatch, cryptoCurrency, ticketAmount, toggle } = this.props;
 
     const estimatedGas = this.props.estimatedGas || this.state.gas;
@@ -141,7 +140,7 @@ class TokenToTicketExchanger extends PureComponent {
             color="primary"
             onClick={this.onClickProceed}
           >
-            {currentStep == steps.length - 1 ? "Buy" : "Next"}
+            {currentStep === steps.length - 1 ? "Buy" : "Next"}
           </Button>
           <Button color="secondary" onClick={this.onCancel}>
             Cancel

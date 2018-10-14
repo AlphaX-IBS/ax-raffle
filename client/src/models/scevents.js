@@ -1,6 +1,6 @@
 import { call, cancelled, put, select, take } from "redux-saga/effects";
-import { eventChannel, END } from "redux-saga";
-import { poll, sleep } from "./../utils/polling";
+import { eventChannel } from "redux-saga";
+import { poll } from "./../utils/polling";
 
 function pollEvents(web3, contract) {
   return eventChannel(emitter => {
@@ -20,13 +20,6 @@ function pollEvents(web3, contract) {
   });
 }
 
-function getBlockNumberFromEventObj(eventObjs) {
-  if (eventObjs && eventObjs.length > 0) {
-    return eventObjs[eventObjs.length - 1].blockNumber;
-  }
-  return null;
-}
-
 function* watchSaga() {
   yield take("GLOBAL_FETCH_SUCCEEDED");
 
@@ -34,8 +27,6 @@ function* watchSaga() {
     web3: state.api.web3,
     contract: state.api.contract
   }));
-
-  console.log("getblocknum");
 
   // const blockFilter = web3.eth.filter({ address: contract.address });
   // let latestBlock = yield call(
@@ -49,7 +40,6 @@ function* watchSaga() {
 
   let prevBlkNum = yield call(web3.eth.getBlockNumber);
 
-  console.log("create chan");
   const chan = yield call(pollEvents, web3, contract);
   // let i = 0;
   try {
@@ -72,7 +62,7 @@ function* watchSaga() {
 
         const eventMap = {};
 
-        eventObjs.map(elem => {
+        eventObjs.forEach( elem => {
           const evt = {
             event: elem.event,
             address: elem.address,

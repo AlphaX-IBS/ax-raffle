@@ -1,5 +1,4 @@
 import { actionChannel, call, put, select, take } from "redux-saga/effects";
-import { buffers } from "redux-saga";
 import { queryWinners } from "../services/GameService";
 import { load } from "../utils/loadhelper";
 
@@ -50,7 +49,7 @@ function* fetchWinners(action) {
 
 function* refetchCurrentPage(action) {
   try {
-    const { events } = action.payload;
+    // const { events } = action.payload;
 
     const { web3, contract, winners } = yield select(getWinnersContractState);
     const { page, pageSize } = winners;

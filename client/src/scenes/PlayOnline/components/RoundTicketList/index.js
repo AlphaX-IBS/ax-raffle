@@ -1,8 +1,23 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
-import Loader from 'react-loader-spinner'
+import Loader from "react-loader-spinner";
 import { Table } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
+import { BN } from 'bn.js';
+
+function buildAmountString(usedTokens, supportedTokens) {
+  let separator = "";
+  let result = "";
+  for (let i = 0; i < usedTokens.length; i++) {
+    const usedToken = usedTokens[i];
+    const supToken = supportedTokens[usedToken.tokenAddress];
+    const tokenSymbol = supToken.symbol;
+    const amount = usedToken.tokenAmount.div(new BN("1000000000000000000"));
+    result = result.concat(separator, amount, " ", tokenSymbol);
+    separator = ", ";
+  }
+  return result;
+}
 
 class RoundTicketList extends PureComponent {
   state = {
@@ -40,10 +55,18 @@ class RoundTicketList extends PureComponent {
 
   render() {
     const { pageSize, page } = this.state;
-    const { loading, list, totalTickets, totalPotPlayers } = this.props;
+    const {
+      loading,
+      list,
+      totalTickets,
+      totalPotPlayers,
+      supportedTokens
+    } = this.props;
 
     if (loading) {
-      return <Loader type="Ball-Triangle" color="#226226" height={80} width={80} />
+      return (
+        <Loader type="Ball-Triangle" color="#226226" height={80} width={80} />
+      );
     }
 
     const startIndex = pageSize * Math.max(0, page - 1);
@@ -75,7 +98,7 @@ class RoundTicketList extends PureComponent {
                     item.playerAddress.length
                   )}
                 </td>
-                <td>{item.totalTickets / 1000}</td>
+                <td>{buildAmountString(item.usedTokens, supportedTokens)}</td>
               </tr>
             ))}
           </tbody>
@@ -92,9 +115,10 @@ class RoundTicketList extends PureComponent {
 }
 
 const mapStateToProps = ({ global, tickets }) => ({
-  loading: global.status === 'ready' ? false : true,
+  loading: global.status === "ready" ? false : true,
   list: tickets.list ? tickets.list : [],
   totalTickets: global.totalTickets,
-  totalPotPlayers: global.totalPotPlayers
+  totalPotPlayers: global.totalPotPlayers,
+  supportedTokens: global.supportedTokens
 });
 export default connect(mapStateToProps)(RoundTicketList);
