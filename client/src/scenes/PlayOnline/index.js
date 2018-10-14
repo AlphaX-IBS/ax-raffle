@@ -332,7 +332,7 @@ class PlayOnline extends PureComponent {
                       this.toggle("1");
                     }}
                   >
-                    This round tickets
+                    Pot Player List
                   </NavLink>
                 </NavItem>
                 <NavItem>

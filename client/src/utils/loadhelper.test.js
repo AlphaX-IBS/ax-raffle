@@ -22,7 +22,7 @@ test("winner flow first load page 1", async () => {
     { pageSize, page },
     (list, max, start, limit) => {
       expect(start).toBe(0);
-      expect(limit).toBe(4);
+      expect(limit).toBe(2);
       return Promise.resolve({
         list: [winner1],
         totalWinners: maxWinners
@@ -69,7 +69,7 @@ test("winner flow first load page 2", async () => {
     { pageSize, page },
     (list, max, start, limit) => {
       expect(start).toBe(2);
-      expect(limit).toBe(4);
+      expect(limit).toBe(2);
       return Promise.resolve({
         list: [winner3, winner4],
         totalWinners: maxWinners
@@ -136,7 +136,7 @@ test("winner flow third load page 2", async () => {
     { pageSize, page },
     (list, max, start, limit) => {
       expect(start).toBe(2);
-      expect(limit).toBe(4);
+      expect(limit).toBe(2);
       return Promise.resolve({
         list: [winner3, winner4],
         totalWinners: maxWinners
@@ -150,6 +150,101 @@ test("winner flow third load page 2", async () => {
 
   const expectedPayload = {
     list: [winner1, winner2, winner3, winner4, winner5],
+    totalWinners: maxWinners
+  };
+  expect(data).toEqual(expectedPayload);
+});
+
+test("winner flow reload page 2", async () => {
+  const maxWinners = 5;
+  const winner3 = {
+    round: 3,
+    winnerAddress: "0x3",
+    totalPot: 1,
+    potEndedTimestamp: 1538155048516
+  };
+  const winner4 = {
+    round: 4,
+    winnerAddress: "0x4",
+    totalPot: 1,
+    potEndedTimestamp: 1538155048516
+  };
+
+  const pageSize = 2;
+  const page = 2;
+
+  const winners = {
+    list: [null, null, winner3],
+    totalWinners: maxWinners
+  };
+
+  const data = await load(
+    { list: winners.list, total: winners.totalWinners },
+    { pageSize, page },
+    (list, max, start, limit) => {
+      expect(start).toBe(2);
+      expect(limit).toBe(2);
+      return Promise.resolve({
+        list: [winner3, winner4],
+        totalWinners: maxWinners
+      });
+    },
+    (resultList, max) => ({
+      list: resultList,
+      totalWinners: max
+    }),
+    true
+  );
+
+  const expectedPayload = {
+    list: [null, null, winner3, winner4],
+    totalWinners: maxWinners
+  };
+  expect(data).toEqual(expectedPayload);
+});
+
+test("winner flow load more page 2", async () => {
+  const maxWinners = 5;
+  const winner3 = {
+    round: 3,
+    winnerAddress: "0x3",
+    totalPot: 1,
+    potEndedTimestamp: 1538155048516
+  };
+  const winner4 = {
+    round: 4,
+    winnerAddress: "0x4",
+    totalPot: 1,
+    potEndedTimestamp: 1538155048516
+  };
+
+  const pageSize = 2;
+  const page = 2;
+
+  const winners = {
+    list: [null, null, winner3],
+    totalWinners: maxWinners
+  };
+
+  const data = await load(
+    { list: winners.list, total: winners.totalWinners },
+    { pageSize, page },
+    (list, max, start, limit) => {
+      expect(start).toBe(3);
+      expect(limit).toBe(1);
+      return Promise.resolve({
+        list: [winner4],
+        totalWinners: maxWinners
+      });
+    },
+    (resultList, max) => ({
+      list: resultList,
+      totalWinners: max
+    })
+  );
+
+  const expectedPayload = {
+    list: [null, null, winner3, winner4],
     totalWinners: maxWinners
   };
   expect(data).toEqual(expectedPayload);

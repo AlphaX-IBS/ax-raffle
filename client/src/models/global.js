@@ -5,8 +5,6 @@ import {
   queryPotTokenAmounts,
   calculatePotPrize
 } from "../services/GameService";
-import { BigNumber } from "bignumber.js";
-import { negativePowerOfTen } from "./../utils/numeric";
 
 function* fetchGlobalParams() {
   try {

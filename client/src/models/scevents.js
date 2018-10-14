@@ -86,7 +86,7 @@ function* watchSaga() {
           if (!eventMap[elem.event]) {
             eventMap[elem.event] = [];
           }
-          eventMap[elem.event] = evt;
+          eventMap[elem.event].push(evt);
         });
 
         if (Object.keys(eventMap).length > 0) {
@@ -95,16 +95,17 @@ function* watchSaga() {
 
         const eventNames = Object.keys(eventMap);
         for(let i = 0;i < eventNames.length;i++) {
-          const eventObj = eventMap[i];
           const eventName = eventNames[i];
+          const eventObjs = eventMap[eventName];
           
           if (
             eventName === "PurchaseTicketsByWei" ||
             eventName === "TokenTransferSuccessful"
           ) {
-            yield put({ type: "PL_TICKETS_FETCH_REQUESTED", payload: { events: eventObj } });
+            yield put({ type: "PL_TICKETS_FETCH_REQUESTED", payload: { events: eventObjs } });
+            yield put({ type: "TICKET_FETCH_REQUESTED/EVENTS", payload: { events: eventObjs } })
           } else if (eventName === "DrawTicketSuccessful") {
-            yield put({ type: "WINNERS_FETCH_REQUESTED/EVENTS", payload: { events: eventObj } });
+            yield put({ type: "WINNERS_FETCH_REQUESTED/EVENTS", payload: { events: eventObjs } });
           }
         }
         

@@ -82,13 +82,12 @@ function* refetchCurrentPage(action) {
 }
 
 function* saga() {
-  yield take("GLOBAL_FETCH_SUCCEEDED");
-
   // Take the latest request. Doing this as we only have one view using this data.
   const requestChan = yield actionChannel(
-    ["WINNERS_FETCH_REQUESTED", "WINNERS_FETCH_REQUESTED/EVENTS"],
-    buffers.sliding(1)
+    ["WINNERS_FETCH_REQUESTED", "WINNERS_FETCH_REQUESTED/EVENTS"]
   );
+
+  yield take("GLOBAL_FETCH_SUCCEEDED");
 
   while (true) {
     const action = yield take(requestChan);
