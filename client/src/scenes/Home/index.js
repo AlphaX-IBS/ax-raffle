@@ -52,6 +52,9 @@ class Home extends PureComponent {
           countDownMsg = "Next Draw Remaining Time";
           targetTime = closedTime;
           break;
+        case "drawing":
+          countDownMsg = "Picking A Winner";
+          break;
         default:
       }
     }

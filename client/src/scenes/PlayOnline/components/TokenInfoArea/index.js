@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import Loader from "react-loader-spinner";
-import { Row, Col, UncontrolledTooltip } from "reactstrap";
+import { Row, Col, UncontrolledTooltip, Container } from "reactstrap";
 
 class GameInfoArea extends PureComponent {
   render() {
@@ -36,7 +36,7 @@ class GameInfoArea extends PureComponent {
 
     if (globalStatus !== "ready") {
       return (
-        <Row className="totalpotamount text-center justify-content-center">
+        <Container className="totalpotamount text-center justify-content-center">
           <div style={{ width: "100%" }}>
             <Loader
               type="Ball-Triangle"
@@ -45,11 +45,11 @@ class GameInfoArea extends PureComponent {
               width={64}
             />
           </div>
-        </Row>
+        </Container>
       );
     } else {
       return (
-        <Row className="totalpotamount text-center justify-content-center">
+        <Container className="totalpotamount text-center justify-content-center">
           <Row>
             <Col>
               <strong>Total amount (ETH and all ERC20 Tokens)</strong>
@@ -59,7 +59,7 @@ class GameInfoArea extends PureComponent {
           <Row>
             {nodes}
           </Row>
-        </Row>
+        </Container>
       );
     }
   }

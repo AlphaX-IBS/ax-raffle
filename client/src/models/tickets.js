@@ -36,7 +36,7 @@ function shouldUpdateCurrentPage(page = 1, pageSize = 6, list = [], events) {
 
   const currentTotalPages = Math.ceil(list.length / pageSize);
 
-  return page === currentTotalPages;
+  return page === currentTotalPages || currentTotalPages === 0;
 }
 
 function* fetchTickets(action) {

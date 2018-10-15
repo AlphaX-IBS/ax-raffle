@@ -8,12 +8,16 @@ import {
 
 function* fetchGlobalParams() {
   try {
-    yield put({ type: "GLOBAL_FETCHING" });
-
-    const { web3, contract } = yield select(state => ({
+    const { web3, contract, gamestatus, status } = yield select(state => ({
       web3: state.api.web3,
-      contract: state.api.contract
+      contract: state.api.contract,
+      gamestatus: state.global.gamestatus,
+      status: state.global.status
     }));
+
+    if (status === "init") {
+      yield put({ type: "GLOBAL_FETCHING" });
+    }
 
     const params = yield call(queryGlobalParams, web3, contract);
 
@@ -21,39 +25,76 @@ function* fetchGlobalParams() {
 
     yield put({ type: "TOTAL_WINNERS_SAVE", payload: lengthOfGameWinners });
     yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
+
+    switch (gamestatus) {
+      case "stopped":
+      case "starting":
+        yield fork(fetchSupportedTokens);
+      case "opening":
+      case "drawing":
+        yield yield fork(fetchPotTokens);
+        break;
+    }
+
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
   }
-
-  yield fork(fetchSupportedTokens);
 }
 
 function* fetchSupportedTokens() {
-  const { web3, contract, ticketPrice, totalEthPot } = yield select(state => ({
-    web3: state.api.web3,
-    contract: state.api.contract,
-    ticketPrice: state.global.ticketPrice,
-    totalEthPot: state.global.totalEthPot
-  }));
+  try {
+    const { web3, contract } = yield select(state => ({
+      web3: state.api.web3,
+      contract: state.api.contract
+    }));
 
-  const tokens = yield call(querySupportedTokens, web3, contract);
+    const tokens = yield call(querySupportedTokens, web3, contract);
 
-  yield put({ type: "SAVE_SUPPORTED_TOKENS", payload: tokens });
+    yield put({ type: "SAVE_SUPPORTED_TOKENS", payload: tokens });
+  } catch (e) {
+    console.error(e);
+  }
+}
 
-  const potTokens = yield call(queryPotTokenAmounts, web3, contract);
+function* fetchPotTokens() {
+  try {
+    const {
+      web3,
+      contract,
+      ticketPrice,
+      totalEthPot,
+      supportedTokens
+    } = yield select(state => ({
+      web3: state.api.web3,
+      contract: state.api.contract,
+      ticketPrice: state.global.ticketPrice,
+      totalEthPot: state.global.totalEthPot,
+      supportedTokens: state.global.supportedTokens
+    }));
 
-  // Calculate total pot amount
-  const result = yield call(calculatePotPrize, tokens, potTokens, ticketPrice, totalEthPot);
+    const potTokens = yield call(queryPotTokenAmounts, web3, contract);
 
-  yield put({
-    type: "SAVE_POT_TOKENS",
-    payload: result.potTokens
-  });
+    // Calculate total pot amount
+    const result = yield call(
+      calculatePotPrize,
+      supportedTokens,
+      potTokens,
+      ticketPrice,
+      totalEthPot
+    );
 
-  yield put({
-    type: "SAVE_POT_AMOUNT",
-    payload: result.totalPot.toString()
-  });
+    yield put({
+      type: "SAVE_POT_TOKENS",
+      payload: result.potTokens
+    });
+
+    yield put({
+      type: "SAVE_POT_AMOUNT",
+      payload: result.totalPot.toString()
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function* saga() {

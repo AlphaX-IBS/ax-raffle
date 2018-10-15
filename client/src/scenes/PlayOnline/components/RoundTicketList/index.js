@@ -11,10 +11,14 @@ function buildAmountString(usedTokens, supportedTokens) {
   for (let i = 0; i < usedTokens.length; i++) {
     const usedToken = usedTokens[i];
     const supToken = supportedTokens[usedToken.tokenAddress];
+    if(supToken) {
     const tokenSymbol = supToken.symbol;
     const amount = usedToken.tokenAmount.div(new BN("1000000000000000000"));
     result = result.concat(separator, amount, " ", tokenSymbol);
     separator = ", ";
+    } else {
+      console.warn(`Token ${usedToken.tokenAddress} not found`);
+    }
   }
   return result;
 }
