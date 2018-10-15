@@ -530,19 +530,19 @@ contract AxRaffle is Ownable, Pausable {
 
     // Get pot player info by player address
     function getPotPlayerInfoByAddress(address _player) public view returns(AxPotPlayerInfo) {
-        require(potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
+        require(potPlayers.length > 0 && potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
         return potPlayers[potPlayerIndexes[_player]];
     }
 
     // Get pot player total owned tickets and used wei by player address
     function getPotPlayerTotalOwnedTicketsAndUsedWeiByAddress(address _player) public view returns(uint,uint) {
-        require(potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
+        require(potPlayers.length > 0 && potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
         return (potPlayers[potPlayerIndexes[_player]].totalOwnedTickets_,potPlayers[potPlayerIndexes[_player]].totalUsedWeiAmt_);
     }
 
     // Get pot player used tokens by address
     function getPotPlayerUsedTokensByAddress(address _player) public view returns (address[1000]) {
-        require(potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
+        require(potPlayers.length > 0 && potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
         address[1000] memory usedTokenList;
         for (uint i = 0; i < potPlayers[potPlayerIndexes[_player]].usedTokens_.length; i++) {
             usedTokenList[i] = potPlayers[potPlayerIndexes[_player]].usedTokens_[i];
@@ -552,7 +552,7 @@ contract AxRaffle is Ownable, Pausable {
 
     // Get pot player used amount of tokens by address
     function getPotPlayerUsedTokenAmtsByAddress(address _player) public view returns (uint[1000]) {
-        require(potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
+        require(potPlayers.length > 0 && potPlayerIndexes[_player] < potPlayers.length && potPlayers[potPlayerIndexes[_player]].player_ == _player,"Player doesn't exist in pot");
         uint[1000] memory totalUsedTokenAmts;
         for (uint i = 0; i < potPlayers[potPlayerIndexes[_player]].totalUsedTokenAmts_.length; i++) {
             totalUsedTokenAmts[i] = potPlayers[potPlayerIndexes[_player]].totalUsedTokenAmts_[i];
@@ -560,83 +560,83 @@ contract AxRaffle is Ownable, Pausable {
         return totalUsedTokenAmts;
     }
 
-    // Get 100 winners by index
-    function get100Winners(uint _from, uint _noWinners) external view returns(AxPotPlayerInfo[100]) {
-        require(_noWinners <= 100 && _from + _noWinners <= lengthOfGameWinners);
-        AxPotPlayerInfo[100] memory winnerList;
-        for (uint i = 0; i < _noWinners; i++) {
-            winnerList[i] = gameWinners[i+_from];
-        }
-        return winnerList;
-    }
+    // // Get 100 winners by index
+    // function get100Winners(uint _from, uint _noWinners) external view returns(AxPotPlayerInfo[100]) {
+    //     require(_noWinners <= 100 && _from + _noWinners <= lengthOfGameWinners);
+    //     AxPotPlayerInfo[100] memory winnerList;
+    //     for (uint i = 0; i < _noWinners; i++) {
+    //         winnerList[i] = gameWinners[i+_from];
+    //     }
+    //     return winnerList;
+    // }
 
-    // Get winner info by address and won time
-    function getWinnerInfoByAddressAndIndex(address _winner, uint _time) external view returns(AxPotPlayerInfo) {
-        require(_time <= lengthOfGameWinners);
-        uint wonTime = 0;
-        for (uint i = 0; i < lengthOfGameWinners; i++) {
-            if (gameWinners[i].player_ == _winner) {
-                wonTime++;
-                if (wonTime == _time) {
-                    return gameWinners[i];
-                }
-            }
-        }
-        return AxPotPlayerInfo(address(0),0,0,new address[](0),new uint[](0),new uint[](0),new uint[](0),0,new address[](0),new uint[](0),0);
-    }
+    // // Get winner info by address and won time
+    // function getWinnerInfoByAddressAndIndex(address _winner, uint _time) external view returns(AxPotPlayerInfo) {
+    //     require(_time <= lengthOfGameWinners);
+    //     uint wonTime = 0;
+    //     for (uint i = 0; i < lengthOfGameWinners; i++) {
+    //         if (gameWinners[i].player_ == _winner) {
+    //             wonTime++;
+    //             if (wonTime == _time) {
+    //                 return gameWinners[i];
+    //             }
+    //         }
+    //     }
+    //     return AxPotPlayerInfo(address(0),0,0,new address[](0),new uint[](0),new uint[](0),new uint[](0),0,new address[](0),new uint[](0),0);
+    // }
 
-    // Get pot prize wei amount and ended timestamp by winner address and won time
-    function getWinnerPotWeiAndTimestampByAddressAndIndex(address _winner, uint _time) external view returns(uint,uint) {
-        require(_time <= lengthOfGameWinners);
-        uint wonTime = 0;
-        for (uint i = 0; i < lengthOfGameWinners; i++) {
-            if (gameWinners[i].player_ == _winner) {
-                wonTime++;
-                if (wonTime == _time) {
-                    return (gameWinners[i].potPrizeWeiAmt_,gameWinners[i].potEndedTimeStamp_);
-                }
-            }
-        }
-        return (0,0);
-    }
+    // // Get pot prize wei amount and ended timestamp by winner address and won time
+    // function getWinnerPotWeiAndTimestampByAddressAndIndex(address _winner, uint _time) external view returns(uint,uint) {
+    //     require(_time <= lengthOfGameWinners);
+    //     uint wonTime = 0;
+    //     for (uint i = 0; i < lengthOfGameWinners; i++) {
+    //         if (gameWinners[i].player_ == _winner) {
+    //             wonTime++;
+    //             if (wonTime == _time) {
+    //                 return (gameWinners[i].potPrizeWeiAmt_,gameWinners[i].potEndedTimeStamp_);
+    //             }
+    //         }
+    //     }
+    //     return (0,0);
+    // }
 
-    // Get pot prize tokens by winner address and won time
-    function getWinnerPotPrizeTokensByAddressAndIndex(address _winner, uint _time) external view returns(address[1000]) {
-        require(_time <= lengthOfGameWinners);
-        address[1000] memory potPrizeTokens;
-        uint wonTime = 0;
-        for (uint i = 0; i < lengthOfGameWinners; i++) {
-            if (gameWinners[i].player_ == _winner) {
-                wonTime++;
-                if (wonTime == _time) {
-                    for (uint j = 0; j < gameWinners[i].potPrizeTokens_.length; j++) {
-                        potPrizeTokens[j] = gameWinners[i].potPrizeTokens_[j];
-                    }
-                    break;
-                }
-            }
-        }
-        return potPrizeTokens;
-    }
+    // // Get pot prize tokens by winner address and won time
+    // function getWinnerPotPrizeTokensByAddressAndIndex(address _winner, uint _time) external view returns(address[1000]) {
+    //     require(_time <= lengthOfGameWinners);
+    //     address[1000] memory potPrizeTokens;
+    //     uint wonTime = 0;
+    //     for (uint i = 0; i < lengthOfGameWinners; i++) {
+    //         if (gameWinners[i].player_ == _winner) {
+    //             wonTime++;
+    //             if (wonTime == _time) {
+    //                 for (uint j = 0; j < gameWinners[i].potPrizeTokens_.length; j++) {
+    //                     potPrizeTokens[j] = gameWinners[i].potPrizeTokens_[j];
+    //                 }
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     return potPrizeTokens;
+    // }
 
-    // Get pot prize amount of tokens by winner address and won time
-    function getWinnerPotPrizeTokenAmtsByAddressAndIndex(address _winner, uint _time) external view returns(uint[1000]) {
-        require(_time <= lengthOfGameWinners);
-        uint[1000] memory potPrizeTokenAmts;
-        uint wonTime = 0;
-        for (uint i = 0; i < lengthOfGameWinners; i++) {
-            if (gameWinners[i].player_ == _winner) {
-                wonTime++;
-                if (wonTime == _time) {
-                    for (uint j = 0; j < gameWinners[i].potPrizeTokenAmts_.length; j++) {
-                        potPrizeTokenAmts[j] = gameWinners[i].potPrizeTokenAmts_[j];
-                    }                    
-                    break;
-                }
-            }
-        }
-        return potPrizeTokenAmts;
-    }
+    // // Get pot prize amount of tokens by winner address and won time
+    // function getWinnerPotPrizeTokenAmtsByAddressAndIndex(address _winner, uint _time) external view returns(uint[1000]) {
+    //     require(_time <= lengthOfGameWinners);
+    //     uint[1000] memory potPrizeTokenAmts;
+    //     uint wonTime = 0;
+    //     for (uint i = 0; i < lengthOfGameWinners; i++) {
+    //         if (gameWinners[i].player_ == _winner) {
+    //             wonTime++;
+    //             if (wonTime == _time) {
+    //                 for (uint j = 0; j < gameWinners[i].potPrizeTokenAmts_.length; j++) {
+    //                     potPrizeTokenAmts[j] = gameWinners[i].potPrizeTokenAmts_[j];
+    //                 }                    
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     return potPrizeTokenAmts;
+    // }
 
     // Get list tokens used by winner's address and index
     function getUsedTokensByWinnerAddressAndIndex(address _winner, uint _index) external view returns(address[1000]) {
@@ -661,6 +661,7 @@ contract AxRaffle is Ownable, Pausable {
         }
         return totalUsedTokenAmts;
     }
+
     // Get number of won times by winner address
     function getWonTimeByAddress(address _winner) external view returns(uint) {
         uint wonTime = 0;
