@@ -78,6 +78,8 @@ contract AxRaffle is Ownable, Pausable {
     mapping(address => uint) public potTokenIndexes; // List of token indexes used in pot
     uint public lengthOfPotTokens; // Total tokens used as payment in pot
 
+    ERC20  public ERC20Interface; // ERC20 token interface
+
     // Events
     event ActivateGame(bool _active);
     event DeactivateGame(bool _deactive);
@@ -147,8 +149,8 @@ contract AxRaffle is Ownable, Pausable {
         lengthOfPotTokens = 0;
 
         // just for testing
-        operatorAddress = address(0x7da4907fc6bd5d6939f2954cf4eb0989c5726d16);
-        potSellingPeriod = 28800;
+        operatorAddress = address(0x48b2F0F0b403B29667E7a54775451873d927185a);
+        potSellingPeriod = 86400;
         potOpeningPeriod = 86400;
         weiPerTicket = 1000000000000000;
         weiFeeRate = 10;
@@ -157,10 +159,10 @@ contract AxRaffle is Ownable, Pausable {
         isActiveTokenPayment = true;
         potOpenedTimestamp = now;
         potClosedTimestamp = potOpenedTimestamp + potSellingPeriod;
-        gameTokens.push(AxTokenInfo(address(0xf6425fab636a8065e0c625d52b17cb07c6839f77),"GEX",18,6000000000000000000));
-        gameTokenIndexes[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = 0;
-        gameTokenStatuses[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = true;
-        lengthOfGameTokens++;
+        // gameTokens.push(AxTokenInfo(address(0xf6425fab636a8065e0c625d52b17cb07c6839f77),"GEX",18,6000000000000000000));
+        // gameTokenIndexes[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = 0;
+        // gameTokenStatuses[address(0xf6425fab636a8065e0c625d52b17cb07c6839f77)] = true;
+        // lengthOfGameTokens++;
     }
 
     // Set operator wallet address
@@ -270,23 +272,24 @@ contract AxRaffle is Ownable, Pausable {
     // Note: token amount here will be received amount in its smallest unit based on its decimal
     function purchaseTicketsByTokens(address[] _tokens, uint[] _tokenAmts) external activatedGame potIsOpened activatedTokenPayment {
         require(_tokens.length > 0 && _tokens.length == _tokenAmts.length);
-        ERC20 ERC20Interface;
         for (uint i = 0; i < _tokens.length; i++) {
+            // require(gameTokens[_tokens[i]].contract_ == _tokens[i] && _tokenAmts[i] > 0);
             require(gameTokenStatuses[_tokens[i]] == true && _tokenAmts[i] > 0);
-            // Purchase tickets by tokens           
+            // Purchase tickets by tokens
+            address player = msg.sender;
             ERC20Interface = ERC20(_tokens[i]);
-            if (_tokenAmts[i] > ERC20Interface.allowance(msg.sender,address(this))) {
-                emit TokenTransferFailed(msg.sender, address(this), _tokens[i], _tokenAmts[i]);
+            if (_tokenAmts[i] > ERC20Interface.allowance(player,address(this))) {
+                emit TokenTransferFailed(player, address(this), _tokens[i], _tokenAmts[i]);
                 revert();
             }
-            ERC20Interface.transferFrom(msg.sender, address(this), _tokenAmts[i]);
+            ERC20Interface.transferFrom(player, address(this), _tokenAmts[i]);
             uint ticketPrice = gameTokens[gameTokenIndexes[_tokens[i]]].amountPerTicket_;
             uint numberOfTickets = _tokenAmts[i].div(ticketPrice);
             require(numberOfTickets > 0,"You don't have enough token amount to buy tickets");
             // Update pot player list
-            uint playerIdx = potPlayerIndexes[msg.sender];
+            uint playerIdx = potPlayerIndexes[player];
             // In case of existed player
-            if (potPlayers.length > 0 && playerIdx < potPlayers.length && potPlayers[playerIdx].player_ == msg.sender) {
+            if (potPlayers.length > 0 && potPlayers[playerIdx].player_ == player) {
                 potPlayers[playerIdx].totalOwnedTickets_ += numberOfTickets;
                 // Update relevant used token amount
                 bool isUpdated = false;
@@ -307,13 +310,13 @@ contract AxRaffle is Ownable, Pausable {
             } 
             // In case of non-existed player
             else {                
-                AxPotPlayerInfo memory axPotPlayer = AxPotPlayerInfo(msg.sender,numberOfTickets,0,new address[](0),new uint[](0),new uint[](0),new uint[](0),0,new address[](0),new uint[](0),0);
+                AxPotPlayerInfo memory axPotPlayer = AxPotPlayerInfo(player,numberOfTickets,0,new address[](0),new uint[](0),new uint[](0),new uint[](0),0,new address[](0),new uint[](0),0);
                 potPlayers.push(axPotPlayer);
                 potPlayers[potPlayers.length - 1].usedTokens_.push(_tokens[i]);                
                 potPlayers[potPlayers.length - 1].totalUsedTokenAmts_.push(_tokenAmts[i]);
                 potPlayers[potPlayers.length - 1].ticketStartNumbers_.push(ticketNumberCeiling + 1);
                 potPlayers[potPlayers.length - 1].ticketEndNumbers_.push(ticketNumberCeiling + numberOfTickets);
-                potPlayerIndexes[msg.sender] = potPlayers.length - 1;
+                potPlayerIndexes[player] = potPlayers.length - 1;
                 lengthOfPotPlayers++;
             }
             // Update pot tokens amount
@@ -332,7 +335,7 @@ contract AxRaffle is Ownable, Pausable {
             // Update ticket ceiling number
             ticketNumberCeiling += numberOfTickets;
 
-            emit TokenTransferSuccessful(msg.sender, address(this), _tokens[i], _tokenAmts[i]);
+            emit TokenTransferSuccessful(player, address(this), _tokens[i], _tokenAmts[i]);
         }
     }
 
@@ -356,7 +359,7 @@ contract AxRaffle is Ownable, Pausable {
         // Update pot player list
         uint playerIdx = potPlayerIndexes[player];
         // // In case of existed players
-        if (potPlayers.length > 0 && playerIdx < potPlayers.length && potPlayers[playerIdx].player_ == player) {
+        if (potPlayers.length > 0 && potPlayers[playerIdx].player_ == player) {
             potPlayers[playerIdx].totalOwnedTickets_ += numberOfTickets;
             potPlayers[playerIdx].totalUsedWeiAmt_ = potPlayers[playerIdx].totalUsedWeiAmt_.add(totalWeiAmt);
             // Update range of tickets
@@ -395,52 +398,45 @@ contract AxRaffle is Ownable, Pausable {
         uint winnerTicket = ticketNumberRandom();
         address winnerAddress = lookUpPlayerAddressByTicketNumber(winnerTicket);
         
-        if (winnerAddress != address(0) && potPlayerIndexes[winnerAddress] < potPlayers.length && potPlayers[potPlayerIndexes[winnerAddress]].player_ == winnerAddress) {
+        if (winnerAddress != address(0) && potPlayers[potPlayerIndexes[winnerAddress]].player_ == winnerAddress) {
             // Add new winner to list
             gameWinners.push(potPlayers[potPlayerIndexes[winnerAddress]]);
             lengthOfGameWinners++;
-            gameWinnerIndexes[winnerAddress].push(lengthOfGameWinners - 1);
-            // End pot
+            // Update new winner information
             potEndedTimestamp = now;
-            gameWinners[lengthOfGameWinners - 1].potEndedTimeStamp_ = potEndedTimestamp;
-            // Calculate prize and fee by wei
             uint totalWeiFeeAmt = (totalWeiPot.mul(weiFeeRate)).div(100);
             uint totalWeiPrizeAmt = totalWeiPot.sub(totalWeiFeeAmt);
-            gameWinners[lengthOfGameWinners - 1].potPrizeWeiAmt_ = totalWeiPrizeAmt;
-            //  Allocate prize and fee by wei
-            if (totalWeiFeeAmt > 0) {   
-                operatorAddress.transfer(totalWeiFeeAmt);
-            }
-            if (totalWeiPrizeAmt > 0) {
-                winnerAddress.transfer(totalWeiPrizeAmt);
-            }
-            //  Allocate prize and fee by tokens
-            uint tokenFeeAmt = 0;
-            ERC20 ERC20Interface;       
+            uint[] tokenFeeAmts;
             for (uint i = 0; i < potTokenAmts.length; i++) {
-                // Calculate pot token fee amount
-                tokenFeeAmt = (potTokenAmts[i].mul(tokenFeeRate)).div(100);
+                uint tokenFeeAmt = (potTokenAmts[i].mul(tokenFeeRate)).div(100);
+                // Calculate pot token fee amount list
+                tokenFeeAmts.push(tokenFeeAmt);
                 // Update pot token amount list of winner
                 gameWinners[lengthOfGameWinners - 1].potPrizeTokenAmts_.push(potTokenAmts[i].sub(tokenFeeAmt));
-                gameWinners[lengthOfGameWinners - 1].potPrizeTokens_.push(potTokens[i]);
-                //  Allocate token
-                ERC20Interface = ERC20(potTokens[i]);
-                if (potTokenAmts[i].sub(tokenFeeAmt) > 0) {
-                    ERC20Interface.transfer(winnerAddress,potTokenAmts[i].sub(tokenFeeAmt));
-                }
-                if (tokenFeeAmt > 0) {
-                    ERC20Interface.transfer(operatorAddress,tokenFeeAmt);
-                }
             }
-
-            emit DrawTicketSuccessful(winnerAddress,winnerTicket,potEndedTimestamp);
-
+            // Update pot prize wei amount, prize token list, pot ended timestamp for new winner
+            gameWinners[lengthOfGameWinners - 1].potPrizeWeiAmt_ = totalWeiPrizeAmt;
+            gameWinners[lengthOfGameWinners - 1].potPrizeTokens_ = potTokens;
+            gameWinners[lengthOfGameWinners - 1].potEndedTimeStamp_ = potEndedTimestamp;
+            gameWinnerIndexes[winnerAddress].push(lengthOfGameWinners - 1);
+            // Allocate prize and fee
+            //  Allocate wei
+            winnerAddress.transfer(totalWeiPrizeAmt);
+            operatorAddress.transfer(totalWeiFeeAmt);
+            //  Allocate tokens
+            for (i = 0; i < potTokens.length; i++) {
+                ERC20Interface = ERC20(potTokens[i]);
+                ERC20Interface.transfer(winnerAddress,gameWinners[lengthOfGameWinners - 1].potPrizeTokenAmts_[i]);
+                ERC20Interface.transfer(operatorAddress,tokenFeeAmts[i]);
+            }
             // Prepare opening next pot
             prepareOpeningNextPot();
 
+            emit DrawTicketSuccessful(winnerAddress,winnerTicket,potEndedTimestamp);
         } else {
             emit DrawTicketFailed(winnerAddress);
         }
+
     }
 
     // Prepare for opening next pot
@@ -632,6 +628,30 @@ contract AxRaffle is Ownable, Pausable {
             }
         }
         return potPrizeTokenAmts;
+    }
+
+    // Get tokens amount used by winner's address and index
+    function getUsedTokensByWinnerAddressAndIndex(address _winner, uint _index) external view returns(address[1000]) {
+        require(_index < lengthOfGameWinners);
+        address[1000] memory totalUsedTokens;
+        if (gameWinners[_index].player_ == _winner) {
+            for (uint i = 0; i < gameWinners[_index].potPrizeTokens_.length; i++) {
+                totalUsedTokens[i] = gameWinners[_index].potPrizeTokens_[i];
+            }
+        }
+        return totalUsedTokens;
+    }
+
+    // Get tokens amount used by winner's address and index
+    function getUsedTokenAmtsByWinnerAddressAndIndex(address _winner, uint _index) external view returns(uint[1000]) {
+        require(lengthOfGameWinners > _index);
+        uint[1000] memory totalUsedTokenAmts;
+        if (gameWinners[_index].player_ == _winner) {
+            for (uint i = 0; i < gameWinners[_index].potPrizeTokenAmts_.length; i++) {
+                totalUsedTokenAmts[i] = gameWinners[_index].potPrizeTokenAmts_[i];
+            }
+        }
+        return totalUsedTokenAmts;
     }
 
     // Get number of won times by winner address
