@@ -630,7 +630,7 @@ contract AxRaffle is Ownable, Pausable {
         return potPrizeTokenAmts;
     }
 
-    // Get tokens amount used by winner's address and index
+    // Get list tokens used by winner's address and index
     function getUsedTokensByWinnerAddressAndIndex(address _winner, uint _index) external view returns(address[1000]) {
         require(_index < lengthOfGameWinners);
         address[1000] memory totalUsedTokens;
@@ -642,7 +642,7 @@ contract AxRaffle is Ownable, Pausable {
         return totalUsedTokens;
     }
 
-    // Get tokens amount used by winner's address and index
+    // Get list token amounts used by winner's address and index
     function getUsedTokenAmtsByWinnerAddressAndIndex(address _winner, uint _index) external view returns(uint[1000]) {
         require(lengthOfGameWinners > _index);
         uint[1000] memory totalUsedTokenAmts;
