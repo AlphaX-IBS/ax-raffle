@@ -24,21 +24,18 @@ function* fetchGlobalParams() {
     const { lengthOfGameWinners, ...rest } = params;
 
     yield put({ type: "TOTAL_WINNERS_SAVE", payload: lengthOfGameWinners });
-    yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
 
-    switch (gamestatus) {
-      case "stopped":
-      case "starting":
-        yield fork(fetchSupportedTokens);
-      case "opening":
-      case "drawing":
-        yield yield fork(fetchPotTokens);
-        break;
+    if (["stopped", "starting"].includes(gamestatus)) {
+      yield call(fetchSupportedTokens);
     }
+
+    yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
 
   } catch (e) {
     yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
   }
+
+  yield fork(fetchPotTokens);
 }
 
 function* fetchSupportedTokens() {
@@ -50,7 +47,18 @@ function* fetchSupportedTokens() {
 
     const tokens = yield call(querySupportedTokens, web3, contract);
 
-    yield put({ type: "SAVE_SUPPORTED_TOKENS", payload: tokens });
+    const supportedTokens = {};
+    for (let key of Object.keys(tokens)) {
+      const token = tokens[key];
+      if (token.active) {
+        supportedTokens[token.contract] = token;
+      }
+    }
+
+    yield put({
+      type: "SAVE_SUPPORTED_TOKENS",
+      payload: { allTokens: tokens, supportedTokens: supportedTokens }
+    });
   } catch (e) {
     console.error(e);
   }
@@ -125,6 +133,7 @@ const initialState = {
   status: "init",
   gamestatus: "stopped",
   totalPot: 0,
+  allTokens: {},
   supportedTokens: {},
   potTokens: {}
 };
@@ -153,7 +162,8 @@ const reducer = (state = initialState, action) => {
     case "SAVE_SUPPORTED_TOKENS":
       return {
         ...state,
-        supportedTokens: action.payload
+        allTokens: action.payload.allTokens,
+        supportedTokens: action.payload.supportedTokens
       };
     case "SAVE_POT_TOKENS":
       return {

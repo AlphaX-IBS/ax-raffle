@@ -245,7 +245,7 @@ class PlayOnline extends PureComponent {
       selectedTokenKey,
       tokenToTicketModal
     } = this.state;
-    const { ticketPrice, modal, tokens } = this.props;
+    const { ticketPrice, modal, tokens, gamestatus } = this.props;
     const totalCost = ticketNumber * ticketPrice;
 
     const tokenPriceList = Object.keys(tokens).map(address => {
@@ -298,7 +298,7 @@ class PlayOnline extends PureComponent {
                     </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
-                <Button color="primary" onClick={this.onBuyClick}>
+                <Button color="primary" disabled={gamestatus !== "opening"} onClick={this.onBuyClick}>
                   Buy Now
                 </Button>
               </div>
@@ -484,7 +484,8 @@ const mapStateToProps = ({ global, player }) => ({
   connectType: player.connectType,
   estimatedGas: player.estimatedGas,
   ticketPrice: global.ticketPrice ? global.ticketPrice : NaN,
-  tokens: global.supportedTokens
+  tokens: global.supportedTokens,
+  gamestatus: global.gamestatus
 });
 
 export default connect(mapStateToProps)(PlayOnline);

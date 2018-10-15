@@ -3,25 +3,7 @@ import { connect } from "react-redux";
 import Loader from "react-loader-spinner";
 import { Table } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
-import { BN } from 'bn.js';
-
-function buildAmountString(usedTokens, supportedTokens) {
-  let separator = "";
-  let result = "";
-  for (let i = 0; i < usedTokens.length; i++) {
-    const usedToken = usedTokens[i];
-    const supToken = supportedTokens[usedToken.tokenAddress];
-    if(supToken) {
-    const tokenSymbol = supToken.symbol;
-    const amount = usedToken.tokenAmount.div(new BN("1000000000000000000"));
-    result = result.concat(separator, amount, " ", tokenSymbol);
-    separator = ", ";
-    } else {
-      console.warn(`Token ${usedToken.tokenAddress} not found`);
-    }
-  }
-  return result;
-}
+import { buildAmountString } from './../../../../utils/computils';
 
 class RoundTicketList extends PureComponent {
   state = {

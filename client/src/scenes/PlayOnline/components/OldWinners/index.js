@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Table, UncontrolledTooltip } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
 import moment from "moment";
+import { buildAmountString } from './../../../../utils/computils';
 
 class OldWinners extends PureComponent {
   state = {
@@ -40,7 +41,7 @@ class OldWinners extends PureComponent {
 
   render() {
     const { pageSize, page } = this.state;
-    const { list, totalWinners } = this.props;
+    const { list, totalWinners, allTokens } = this.props;
 
     const startIndex = pageSize * Math.max(0, page - 1);
     const data = list.slice(startIndex, startIndex + pageSize);
@@ -63,7 +64,7 @@ class OldWinners extends PureComponent {
                     "YYYY-MM-DD hh:mm:ssZ"
                   )}
                 </td>
-                <td>{item.totalPot}</td>
+                <td>{buildAmountString(item.potTokenPrize, allTokens)}</td>
                 <td>
                   <div id={`WinnerAddress-${item.round}`}>
                     {item.winnerAddress.substr(0, 6)}
@@ -95,8 +96,9 @@ class OldWinners extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ winners }) => ({
+const mapStateToProps = ({ winners, global }) => ({
   list: winners.list ? winners.list : [],
-  totalWinners: winners.totalWinners
+  totalWinners: winners.totalWinners,
+  allTokens: global.allTokens
 });
 export default connect(mapStateToProps)(OldWinners);

@@ -21,7 +21,8 @@ export async function querySupportedTokens(web3, contract) {
       symbol: "ETH",
       decimals: 18,
       amountPerTicket: weiPerTicket,
-      displayValue: new BigNumber(ethAmountAsStr)
+      displayValue: new BigNumber(ethAmountAsStr),
+      active: true
     }
   };
   for (let i = 0; i < length; i++) {
@@ -29,18 +30,18 @@ export async function querySupportedTokens(web3, contract) {
     // console.log(`tokens=${JSON.stringify(tokenInfo)}`);
     const address = tokenInfo.contract_;
     const active = await contract.gameTokenStatuses(address);
-    if (active) {
-      const amountInWeiAsStr = tokenInfo.amountPerTicket_.toString();
-      const power = tokenInfo.decimals_.toNumber();
-      const amountAsStr = negativePowerOfTen(amountInWeiAsStr, power);
-      tokens[address] = {
-        contract: tokenInfo.contract_,
-        symbol: web3.utils.toAscii(tokenInfo.symbol_).replace(/\u0000/g, ""),
-        decimals: tokenInfo.decimals_.toNumber(),
-        amountPerTicket: tokenInfo.amountPerTicket_,
-        displayValue: new BigNumber(amountAsStr)
-      };
-    }
+
+    const amountInWeiAsStr = tokenInfo.amountPerTicket_.toString();
+    const power = tokenInfo.decimals_.toNumber();
+    const amountAsStr = negativePowerOfTen(amountInWeiAsStr, power);
+    tokens[address] = {
+      contract: address,
+      symbol: web3.utils.toAscii(tokenInfo.symbol_).replace(/\u0000/g, ""),
+      decimals: tokenInfo.decimals_.toNumber(),
+      amountPerTicket: tokenInfo.amountPerTicket_,
+      displayValue: new BigNumber(amountAsStr),
+      active
+    };
   }
 
   return tokens;
@@ -105,18 +106,38 @@ export async function queryWinners(
     const index = indexTranslator(i, size);
     const winner = await contract.gameWinners(index);
 
-    const potTokenPrize = {};
     // Web3 does not support array in struct.
-    // for (let k = 0; k < winner.potPrizeTokens_.length; k++) {
-    //   const tokenAddress = winner.potPrizeTokens_[i];
-    //   const tokenAmount = winner.potPrizeWeiAmt_[i];
-    //   potTokenPrize[tokenAddress] = tokenAmount;
-    // }
+
+    const potTokenAddresses = trimArray(
+      await contract.getUsedTokensByWinnerAddressAndIndex(winner.player_, i),
+      "0x0000000000000000000000000000000000000000"
+    );
+    const potTokenAmounts = await trimArray(
+      await contract.getUsedTokenAmtsByWinnerAddressAndIndex(winner.player_, i),
+      "0"
+    );
+
+    const minLength = Math.min(
+      potTokenAddresses.length,
+      potTokenAmounts.length
+    );
+    const potTokenPrize = [
+      {
+        tokenAddress: "0x0",
+        tokenAmount: new BigNumber(winner.potPrizeWeiAmt_.toString())
+      }
+    ];
+
+    for (let i = 0; i < minLength; i++) {
+      potTokenPrize.push({
+        tokenAddress: potTokenAddresses[i],
+        tokenAmount: potTokenAmounts[i]
+      });
+    }
 
     winners.push({
       round: index + 1,
       winnerAddress: winner.player_,
-      totalPot: web3.utils.fromWei(winner.potPrizeWeiAmt_),
       potEndedTimestamp: winner.potEndedTimeStamp_.toNumber() * 1000, // seconds to millis
       potTokenPrize
     });
@@ -172,7 +193,9 @@ export async function getPlayerUsedTokens(
 }
 
 export async function queryPotPlayer(contract, account) {
-  const response = await contract.getPotPlayerTotalOwnedTicketsAndUsedWeiByAddress(account);
+  const response = await contract.getPotPlayerTotalOwnedTicketsAndUsedWeiByAddress(
+    account
+  );
 
   const totalOwnedTickets = response[0];
   const totalUsedWeiAmt = response[1];
