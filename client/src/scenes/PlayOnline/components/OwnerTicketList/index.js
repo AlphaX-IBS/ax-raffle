@@ -57,17 +57,12 @@ class OwnerTicketList extends PureComponent {
         <Table className="table-striped table-light table-bordered">
           <thead className="thead-light">
             <tr>
-              <th>Cost</th>
               <th>Ticket Range</th>
             </tr>
           </thead>
           <tbody>
             {data.map(item => (
               <tr key={item.ticketStartNumber}>
-                <th scope="row">
-                  {(item.ticketEndNumber - item.ticketStartNumber + 1) *
-                    ticketPrice}
-                </th>
                 <td>
                   {formatTicketRange(
                     item.ticketStartNumber,
