@@ -265,7 +265,7 @@ class PlayOnline extends PureComponent {
       <div className="play-online">
         <div className="container">
           <div className="row">
-            <div className="col-md-6 wow fadeInLeft">
+            <div className="col-md-5 wow fadeInLeft">
               <div className="row row-playonline justify-content-center">
                 <InputGroup>
                   <InputGroupAddon addonType="prepend">
@@ -321,7 +321,7 @@ class PlayOnline extends PureComponent {
                 </Col>
               </Row> */}
             </div>
-            <div className="col-md-6 wow fadeInRight">
+            <div className="col-md-7 wow fadeInRight">
               <Nav tabs>
                 <NavItem>
                   <NavLink

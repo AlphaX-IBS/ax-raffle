@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Table, UncontrolledTooltip } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
 import moment from "moment";
-import { buildAmountString } from './../../../../utils/computils';
+import { buildAmountString, getEtherscan } from "./../../../../utils/computils";
 
 class OldWinners extends PureComponent {
   state = {
@@ -41,7 +41,7 @@ class OldWinners extends PureComponent {
 
   render() {
     const { pageSize, page } = this.state;
-    const { list, totalWinners, allTokens } = this.props;
+    const { list, totalWinners, allTokens, networkid } = this.props;
 
     const startIndex = pageSize * Math.max(0, page - 1);
     const data = list.slice(startIndex, startIndex + pageSize);
@@ -66,20 +66,25 @@ class OldWinners extends PureComponent {
                 </td>
                 <td>{buildAmountString(item.potTokenPrize, allTokens)}</td>
                 <td>
-                  <div id={`WinnerAddress-${item.round}`}>
-                    {item.winnerAddress.substr(0, 6)}
-                    ...
-                    {item.winnerAddress.substr(
-                      item.winnerAddress.length - 4,
-                      item.winnerAddress.length
-                    )}
-                  </div>
-                  <UncontrolledTooltip
-                    placement="right"
-                    target={`WinnerAddress-${item.round}`}
+                  <a
+                    target="_blank"
+                    href={getEtherscan(networkid, item.winnerAddress)}
                   >
-                    {item.winnerAddress}
-                  </UncontrolledTooltip>
+                    <div id={`WinnerAddress-${item.round}`}>
+                      {item.winnerAddress.substr(0, 6)}
+                      ...
+                      {item.winnerAddress.substr(
+                        item.winnerAddress.length - 4,
+                        item.winnerAddress.length
+                      )}
+                    </div>
+                    <UncontrolledTooltip
+                      placement="right"
+                      target={`WinnerAddress-${item.round}`}
+                    >
+                      {item.winnerAddress}
+                    </UncontrolledTooltip>
+                  </a>
                 </td>
               </tr>
             ))}
@@ -99,6 +104,7 @@ class OldWinners extends PureComponent {
 const mapStateToProps = ({ winners, global }) => ({
   list: winners.list ? winners.list : [],
   totalWinners: winners.totalWinners,
-  allTokens: global.allTokens
+  allTokens: global.allTokens,
+  networkid: global.networkid
 });
 export default connect(mapStateToProps)(OldWinners);

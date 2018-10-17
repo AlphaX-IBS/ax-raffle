@@ -24,7 +24,8 @@ function* fetchWeb3() {
       payload: {
         web3,
         accounts,
-        contract: instance
+        contract: instance,
+        networkid: Contract.network_id
       }
     });
 
@@ -51,7 +52,8 @@ const initialState = {
   web3: undefined,
   accounts: [],
   contract: undefined,
-  tokenContracts: {}
+  tokenContracts: {},
+  networkid: undefined,
 };
 
 const reducer = (state = initialState, action) => {
@@ -68,7 +70,8 @@ const reducer = (state = initialState, action) => {
         error: false,
         web3: action.payload.web3,
         accounts: action.payload.accounts,
-        contract: action.payload.contract
+        contract: action.payload.contract,
+        networkid: action.payload.networkid
       };
     case "WEB3_FETCH_FAILED":
       return {

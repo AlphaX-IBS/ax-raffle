@@ -1,4 +1,4 @@
-import { BN } from 'bn.js';
+import { BN } from "bn.js";
 
 export function buildAmountString(usedTokens, tokens) {
   let separator = "";
@@ -19,4 +19,24 @@ export function buildAmountString(usedTokens, tokens) {
     }
   }
   return result;
+}
+
+export function getNetName(networkId) {
+  if (networkId == "3") {
+    return "ropsten";
+  }
+  if (networkId == "4") {
+    return "rinkeby";
+  }
+
+  return "";
+}
+
+export function getEtherscan(networkId, address) {
+  const netName = getNetName(networkId);
+  if (netName.length > 0) {
+    return "https://" + netName + ".etherscan.io/address/" + address;
+  }
+
+  return "https://etherscan.io/address/" + address;
 }

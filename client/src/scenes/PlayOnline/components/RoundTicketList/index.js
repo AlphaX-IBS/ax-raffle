@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import Loader from "react-loader-spinner";
 import { Table } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
-import { buildAmountString } from './../../../../utils/computils';
+import { buildAmountString, getEtherscan } from "./../../../../utils/computils";
 
 class RoundTicketList extends PureComponent {
   state = {
@@ -46,7 +46,8 @@ class RoundTicketList extends PureComponent {
       list,
       totalTickets,
       totalPotPlayers,
-      supportedTokens
+      supportedTokens,
+      networkid
     } = this.props;
 
     if (loading) {
@@ -77,12 +78,14 @@ class RoundTicketList extends PureComponent {
                   {((item.totalTickets / totalTickets) * 100).toFixed(2)}%
                 </td>
                 <td>
-                  {item.playerAddress.substr(0, 6)}
-                  ...
-                  {item.playerAddress.substr(
-                    item.playerAddress.length - 4,
-                    item.playerAddress.length
-                  )}
+                  <a target="_blank" href={getEtherscan(networkid, item.playerAddress)}>
+                    {item.playerAddress.substr(0, 6)}
+                    ...
+                    {item.playerAddress.substr(
+                      item.playerAddress.length - 4,
+                      item.playerAddress.length
+                    )}
+                  </a>
                 </td>
                 <td>{buildAmountString(item.usedTokens, supportedTokens)}</td>
               </tr>
@@ -105,6 +108,7 @@ const mapStateToProps = ({ global, tickets }) => ({
   list: tickets.list ? tickets.list : [],
   totalTickets: global.totalTickets,
   totalPotPlayers: global.totalPotPlayers,
-  supportedTokens: global.supportedTokens
+  supportedTokens: global.supportedTokens,
+  networkid: global.networkid
 });
 export default connect(mapStateToProps)(RoundTicketList);
