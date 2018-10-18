@@ -40,10 +40,10 @@ class Home extends PureComponent {
         <FontAwesomeIcon icon={faEthereum} />
         <CountUp
           start={0}
-          end={totalPot + 1}
+          end={totalPot}
           duration={2.75}
           decimals={3}
-          decimal=","
+          decimal="."
           prefix=" "
           // onEnd={() => console.log('Ended! 👏')}
           // onStart={() => console.log('Started! 💨')}
