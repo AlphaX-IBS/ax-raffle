@@ -160,6 +160,30 @@ header {
   color: #fff;
 }
 
+.playnow-nav-tab{
+  margin-bottom: 10px !important;
+  border-radius: 5px;
+  background: #e9ecef;
+  line-height: 30px;
+}
+.playnow-nav-tab .nav-link.active{
+  border: none;
+  background:none !important;
+  font-size: 600 !important;
+}
+
+.playnow-right-box{
+  background-color: rgba(138, 138, 138, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+  -webkit-box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5); 
+  box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5);
+}
+
+.playnow-left-box{
+  padding-left: 0 !important;
+  padding-right: 20px !important
+}
 .raffle-card {
   background: none;
   border: none;
@@ -307,6 +331,8 @@ footer li.list-group-item {
   padding: 10px;
   border-radius: 5px;
   background-color: rgba(138, 138, 138, 0.5);
+  -webkit-box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5); 
+  box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5);
 }
 .row-playonline .btn-primary {
   margin-top: 10px;
@@ -322,6 +348,8 @@ footer li.list-group-item {
   border-radius: 5px;
   background-color: rgba(138, 138, 138, 0.5);
   margin-top: 20px !important;
+  -webkit-box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5); 
+  box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5);
 }
 .row-howitwork {
   padding: 10px;
@@ -387,6 +415,10 @@ footer li.list-group-item {
   }
   .xsnopadding {
     padding: 0 !important;
+  }
+  .playnow-left-box{
+    padding-right: 0 !important;
+    padding-bottom: 20px;
   }
 }
 @media only screen and (min-width: 992px) {
