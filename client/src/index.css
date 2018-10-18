@@ -169,7 +169,7 @@ header {
 .playnow-nav-tab .nav-link.active{
   border: none;
   background:none !important;
-  font-size: 600 !important;
+  font-weight: 600 !important;
 }
 
 .playnow-right-box{
