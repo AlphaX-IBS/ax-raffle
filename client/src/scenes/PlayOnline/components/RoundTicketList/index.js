@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import Loader from "react-loader-spinner";
-import { Table } from "reactstrap";
+import { Table, UncontrolledTooltip } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
 import { buildAmountString, getEtherscan } from "./../../../../utils/computils";
 
@@ -79,12 +79,20 @@ class RoundTicketList extends PureComponent {
                 </td>
                 <td>
                   <a target="_blank" href={getEtherscan(networkid, item.playerAddress)}>
-                    {item.playerAddress.substr(0, 6)}
-                    ...
-                    {item.playerAddress.substr(
-                      item.playerAddress.length - 4,
-                      item.playerAddress.length
-                    )}
+                    <div id={`PlayerAddress-${item.playerAddress}`}>
+                      {item.playerAddress.substr(0, 6)}
+                      ...
+                      {item.playerAddress.substr(
+                        item.playerAddress.length - 4,
+                        item.playerAddress.length
+                      )}
+                    </div>
+                    <UncontrolledTooltip
+                      placement="right"
+                      target={`PlayerAddress-${item.playerAddress}`}
+                    >
+                      {item.playerAddress}
+                    </UncontrolledTooltip>
                   </a>
                 </td>
                 <td>{buildAmountString(item.usedTokens, supportedTokens)}</td>
