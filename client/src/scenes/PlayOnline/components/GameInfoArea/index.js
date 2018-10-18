@@ -67,7 +67,7 @@ class GameInfoArea extends PureComponent {
             <p>{targetTime}</p>
           </Col>
           <Col xs={6} md={6}>
-            <strong>Total tickets (of all players)</strong>
+            <strong>Total tickets in pot</strong>
             <p>{Intl.NumberFormat().format(totalTickets)} Tickets</p>
           </Col>
           <Col xs={6} md={6}>
