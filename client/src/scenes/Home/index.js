@@ -263,7 +263,7 @@ class Home extends PureComponent {
                 data is stored on blockchain transparently and immutably. The
                 official raffle smart contract address on Ethereum network here:
                 <br />
-                <a href={"https://etherscan.io/address/"+{contractAddress}}>{contractAddress}</a>
+                <a href={`https://etherscan.io/address/${contractAddress}`}>{contractAddress}</a>
               </p>
             </div>
             <div className="col-md-5 wow fadeInRight">
