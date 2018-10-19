@@ -387,6 +387,10 @@ footer li.list-group-item {
   padding-right: 5px;
 }
 
+.t2texchange-footer-info {
+  flex: auto;
+}
+
 .dropdown-token-loader {
   float: left;
   padding-right: 5px;

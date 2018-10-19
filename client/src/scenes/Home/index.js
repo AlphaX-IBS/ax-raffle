@@ -40,7 +40,7 @@ class Home extends PureComponent {
         <FontAwesomeIcon icon={faEthereum} />
         <CountUp
           start={0}
-          end={totalPot}
+          end={Number(totalPot)}
           duration={2.75}
           decimals={3}
           decimal="."

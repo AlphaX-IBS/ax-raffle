@@ -1,4 +1,4 @@
-import { call, put, select, takeEvery } from "redux-saga/effects";
+import { call, put, select, take, takeEvery } from "redux-saga/effects";
 import {
   buyTickets,
   transferTokens,
@@ -8,7 +8,7 @@ import ERC20ABI from "human-standard-token-abi";
 
 function* requestTokensTransferApproval(action) {
   try {
-    yield put({ type: "PL_TICKETS_BUYING" });
+    yield put({ type: "PL_TOKENS_APPROVING" });
     const { web3, contract, account, connectType } = yield select(state => ({
       web3: state.player.web3,
       contract: state.player.contract,
@@ -27,8 +27,7 @@ function* requestTokensTransferApproval(action) {
     const fromAddress = account;
     const toAddress = contract.address;
 
-    const txHash = yield call(
-      transferTokens,
+    const promises = transferTokens(
       web3,
       cryptoContract,
       fromAddress,
@@ -38,15 +37,29 @@ function* requestTokensTransferApproval(action) {
       ticketAmount,
       gas
     );
-    yield put({ type: "PL_TOKENS_TRANSFER_SUCCEEDED", payload: txHash });
+
+    const txHash = yield call(() => promises.promiseOfTxHash);
+
+    yield put({ type: "PL_TOKENS_TXHASH_SAVE", payload: txHash });
+
+    yield call(() => promises.promiseOfTransfer);
+
+    yield put({ type: "PL_TOKENS_TRANSFER_SUCCEEDED" });
   } catch (e) {
-    console.error(e);
+    console.error(`Transfering tokens failed: ${e}`);
+    yield put({
+      type: "PL_TOKENS_TRANSFER_FAILED",
+      payload: e.message
+    });
   }
 }
 
 function* cancelExchange(action) {
   try {
-    yield put({ type: "PL_TOKENS_TRANSFER_FAILED", payload: "Player cancelled!" });
+    yield put({
+      type: "PL_TOKENS_TRANSFER_FAILED",
+      payload: "Player cancelled!"
+    });
   } catch (e) {
     console.error(e);
   }
@@ -131,47 +144,63 @@ function* requestBuyTickets(action) {
 }
 
 function* saga() {
+  yield take("PL_JOIN_SUCCEEDED");
+  yield put({ type: "PL_READY" });
   yield takeEvery("PL_TICKETS_BUY_REQUESTED", requestBuyTickets);
 }
 
 const initialState = {
-  loading: false,
+  status: "init", //[ 'ready', 'buying', 'waiting_approval', 'approved']
   error: false,
   txHash: null
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case "PL_READY":
+      return {
+        ...state,
+        status: "ready"
+      };
     case "PL_TICKETS_BUYING":
       return {
         ...state,
-        loading: true
+        status: "buying"
       };
     case "PL_TICKETS_BUY_SUCCEEDED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: false,
         txHash: null
+      };
+    case "PL_TOKENS_APPROVING":
+      return {
+        ...state,
+        status: "waiting_approval"
+      };
+    case "PL_TOKENS_TXHASH_SAVE":
+      return {
+        ...state,
+        txHash: action.payload
       };
     case "PL_TOKENS_TRANSFER_SUCCEEDED":
       return {
         ...state,
-        loading: false,
-        error: false,
-        txHash: action.payload
+        status: "approved",
+        error: false
       };
-      case "PL_TOKENS_TRANSFER_FAILED":
+    case "PL_TOKENS_TRANSFER_FAILED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: action.payload,
         txHash: null
       };
     case "PL_TICKETS_BUY_FAILED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: action.payload
       };
     default:

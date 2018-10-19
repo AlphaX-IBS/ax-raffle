@@ -4,6 +4,8 @@ import { Modal, ModalBody, ModalFooter, ModalHeader, Button } from "reactstrap";
 import { connect } from "react-redux";
 import CostEstimation from "./../CostEstimation/index";
 import { BigNumber } from "bignumber.js";
+import Loader from "react-loader-spinner";
+import { getEtherscan, shortenAddress } from "../../../../utils/computils";
 
 class TokenToTicketExchanger extends PureComponent {
   state = {
@@ -23,12 +25,12 @@ class TokenToTicketExchanger extends PureComponent {
 
   componentWillReceiveProps(nextProps) {
     const { currentStep, executing } = this.state;
-    const { txHash } = nextProps;
-    if (txHash) {
+    const { status } = nextProps;
+    if ("approved" === status) {
       if (executing) {
         this.setState({ currentStep: currentStep + 1, executing: false });
       }
-    } else {
+    } else if ("ready" === status) {
       this.setState({ currentStep: 0, executing: false });
     }
   }
@@ -92,8 +94,7 @@ class TokenToTicketExchanger extends PureComponent {
       type: "PL_TICKETS_BUY_REQUESTED",
       payload: {
         type: "CANCEL_EXCHANGE",
-        payload: {
-        }
+        payload: {}
       }
     });
     toggle();
@@ -106,11 +107,31 @@ class TokenToTicketExchanger extends PureComponent {
       toggle,
       className,
       ticketAmount,
-      cryptoCurrency
+      cryptoCurrency,
+      txHash,
+      networkid
     } = this.props;
 
     const totalCostAsBigNum = cryptoCurrency.displayValue.multipliedBy(
       ticketAmount
+    );
+
+    const txHashNode = txHash ? (
+      <div className="t2texchange-footer-info">
+        Tx Hash:{" "}
+        <a href={getEtherscan(networkid, txHash)}>
+          {shortenAddress(txHash, 10, 8)}
+        </a>
+      </div>
+    ) : (
+      <div />
+    );
+
+    const buttonText = currentStep === steps.length - 1 ? "Buy" : "Next";
+    const dialogButtonNode = executing ? (
+      <Loader type="ThreeDots" color="#226226" height={16} width={16} />
+    ) : (
+      buttonText
     );
 
     return (
@@ -135,12 +156,13 @@ class TokenToTicketExchanger extends PureComponent {
           />
         </ModalBody>
         <ModalFooter>
+          {txHashNode}
           <Button
             disabled={executing}
             color="primary"
             onClick={this.onClickProceed}
           >
-            {currentStep === steps.length - 1 ? "Buy" : "Next"}
+            {dialogButtonNode}
           </Button>
           <Button color="secondary" onClick={this.onCancel}>
             Cancel
@@ -159,9 +181,11 @@ const defaultProps = {
 };
 TokenToTicketExchanger.defaultProps = defaultProps;
 
-const mapStateToProps = ({ playeractions, player }) => ({
+const mapStateToProps = ({ playeractions, player, api }) => ({
+  status: playeractions.status,
   txHash: playeractions.txHash,
-  estimatedGas: player.estimatedGas
+  estimatedGas: player.estimatedGas,
+  networkid: api.networkid
 });
 
 export default connect(mapStateToProps)(TokenToTicketExchanger);

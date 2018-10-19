@@ -40,3 +40,13 @@ export function getEtherscan(networkId, address) {
 
   return "https://etherscan.io/address/" + address;
 }
+
+export function shortenAddress(address, startLimit, trailLimit) {
+  const lengthLimit = startLimit + trailLimit;
+  if (address.length <= lengthLimit) {
+    return address;
+  }
+  return address
+    .substr(0, startLimit)
+    .concat("...", address.substr(address.length - trailLimit, address.length));
+}

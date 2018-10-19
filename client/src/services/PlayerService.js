@@ -44,7 +44,7 @@ export async function queryAllPlayerTickets(web3, contract, account) {
   // };
 }
 
-export async function transferTokens(
+export function transferTokens(
   web3,
   cryptoContract,
   fromAddress,
@@ -66,22 +66,28 @@ export async function transferTokens(
     )} and gas price = 2000000000 (2Gwei)`
   );
 
-  let transactionHash = null;
-
-  // Attention, This is a web3 contract, not truffle contract.
-  await cryptoContract.methods
-    .approve(raffleContractAddress, wei.toString(10))
-    .send({ from: fromAddress, gas }, function(err, txHash) {
-      if (err) console.error(err);
+  let promiseOfTransfer;
+  let promiseOfTxHash = new Promise((resolve, reject) => {
+    const callback = function(err, txHash) {
+      if (err) {
+        reject(err.message);
+      }
 
       if (txHash) {
-        console.log("Transaction sent");
-        console.dir(txHash);
-        transactionHash = txHash;
+        resolve(txHash);
       }
-    });
+    };
 
-  return transactionHash;
+    // Attention, This is a web3 contract, not truffle contract.
+    promiseOfTransfer = cryptoContract.methods
+      .approve(raffleContractAddress, wei.toString(10))
+      .send({ from: fromAddress, gas }, callback);
+  });
+
+  return {
+    promiseOfTxHash,
+    promiseOfTransfer
+  };
 }
 
 export function exchangeTokensForTickets(
@@ -113,7 +119,16 @@ export function exchangeTokensForTickets(
     option.gas = gas;
     option.gasPrice = 2000000000;
   }
-  return contract.purchaseTicketsByTokens(tokens, tokenAmounts, option);
+  return contract
+    .purchaseTicketsByTokens(tokens, tokenAmounts, option)
+    .on("receipt", receipt => {
+      console.log("transaction done!", receipt);
+      Notif.success("transaction completed!", 5);
+    })
+    .on("error", err => {
+      Notif.error(err.message, 5);
+      throw err;
+    });
 }
 
 export function buyTickets(
