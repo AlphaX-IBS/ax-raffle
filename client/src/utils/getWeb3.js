@@ -12,7 +12,7 @@ export const getWeb3 = loaded =>
         // Fallback to localhost if no web3 injection. We've configured this to
         // use the development console's port by default.
         const provider = new HttpHeaderProvider(
-          "http://localhost:8545",
+          "https://ropsten.infura.io",
           headers
         );
         web3 = new Web3(provider);
@@ -24,7 +24,7 @@ export const getWeb3 = loaded =>
         // Fallback to localhost if no web3 injection. We've configured this to
         // use the development console's port by default.
         const provider = new Web3.providers.HttpProvider(
-          "http://127.0.0.1:9545"
+          "http://127.0.0.1:8545"
         );
         web3 = new Web3(provider);
         console.log("No web3 instance injected, using Local web3.");
