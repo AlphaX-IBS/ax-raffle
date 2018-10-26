@@ -69,6 +69,11 @@ header {
   padding-top: 20px;
 }
 
+.logged-in-address{
+  float: left;
+  line-height: 48px;
+}
+
 .row {
   margin: 0 !important;
 }

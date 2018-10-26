@@ -32,7 +32,7 @@ class TopBar extends PureComponent {
     if (account) {
       avatar = (
         <div className="logged-in">
-          <span className="align-middle">
+          <span className="align-middle d-none d-md-block logged-in-address">
             Logged in as: {account.substring(0, 6)}
             ...
             {account.substring(account.length - 4)}
