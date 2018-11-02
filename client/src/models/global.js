@@ -1,64 +1,179 @@
 import { call, put, takeLatest, select, fork } from "redux-saga/effects";
-import { queryGameConfigs, queryTotalWinners } from "../services/GameService";
+import {
+  queryGlobalParams,
+  querySupportedTokens,
+  queryPotTokenAmounts,
+  calculatePotPrize
+} from "../services/GameService";
 
-function* fetchGameConfigs() {
+function* fetchGlobalParams() {
+  try {
+    const { web3, contract, gamestatus, status } = yield select(state => ({
+      web3: state.api.web3,
+      contract: state.api.contract,
+      gamestatus: state.global.gamestatus,
+      status: state.global.status
+    }));
+
+    if (status === "init") {
+      yield put({ type: "GLOBAL_FETCHING" });
+    }
+
+    const params = yield call(queryGlobalParams, web3, contract);
+
+    const { lengthOfGameWinners, ...rest } = params;
+
+    yield put({ type: "TOTAL_WINNERS_SAVE", payload: lengthOfGameWinners });
+
+    if (["stopped", "starting"].includes(gamestatus)) {
+      yield call(fetchSupportedTokens);
+    }
+
+    yield put({ type: "GLOBAL_FETCH_SUCCEEDED", payload: rest });
+
+  } catch (e) {
+    yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
+  }
+
+  yield fork(fetchPotTokens);
+}
+
+function* fetchSupportedTokens() {
   try {
     const { web3, contract } = yield select(state => ({
       web3: state.api.web3,
       contract: state.api.contract
     }));
 
-    const configs = yield call(queryGameConfigs, web3, contract);
+    const tokens = yield call(querySupportedTokens, web3, contract);
 
-    yield put({ type: "GAME_CONFIGS_FETCH_SUCCEEDED", payload: configs });
+    const supportedTokens = {};
+    for (let key of Object.keys(tokens)) {
+      const token = tokens[key];
+      if (token.active) {
+        supportedTokens[token.contract] = token;
+      }
+    }
+
+    yield put({
+      type: "SAVE_SUPPORTED_TOKENS",
+      payload: { allTokens: tokens, supportedTokens: supportedTokens }
+    });
   } catch (e) {
-    yield put({ type: "GLOBAL_FETCH_FAILED", payload: e.message });
+    console.error(e);
   }
 }
 
-function* fetchStuff() {
+function* fetchPotTokens() {
   try {
-    const { contract } = yield select(state => ({
-      contract: state.api.contract
+    const {
+      web3,
+      contract,
+      ticketPrice,
+      totalEthPot,
+      supportedTokens
+    } = yield select(state => ({
+      web3: state.api.web3,
+      contract: state.api.contract,
+      ticketPrice: state.global.ticketPrice,
+      totalEthPot: state.global.totalEthPot,
+      supportedTokens: state.global.supportedTokens
     }));
 
-    const totalWinners = yield call(queryTotalWinners, contract);
-    yield put({ type: "TOTAL_WINNERS_SAVE", payload: totalWinners });
-  } catch (e) {
-    console.error("Failed to load total of winners");
-  }
-}
+    const potTokens = yield call(queryPotTokenAmounts, web3, contract);
 
-function* fetchAllGlobal() {
-  yield fork(fetchGameConfigs);
-  yield call(fetchStuff);
-  yield [
-    put({ type: "TICKET_FETCH_REQUESTED", payload: { page: 1, pageSize: 6 } }),
-    put({ type: "POT_FETCH_REQUESTED" }),
-    put({ type: "WINNERS_FETCH_REQUESTED", payload: { page: 1, pageSize: 6 } })
-  ];
+    // Calculate total pot amount
+    const result = yield call(
+      calculatePotPrize,
+      supportedTokens,
+      potTokens,
+      ticketPrice,
+      totalEthPot
+    );
+
+    yield put({
+      type: "SAVE_POT_TOKENS",
+      payload: result.potTokens
+    });
+
+    yield put({
+      type: "SAVE_POT_AMOUNT",
+      payload: result.totalPot.toString()
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function* saga() {
-  yield takeLatest("GLOBAL_FETCH_REQUESTED", fetchAllGlobal);
+  yield takeLatest("GLOBAL_FETCH_REQUESTED", fetchGlobalParams);
 }
 
+function calculateGameStatus(oldValue, payload) {
+  const { potOpenedTimestamp, potClosedTimestamp } = payload;
+  const now = Date.now();
+  let gamestatus = oldValue;
+  if (potOpenedTimestamp < now) {
+    if (now < potClosedTimestamp) {
+      gamestatus = "opening";
+    } else {
+      gamestatus = "drawing";
+    }
+  } else {
+    gamestatus = "starting";
+  }
+  return gamestatus;
+}
+
+// const gamestatus = [
+//   'stopped', 'starting', 'opening', 'drawing'
+// ];
+
 const initialState = {
-  gameConfigs: {}
+  status: "init",
+  gamestatus: "stopped",
+  totalPot: 0,
+  allTokens: {},
+  supportedTokens: {},
+  potTokens: {}
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case "GLOBAL_FETCHING":
+      return {
+        ...state,
+        status: "loading"
+      };
     case "GLOBAL_FETCH_FAILED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: action.payload
       };
-    case "GAME_CONFIGS_FETCH_SUCCEEDED":
+    case "GLOBAL_FETCH_SUCCEEDED":
+      const gamestatus = calculateGameStatus(state.gamestatus, action.payload);
       return {
         ...state,
-        gameConfigs: action.payload
+        status: "ready",
+        ...action.payload,
+        gamestatus
+      };
+    case "SAVE_SUPPORTED_TOKENS":
+      return {
+        ...state,
+        allTokens: action.payload.allTokens,
+        supportedTokens: action.payload.supportedTokens
+      };
+    case "SAVE_POT_TOKENS":
+      return {
+        ...state,
+        potTokens: action.payload
+      };
+    case "SAVE_POT_AMOUNT":
+      return {
+        ...state,
+        totalPot: action.payload
       };
     default:
       return state;

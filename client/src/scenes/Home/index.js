@@ -7,6 +7,8 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import Loader from "react-loader-spinner";
+import CountUp from "react-countup";
 
 class Home extends PureComponent {
   goToPlayNow = () => {
@@ -15,7 +17,58 @@ class Home extends PureComponent {
   };
 
   render() {
-    const { closedTime, totalPot, contractAddress } = this.props;
+    const {
+      openedTime,
+      closedTime,
+      totalPot,
+      contractAddress,
+      gamestatus,
+      globalStatus
+    } = this.props;
+
+    let isLoading = false;
+    if (globalStatus === "init") {
+      isLoading = true;
+    }
+
+    const prize = isLoading ? (
+      <h3 className="text-center">
+        <Loader type="Rings" color="#226226" height={32} width={32} />
+      </h3>
+    ) : (
+      <h3 className="text-center neon-light">
+        <FontAwesomeIcon icon={faEthereum} />
+        <CountUp
+          start={0}
+          end={Number(totalPot)}
+          duration={2.75}
+          decimals={3}
+          decimal="."
+          prefix=" "
+          // onEnd={() => console.log('Ended! 👏')}
+          // onStart={() => console.log('Started! 💨')}
+        />
+      </h3>
+    );
+
+    let targetTime = 0;
+    let countDownMsg = "";
+    if (!isLoading) {
+      switch (gamestatus) {
+        case "starting":
+          countDownMsg = "Next Pot Starts In";
+          targetTime = openedTime;
+          break;
+        case "opening":
+          countDownMsg = "Next Draw Remaining Time";
+          targetTime = closedTime;
+          break;
+        case "drawing":
+          countDownMsg = "Picking A Winner";
+          break;
+        default:
+      }
+    }
 
     return (
       <div>
@@ -44,9 +97,7 @@ class Home extends PureComponent {
               />
               <div className="centered">
                 <p style={{ marginBottom: 0 }}>Current pot:</p>
-                <h3 className="text-center">
-                  <FontAwesomeIcon icon={faEthereum} /> {totalPot}
-                </h3>
+                {prize}
                 {/* <FontAwesomeIcon icon={faEthereum} /> <AwardTag value={totalPot}/> */}
               </div>
             </div>
@@ -56,9 +107,7 @@ class Home extends PureComponent {
               data-wow-delay="1s"
             >
               <p style={{ marginBottom: 0 }}>Current pot:</p>
-              <h3 className="text-center">
-                <FontAwesomeIcon icon={faEthereum} /> {totalPot}
-              </h3>
+              {prize}
             </div>
             <div className="col-md-4 col-sm-6 wow fadeInRight">
               <img
@@ -80,21 +129,24 @@ class Home extends PureComponent {
                 src="/img/bare-home-count-down.png"
               />
               <div className="centered">
-                <JackPotCountDown target={closedTime} />
+                <JackPotCountDown msg={countDownMsg} target={targetTime} />
               </div>
             </div>
           </div>
-          <div className="row">
-            <div className="col-md-6 wow fadeInLeft">
+          <div className="row pt-5 pb-5">
+            <div className="col-md-5 wow fadeInLeft">
               <img
                 className="img-fluid md-pl-50"
                 src="/img/raffles-img.png"
                 alt=""
               />
             </div>
-            <div className="col-md-6 wow fadeInRight">
+            <div className="col-md-7 wow fadeInRight">
               <p>Crypto Raffles Lottery</p>
-              <h3>International Decentralized lottery powered by Blockchain</h3>
+              <h3>
+                The first international decentralized lottery powered by
+                Blockchain
+              </h3>
               <p>
                 <img
                   className="raffle-img-right"
@@ -112,20 +164,13 @@ class Home extends PureComponent {
                   alt=""
                 />
               </p>
-              <button
-                type="button"
-                className="btn-red"
-                onClick={this.goToPlayNow}
-              >
-                Join now!
-              </button>
-              <button
-                type="button"
-                className="btn-blue"
-                onClick={this.goToPlayNow}
-              >
-                Results
-              </button>
+              <p>
+                Each player has the highest chance to win the jackpot opened
+                automatically everyday. Players can easily buy tickets by their
+                Ethereum or supported ERC20 tokens without any internal deposit.
+                Just only one winner will get whole ETH and ERC20 tokens in pot
+                excluded operator fee.
+              </p>
             </div>
           </div>
           <div
@@ -145,7 +190,7 @@ class Home extends PureComponent {
               </h3>
             </div>
           </div>
-          <div className="row">
+          <div className="row pt-3 pb-5">
             <div className="col-md-4 wow fadeInLeft">
               <div className="raffle-card text-center">
                 <img
@@ -154,8 +199,11 @@ class Home extends PureComponent {
                   alt="Ethereum"
                 />
                 <div className="raffle-card-body">
-                  <h4>Send Ethereum to this smart contract address:</h4>
-                  <p className="raffle-card-text">{contractAddress}</p>
+                  <h4>Step 1</h4>
+                  <p className="raffle-card-text">
+                    Buy tickets by ETH or our supported ERC20 tokens{" "}
+                    <Link to="/play">here</Link>
+                  </p>
                 </div>
               </div>
             </div>
@@ -167,9 +215,11 @@ class Home extends PureComponent {
                   alt="Ethereum"
                 />
                 <div className="raffle-card-body">
-                  <h4>Each Ethereum gives you 1000 raffle tickets</h4>
+                  <h4>Step 2
+                  </h4>
                   <p className="raffle-card-text">
-                    check your ticket numbers <Link to="/play">here</Link>
+                    After buying tickets successfully, please check your tickets{" "}
+                    <Link to="/play">here</Link>
                   </p>
                 </div>
               </div>
@@ -182,10 +232,12 @@ class Home extends PureComponent {
                   alt="Ethereum"
                 />
                 <div className="raffle-card-body">
-                  <h4>Every day at 0:00 GMT.</h4>
+                  <h4>Step 3
+                  </h4>
                   <p className="raffle-card-text">
-                    The smart contract will randomly select one winning ticket.
-                    The address that owns this ticket will wins the whole pot!
+                    After closing pot, drawing ticket will be processed to
+                    randomly select one winning ticket, then please check the
+                    details of winner list <Link to="/play">here</Link>
                   </p>
                 </div>
               </div>
@@ -198,31 +250,23 @@ class Home extends PureComponent {
         </section>
         {/* section what is raffles? */}
         <section id="crypto-raffles">
-          <div className="row">
-            <div className="col-md-6 md-pl-80 pt-50 wow fadeInLeft">
+          <div className="row pt-3 pb-3">
+            <div className="col-md-7 md-pl-80 pt-50 wow fadeInLeft">
               <h3>What is Crypto Raffles?</h3>
               <p>
-                Crypto Raffles is the world first truly fair raffle game. You
-                can win big easily and fairly. quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-                dolor in reprehenderit .
+                Crypto raffle is the world truly fair raffle game based on the
+                blokchain, where you can buy tickets by crypto currencies and
+                win the pot prize with our daily draw. It’s decentralized
+                application totally for easy joining and winning ETH and ERC20
+                tokens without any required deposit. Smart contract is the main
+                actor for global and automatic game execution. All transaction
+                data is stored on blockchain transparently and immutably. The
+                official raffle smart contract address on Ethereum network here:
+                <br />
+                <a href={`https://etherscan.io/address/${contractAddress}`}>{contractAddress}</a>
               </p>
-              <button
-                type="button"
-                className="btn-red"
-                onClick={this.goToPlayNow}
-              >
-                Join now!
-              </button>
-              <button
-                type="button"
-                className="btn-blue"
-                onClick={this.goToPlayNow}
-              >
-                Results
-              </button>
             </div>
-            <div className="col-md-6 wow fadeInRight">
+            <div className="col-md-5 wow fadeInRight">
               <img
                 style={{ maxHeight: "300px", paddingTop: "50px" }}
                 src="img/what-is-crypto-raffles-img.png"
@@ -247,9 +291,12 @@ const defaultProps = {
 };
 Home.defaultProps = defaultProps;
 
-const mapStateToProps = ({ api, pot }) => ({
-  closedTime: pot.potClosedTimestamp,
-  totalPot: pot.totalPot,
+const mapStateToProps = ({ api, global }) => ({
+  openedTime: global.potOpenedTimestamp,
+  closedTime: global.potClosedTimestamp,
+  totalPot: global.totalPot,
+  gamestatus: global.gamestatus,
+  globalStatus: global.status,
   contractAddress: api.contract ? api.contract.address : "..."
 });
 

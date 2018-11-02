@@ -1,7 +1,9 @@
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
-import { Table } from "reactstrap";
+import Loader from "react-loader-spinner";
+import { Table, UncontrolledTooltip } from "reactstrap";
 import GgLikedPagination from "./../../../../components/GgLikedPagination/index";
+import { buildAmountString, getEtherscan } from "./../../../../utils/computils";
 
 class RoundTicketList extends PureComponent {
   state = {
@@ -39,7 +41,20 @@ class RoundTicketList extends PureComponent {
 
   render() {
     const { pageSize, page } = this.state;
-    const { list, totalTickets, totalPotPlayers } = this.props;
+    const {
+      loading,
+      list,
+      totalTickets,
+      totalPotPlayers,
+      supportedTokens,
+      networkid
+    } = this.props;
+
+    if (loading) {
+      return (
+        <Loader type="Ball-Triangle" color="#226226" height={80} width={80} />
+      );
+    }
 
     const startIndex = pageSize * Math.max(0, page - 1);
     const data = list.slice(startIndex, startIndex + pageSize);
@@ -63,14 +78,24 @@ class RoundTicketList extends PureComponent {
                   {((item.totalTickets / totalTickets) * 100).toFixed(2)}%
                 </td>
                 <td>
-                  {item.playerAddress.substr(0, 6)}
-                  ...
-                  {item.playerAddress.substr(
-                    item.playerAddress.length - 4,
-                    item.playerAddress.length
-                  )}
+                  <a target="_blank" href={getEtherscan(networkid, item.playerAddress)}>
+                    <div id={`PlayerAddress-${item.playerAddress}`}>
+                      {item.playerAddress.substr(0, 6)}
+                      ...
+                      {item.playerAddress.substr(
+                        item.playerAddress.length - 4,
+                        item.playerAddress.length
+                      )}
+                    </div>
+                    <UncontrolledTooltip
+                      placement="right"
+                      target={`PlayerAddress-${item.playerAddress}`}
+                    >
+                      {item.playerAddress}
+                    </UncontrolledTooltip>
+                  </a>
                 </td>
-                <td>{item.totalTickets / 1000}</td>
+                <td>{buildAmountString(item.usedTokens, supportedTokens)}</td>
               </tr>
             ))}
           </tbody>
@@ -86,9 +111,12 @@ class RoundTicketList extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ pot, tickets }) => ({
+const mapStateToProps = ({ global, tickets }) => ({
+  loading: global.status === "ready" ? false : true,
   list: tickets.list ? tickets.list : [],
-  totalTickets: pot.totalTickets,
-  totalPotPlayers: pot.totalPotPlayers
+  totalTickets: global.totalTickets,
+  totalPotPlayers: global.totalPotPlayers,
+  supportedTokens: global.supportedTokens,
+  networkid: global.networkid
 });
 export default connect(mapStateToProps)(RoundTicketList);

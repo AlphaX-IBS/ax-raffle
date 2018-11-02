@@ -69,6 +69,11 @@ header {
   padding-top: 20px;
 }
 
+.logged-in-address{
+  float: left;
+  line-height: 48px;
+}
+
 .row {
   margin: 0 !important;
 }
@@ -102,7 +107,6 @@ header {
   color: #fff;
 }
 
-
 #home .btn-primary-home {
   background-color: red;
   border-radius: 5px;
@@ -115,6 +119,9 @@ header {
 .home-img-countdown {
   max-height: 150px;
   margin-top: -75px;
+}
+.neon-light{
+  text-shadow: 0 0 5px #FFF, 0 0 10px #FFF, 0 0 15px #FFF, 0 0 75px #49ff18, 2px 2px 2px rgba(28,110,164,0) !important;
 }
 
 .btn-blue {
@@ -158,6 +165,30 @@ header {
   color: #fff;
 }
 
+.playnow-nav-tab{
+  margin-bottom: 10px !important;
+  border-radius: 5px;
+  background: #e9ecef;
+  line-height: 30px;
+}
+.playnow-nav-tab .nav-link.active{
+  border: none;
+  background:none !important;
+  font-weight: 600 !important;
+}
+
+.playnow-right-box{
+  background-color: rgba(138, 138, 138, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+  -webkit-box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5); 
+  box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5);
+}
+
+.playnow-left-box{
+  padding-left: 0 !important;
+  padding-right: 20px !important
+}
 .raffle-card {
   background: none;
   border: none;
@@ -165,7 +196,11 @@ header {
   color: #fff;
   padding-left: 30px;
   padding-right: 30px;
-  margin: 0;
+  margin: 0; 
+  border: solid 2px rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  padding: 10px 30px;
+  margin-bottom: 10px;
 }
 
 .raffle-card-img-top {
@@ -179,6 +214,7 @@ header {
   word-wrap: break-word;
   padding: 5px;
   margin: 0;
+  min-height: 105px;
 }
 
 #crypto-raffles {
@@ -193,6 +229,10 @@ header {
 
 #crypto-raffles p {
   line-height: 30px;
+}
+
+#crypto-raffles a{
+  color: #22f;
 }
 
 footer {
@@ -296,6 +336,8 @@ footer li.list-group-item {
   padding: 10px;
   border-radius: 5px;
   background-color: rgba(138, 138, 138, 0.5);
+  -webkit-box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5); 
+  box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5);
 }
 .row-playonline .btn-primary {
   margin-top: 10px;
@@ -304,11 +346,15 @@ footer li.list-group-item {
   padding-left: 30px;
   padding-right: 30px;
 }
-.row-winchance {
+.nextdrawtime,
+.row-winchance,
+.totalpotamount {
   padding: 10px;
   border-radius: 5px;
   background-color: rgba(138, 138, 138, 0.5);
   margin-top: 20px !important;
+  -webkit-box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5); 
+  box-shadow: 5px 5px 10px -3px rgba(0,0,0,0.5);
 }
 .row-howitwork {
   padding: 10px;
@@ -317,13 +363,13 @@ footer li.list-group-item {
   margin-top: 20px !important;
   margin-bottom: 20px !important;
 }
-.pt-50{
+.pt-50 {
   padding-top: 50px;
 }
-.pt-60{
+.pt-60 {
   padding-top: 60px;
 }
-.xs-currentpot{
+.xs-currentpot {
   background-image: url(/img/home-current-pot-bg.png);
   background-repeat: no-repeat;
   background-position: center;
@@ -331,7 +377,30 @@ footer li.list-group-item {
   min-height: 200px !important;
   margin-top: 30px;
 }
+.btn-paymentmethod {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-right: 0 !important;
+  padding-left: 3px !important;
+  color: #495057;
+  background: none;
+  font-weight: 600 !important;
+}
+.play-online .input-group-text {
+  padding: inherit;
+  padding-left: 5px;
+  padding-right: 5px;
+}
 
+.t2texchange-footer-info {
+  flex: auto;
+}
+
+.dropdown-token-loader {
+  float: left;
+  padding-right: 5px;
+  padding-left: 5px;
+}
 @media only screen and (max-width: 860px) {
 }
 @media only screen and (max-width: 768px) {
@@ -350,19 +419,22 @@ footer li.list-group-item {
   #raffles .centered {
     width: 100%;
   }
-  .xsnomargin{
+  .xsnomargin {
     margin: 0 !important;
   }
-  .xsnopadding{
+  .xsnopadding {
     padding: 0 !important;
+  }
+  .playnow-left-box{
+    padding-right: 0 !important;
+    padding-bottom: 20px;
   }
 }
 @media only screen and (min-width: 992px) {
-.md-pl-50{
-  padding-left: 50px;
+  .md-pl-50 {
+    padding-left: 50px;
+  }
+  .md-pl-80 {
+    padding-left: 80px;
+  }
 }
-.md-pl-80{
-  padding-left: 80px;
-}
-}
-

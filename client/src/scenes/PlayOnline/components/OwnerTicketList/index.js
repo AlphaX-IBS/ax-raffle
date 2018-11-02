@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { Table } from "reactstrap";
 import { connect } from "react-redux";
 import GgLikedPagination from "../../../../components/GgLikedPagination";
@@ -10,7 +10,7 @@ function formatTicketRange(startNum, endNum) {
   return `[ ${startNum} - ${endNum} ]`;
 }
 
-class OwnerTicketList extends Component {
+class OwnerTicketList extends PureComponent {
   state = {
     pageSize: 6,
     page: 1
@@ -57,17 +57,12 @@ class OwnerTicketList extends Component {
         <Table className="table-striped table-light table-bordered">
           <thead className="thead-light">
             <tr>
-              <th>Cost</th>
               <th>Ticket Range</th>
             </tr>
           </thead>
           <tbody>
             {data.map(item => (
               <tr key={item.ticketStartNumber}>
-                <th scope="row">
-                  {(item.ticketEndNumber - item.ticketStartNumber + 1) *
-                    ticketPrice}
-                </th>
                 <td>
                   {formatTicketRange(
                     item.ticketStartNumber,
@@ -79,6 +74,7 @@ class OwnerTicketList extends Component {
           </tbody>
         </Table>
         <GgLikedPagination
+          initialPage={page}
           pageSize={pageSize}
           totalItems={list.length}
           onChangePage={this.handlePageClick}
@@ -90,7 +86,7 @@ class OwnerTicketList extends Component {
 
 const mapStateToProps = ({ playertickets, global }) => ({
   playertickets,
-  ticketPrice: global.gameConfigs.ticketPrice
+  ticketPrice: global.ticketPrice
 });
 
 export default connect(mapStateToProps)(OwnerTicketList);

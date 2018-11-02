@@ -7,7 +7,7 @@ import {
   NavItem,
   NavbarBrand
 } from "reactstrap";
-import { NavLink } from "react-router-dom";
+import { NavLink, withRouter } from "react-router-dom";
 import TopBar from "./../TopBar/index";
 
 class RaffleHeader extends PureComponent {
@@ -19,17 +19,24 @@ class RaffleHeader extends PureComponent {
       isOpen: false
     };
   }
+
   toggle() {
     this.setState({
       isOpen: !this.state.isOpen
     });
   }
+
+  goHome = () => {
+    const { history } = this.props;
+    history.push("/home");
+  };
+
   render() {
     return (
       <header className="wow fadeIn" data-wow-duration="1.5s">
         <Navbar light expand="md">
           <NavbarToggler onClick={this.toggle} />
-          <NavbarBrand href="/">
+          <NavbarBrand onClick={this.goHome}>
             <img src="img/logo.png" alt="" />
           </NavbarBrand>
           <Collapse isOpen={this.state.isOpen} navbar>
@@ -69,4 +76,4 @@ class RaffleHeader extends PureComponent {
   }
 }
 
-export default RaffleHeader;
+export default withRouter(RaffleHeader);

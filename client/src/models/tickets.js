@@ -1,41 +1,135 @@
-import { call, put, takeLatest, select } from "redux-saga/effects";
+import { actionChannel, call, put, select, take } from "redux-saga/effects";
 import { queryPotRecordsPerPlayer } from "../services/GameService";
+import { load } from "../utils/loadhelper";
+
+function getPlayerAddressFromEvent(eventObj) {
+  if (eventObj.event === "PurchaseTicketsByWei") {
+    return eventObj.returnValues.playerAddress;
+  }
+  if (eventObj.event === "TokenTransferSuccessful") {
+    return eventObj.returnValues.from_;
+  }
+  return null;
+}
+
+function shouldUpdateCurrentPage(page = 1, pageSize = 6, list = [], events) {
+  const playerAddresses = events.map(eventObj =>
+    getPlayerAddressFromEvent(eventObj)
+  );
+
+  const updatedIndices = [];
+  for (let i = 0; i < playerAddresses.length; i++) {
+    const address = playerAddresses[i];
+    for (let j = 0; j < list.length; j++) {
+      if (list[j].playerAddress === address) {
+        updatedIndices.push(j);
+      }
+    }
+  }
+
+  for (let i = 0; i < updatedIndices.length; i++) {
+    const index = updatedIndices[i];
+    if (Math.ceil(index / pageSize) === page) {
+      return true;
+    }
+  }
+
+  const currentTotalPages = Math.ceil(list.length / pageSize);
+
+  return page === currentTotalPages || currentTotalPages === 0;
+}
 
 function* fetchTickets(action) {
   try {
     const { pageSize, page } = action.payload;
-    const { tickets, contract } = yield select(state => ({
+    const { tickets, contract, totalPotPlayers } = yield select(state => ({
       tickets: state.tickets,
-      contract: state.api.contract
+      contract: state.api.contract,
+      totalPotPlayers: state.global.totalPotPlayers
     }));
-    let start = 0;
-    let limit = 10;
-    const lastIndex = pageSize * page;
-    const startIndex = pageSize * Math.max(0, page - 1);
-    let result = tickets.list.slice(0);
-    if (tickets.list.length < lastIndex) {
-      start = startIndex;
-      limit = limit > pageSize ? limit : pageSize;
-      const response = yield call(queryPotRecordsPerPlayer, contract, start, limit);
-      result.push(...response);
-    }
+
+    const result = yield call(
+      load,
+      { list: tickets.list, total: totalPotPlayers },
+      { pageSize, page },
+      (list, max, start, limit) =>
+        queryPotRecordsPerPlayer(contract, start, limit),
+      (resultList, max) => resultList
+    );
+
     yield put({
       type: "TICKET_FETCH_SUCCEEDED",
-      payload: result
+      payload: {
+        list: result,
+        page,
+        pageSize
+      }
     });
+  } catch (e) {
+    console.error(JSON.stringify(e.stack));
+    yield put({ type: "TICKET_FETCH_FAILED", payload: e.message });
+  }
+}
+
+function* refetchCurrentPage(action) {
+  try {
+    const { events } = action.payload;
+
+    const { tickets, contract, totalPotPlayers } = yield select(state => ({
+      tickets: state.tickets,
+      contract: state.api.contract,
+      totalPotPlayers: state.global.totalPotPlayers
+    }));
+    const { page, pageSize } = tickets;
+
+    if (shouldUpdateCurrentPage(page, pageSize, tickets.list, events, false)) {
+      const result = yield call(
+        load,
+        { list: tickets.list, total: totalPotPlayers },
+        { pageSize, page },
+        (list, max, start, limit) =>
+          queryPotRecordsPerPlayer(contract, start, limit),
+        (resultList, max) => resultList,
+        true
+      );
+
+      yield put({
+        type: "TICKET_UPDATED_SUCCEEDED",
+        payload: result
+      });
+    }
   } catch (e) {
     yield put({ type: "TICKET_FETCH_FAILED", payload: e.message });
   }
 }
 
 function* ticketSaga() {
-  yield takeLatest("TICKET_FETCH_REQUESTED", fetchTickets);
+  // 1- Create a channel for request actions, keep only one request and it is the latest one.
+  const requestChan = yield actionChannel([
+    "TICKET_FETCH_REQUESTED",
+    "TICKET_FETCH_REQUESTED/EVENTS"
+  ]);
+
+  yield take("GLOBAL_FETCH_SUCCEEDED");
+
+  while (true) {
+    // 2- take from the channel
+    const action = yield take(requestChan);
+    // 3- Note that we're using a blocking call
+    if (action.type === "TICKET_FETCH_REQUESTED/EVENTS") {
+      yield call(refetchCurrentPage, action);
+    } else {
+      yield call(fetchTickets, action);
+    }
+  }
 }
 
 const initialState = {
-  loading: false,
+  status: "init",
   error: false,
-  list: []
+  list: [],
+  page: 1,
+  pageSize: 6
 };
 
 const reducer = (state = initialState, action) => {
@@ -43,14 +137,21 @@ const reducer = (state = initialState, action) => {
     case "TICKET_FETCH_SUCCEEDED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: false,
+        list: action.payload.list,
+        page: action.payload.page,
+        pageSize: action.payload.pageSize
+      };
+    case "TICKET_UPDATED_SUCCEEDED":
+      return {
+        ...state,
         list: action.payload
       };
     case "TICKET_FETCH_FAILED":
       return {
         ...state,
-        loading: false,
+        status: "ready",
         error: action.payload
       };
     default:

@@ -1,7 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { getWeb3 } from "./../utils/getWeb3";
 import truffleContract from "truffle-contract";
-import AxRaffleContract from "../contracts/AxRaffle.test.json";
+import AxRaffleContract from "../contracts/AxRaffle.json";
 
 function* fetchWeb3() {
   try {
@@ -24,7 +24,8 @@ function* fetchWeb3() {
       payload: {
         web3,
         accounts,
-        contract: instance
+        contract: instance,
+        networkid: Contract.network_id
       }
     });
 
@@ -37,6 +38,7 @@ function* fetchWeb3() {
         e.message
       }`
     );
+    console.error(e.stack);
   }
 }
 
@@ -49,7 +51,9 @@ const initialState = {
   error: false,
   web3: undefined,
   accounts: [],
-  contract: undefined
+  contract: undefined,
+  tokenContracts: {},
+  networkid: undefined,
 };
 
 const reducer = (state = initialState, action) => {
@@ -66,7 +70,8 @@ const reducer = (state = initialState, action) => {
         error: false,
         web3: action.payload.web3,
         accounts: action.payload.accounts,
-        contract: action.payload.contract
+        contract: action.payload.contract,
+        networkid: action.payload.networkid
       };
     case "WEB3_FETCH_FAILED":
       return {

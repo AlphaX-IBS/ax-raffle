@@ -1,21 +1,31 @@
-// var HDWalletProvider = require("truffle-hdwallet-provider");
 
-// var mnemonic = "mountains supernatural bird ...";
+var HDWalletProvider = require("truffle-hdwallet-provider-privkey");
+const privateKeys = ["your private key"];
 
 module.exports = {
-  // See <http://truffleframework.com/docs/advanced/configuration>
-  // to customize your Truffle configuration!
+  contracts_build_directory: "/usr/src/app/client/src/contracts",
   networks: {
-    development: {
-      host: "127.0.0.1",
-      port: 9545,
-      network_id: "*" // Match any network id
+    localhost: {
+      provider: function() {
+        return new HDWalletProvider(privateKeys, "http://localhost:8545");
+      },
+      network_id: "*", 
+      gas: 6498712,
+      gasPrice: 100000000000
     },
-    // ropsten: {
-    //   // must be a thunk, otherwise truffle commands may hang in CI
-    //   provider: () =>
-    //     new HDWalletProvider(mnemonic, "https://ropsten.infura.io/"),
-    //   network_id: '3',
-    // }
+    ropsten: {
+      provider: function() {
+        return new HDWalletProvider(privateKeys, "https://ropsten.infura.io");
+      },
+      gas: 4712388,
+      gasPrice: 100000000000,
+      network_id: '3'
+    }
+  },
+  solc: {
+      optimizer: {
+          enabled: true,
+          runs: 200
+      }
   }
 };
